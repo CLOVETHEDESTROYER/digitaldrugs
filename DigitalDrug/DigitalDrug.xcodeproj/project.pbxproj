@@ -6,6 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9D8DD7AD2D30423200F4A123 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */; };
+		9D8DD7AE2D30428D00F4A123 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */; };
+		9D8DD7B22D305A2D00F4A123 /* lucid_dream.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */; };
+		9D8DD7B32D305A2D00F4A123 /* hangover_cure.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */; };
+		9D8DD7B52D30609B00F4A123 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B42D30609500F4A123 /* HomeView.swift */; };
+		9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B72D30623800F4A123 /* OnboardingView.swift */; };
+		9D8DD7BA2D3066D000F4A123 /* ColorSchemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */; };
+		9D8DD7BC2D30675900F4A123 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BB2D30675300F4A123 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		9D8DD78C2D303ACB00F4A123 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +38,14 @@
 		9D8DD7772D303AC900F4A123 /* DigitalDrug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalDrug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8DD78B2D303ACB00F4A123 /* DigitalDrugTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalDrugTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8DD7952D303ACB00F4A123 /* DigitalDrugUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalDrugUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
+		9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = hangover_cure.mp3; sourceTree = "<group>"; };
+		9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = lucid_dream.mp3; sourceTree = "<group>"; };
+		9D8DD7B42D30609500F4A123 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9D8DD7B72D30623800F4A123 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemeManager.swift; sourceTree = "<group>"; };
+		9D8DD7BB2D30675300F4A123 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +107,9 @@
 		9D8DD76E2D303AC900F4A123 = {
 			isa = PBXGroup;
 			children = (
+				9D8DD7AF2D3059F400F4A123 /* Audio */,
+				9D8DD7AB2D303EEC00F4A123 /* Views */,
+				9D8DD7A92D303B6200F4A123 /* Managers */,
 				9D8DD7792D303AC900F4A123 /* DigitalDrug */,
 				9D8DD78E2D303ACB00F4A123 /* DigitalDrugTests */,
 				9D8DD7982D303ACB00F4A123 /* DigitalDrugUITests */,
@@ -103,6 +125,35 @@
 				9D8DD7952D303ACB00F4A123 /* DigitalDrugUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9D8DD7A92D303B6200F4A123 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */,
+				9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		9D8DD7AB2D303EEC00F4A123 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9D8DD7BB2D30675300F4A123 /* SettingsView.swift */,
+				9D8DD7B72D30623800F4A123 /* OnboardingView.swift */,
+				9D8DD7B42D30609500F4A123 /* HomeView.swift */,
+				9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		9D8DD7AF2D3059F400F4A123 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */,
+				9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,6 +276,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D8DD7B22D305A2D00F4A123 /* lucid_dream.mp3 in Resources */,
+				9D8DD7B32D305A2D00F4A123 /* hangover_cure.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +302,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D8DD7AE2D30428D00F4A123 /* SessionView.swift in Sources */,
+				9D8DD7BA2D3066D000F4A123 /* ColorSchemeManager.swift in Sources */,
+				9D8DD7BC2D30675900F4A123 /* SettingsView.swift in Sources */,
+				9D8DD7B52D30609B00F4A123 /* HomeView.swift in Sources */,
+				9D8DD7AD2D30423200F4A123 /* AudioManager.swift in Sources */,
+				9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

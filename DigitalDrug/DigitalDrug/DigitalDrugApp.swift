@@ -6,27 +6,23 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct DigitalDrugApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var audioManager = AudioManager()
+    @StateObject private var colorSchemeManager = ColorSchemeManager()
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if hasSeenOnboarding {
+                HomeView()
+                    .environmentObject(audioManager)
+                    .environmentObject(colorSchemeManager)
+                    .preferredColorScheme(colorSchemeManager.selectedScheme)
+            } else {
+                OnboardingView()
+            }
         }
-        .modelContainer(sharedModelContainer)
     }
 }
