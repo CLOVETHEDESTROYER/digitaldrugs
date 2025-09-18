@@ -48,4 +48,8 @@ class AudioManager: ObservableObject {
         player?.stop()
         naturePlayer?.stop()
     }
+    
+    func stopBinaural() {
+        player?.stop()
+    }
 }

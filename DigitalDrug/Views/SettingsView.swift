@@ -23,7 +23,7 @@ struct SettingsView: View {
                     Text("Dark Mode").tag("dark")
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .onChange(of: selectedColorScheme) { newValue in
+                .onChange(of: selectedColorScheme) { _, newValue in
                     colorSchemeManager.setColorScheme(newValue)
                 }
                 .onAppear {

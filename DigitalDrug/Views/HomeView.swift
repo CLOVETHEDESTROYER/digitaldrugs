@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject var toneGenerator: ToneGenerator
+    
     let sessions = [
         ("Deep Sleep Inducer", "lucid_dream.mp3", "rain.wav", "Experience deep, restorative sleep with our Delta wave sound, designed to promote healing and rejuvenation."),
         ("Meditative Mind", "hangover_cure.mp3", "forest.wav", "Dive into deep relaxation and unlock your creativity with our Theta wave sound, perfect for meditation and stress relief."),
@@ -18,22 +20,66 @@ struct HomeView: View {
 
     var body: some View {
         NavigationView {
-            List(sessions, id: \.0) { session in
-                NavigationLink(destination: SessionView(
-                    binauralFile: session.1,
-                    natureFile: session.2,
-                    sessionDescription: session.3
-                ))  {
-                    VStack(alignment: .leading) {
-                        Text(session.0) // Session name
-                            .font(.headline)
-                        Text(session.2) // Session description
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+            List {
+                // Tone Generator Section
+                Section {
+                    NavigationLink(destination: ToneGeneratorView()) {
+                        HStack {
+                            Image(systemName: "waveform")
+                                .foregroundColor(.purple)
+                                .font(.title2)
+                                .frame(width: 30)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Custom Tone Generator")
+                                    .font(.headline)
+                                Text("Create your own binaural beats with real-time frequency control")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if toneGenerator.isPlaying {
+                                Image(systemName: "speaker.wave.2.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                } header: {
+                    Text("Real-time Generation")
+                }
+                
+                // Pre-recorded Sessions Section
+                Section {
+                    ForEach(sessions, id: \.0) { session in
+                        NavigationLink(destination: SessionView(
+                            binauralFile: session.1,
+                            natureFile: session.2,
+                            sessionDescription: session.3
+                        ))  {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(session.0) // Session name
+                                    .font(.headline)
+                                Text(session.3) // Session description
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Pre-recorded Sessions")
+                }
+            }
+            .navigationTitle("DigitalDrug")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: SettingsView()) {
+                        Image(systemName: "gearshape")
                     }
                 }
             }
-            .navigationTitle("DigitalDrug Sessions")
         }
     }
 }

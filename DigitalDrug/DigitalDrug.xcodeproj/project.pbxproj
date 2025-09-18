@@ -15,6 +15,8 @@
 		9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B72D30623800F4A123 /* OnboardingView.swift */; };
 		9D8DD7BA2D3066D000F4A123 /* ColorSchemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */; };
 		9D8DD7BC2D30675900F4A123 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BB2D30675300F4A123 /* SettingsView.swift */; };
+		9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */; };
+		9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +48,8 @@
 		9D8DD7B72D30623800F4A123 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemeManager.swift; sourceTree = "<group>"; };
 		9D8DD7BB2D30675300F4A123 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGenerator.swift; sourceTree = "<group>"; };
+		9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGeneratorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -132,6 +136,7 @@
 			children = (
 				9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */,
 				9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */,
+				9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -143,6 +148,7 @@
 				9D8DD7B72D30623800F4A123 /* OnboardingView.swift */,
 				9D8DD7B42D30609500F4A123 /* HomeView.swift */,
 				9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */,
+				9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -308,6 +314,8 @@
 				9D8DD7B52D30609B00F4A123 /* HomeView.swift in Sources */,
 				9D8DD7AD2D30423200F4A123 /* AudioManager.swift in Sources */,
 				9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */,
+				9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */,
+				9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

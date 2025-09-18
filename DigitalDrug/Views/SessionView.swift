@@ -42,7 +42,7 @@ struct SessionView: View {
 
             // Toggle for Nature Sounds
             Toggle("Enable Nature Sounds", isOn: $isNatureEnabled)
-                .onChange(of: isNatureEnabled) { newValue in
+                .onChange(of: isNatureEnabled) { _, newValue in
                     if newValue {
                         audioManager.playNature(fileName: natureFile)
                     } else {
