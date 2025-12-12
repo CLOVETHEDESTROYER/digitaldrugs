@@ -8,197 +8,49 @@
 import SwiftUI
 
 struct ToneGeneratorView: View {
-    @StateObject private var toneGenerator = ToneGenerator()
+    @EnvironmentObject private var toneGenerator: ToneGenerator
     @State private var leftFrequency: Double = 440.0
     @State private var rightFrequency: Double = 450.0
     @State private var selectedPreset: FrequencyPreset? = nil
     @State private var showingFrequencyInfo = false
-    @State private var selectedFrequencyInfo: FrequencyPreset? = nil
     
     var binauralBeatFrequency: Double {
         abs(rightFrequency - leftFrequency)
     }
     
+    private var formattedBeat: String {
+        String(format: "%.1f", binauralBeatFrequency)
+    }
+    
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    // Header
-                    VStack(spacing: 10) {
-                        Text("Binaural Beat Generator")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                        
-                        Text("Use headphones for the best experience")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.top)
+        ZStack {
+            AuroraBackground()
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 28) {
+                    header
+                    frequencySummary
+                    frequencyControls
+                    presetGrid
                     
-                    // Current Frequencies Display
-                    VStack(spacing: 15) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Left Ear")
-                                    .font(.headline)
-                                    .foregroundColor(.blue)
-                                Text("\(Int(leftFrequency)) Hz")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing) {
-                                Text("Right Ear")
-                                    .font(.headline)
-                                    .foregroundColor(.red)
-                                Text("\(Int(rightFrequency)) Hz")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                            }
-                        }
-                        
-                        // Binaural Beat Display
-                        VStack(spacing: 5) {
-                            Text("Binaural Beat")
-                                .font(.headline)
-                                .foregroundColor(.purple)
-                            Text("\(String(format: "%.1f", binauralBeatFrequency)) Hz")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.purple)
-                        }
-                        .padding()
-                        .background(Color.purple.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(16)
+                    Spacer().frame(height: 140)
                     
-                    // Frequency Controls
-                    VStack(spacing: 20) {
-                        Text("Frequency Controls")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        
-                        // Left Frequency Slider
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Left Ear Frequency")
-                                    .font(.headline)
-                                Spacer()
-                                Text("\(Int(leftFrequency)) Hz")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            Slider(value: $leftFrequency, in: 20...2000, step: 1)
-                                .accentColor(.blue)
-                        }
-                        
-                        // Right Frequency Slider
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Right Ear Frequency")
-                                    .font(.headline)
-                                Spacer()
-                                Text("\(Int(rightFrequency)) Hz")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            Slider(value: $rightFrequency, in: 20...2000, step: 1)
-                                .accentColor(.red)
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(16)
-                    
-                    // Frequency Presets
-                    VStack(spacing: 15) {
-                        Text("Brainwave Presets")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                            ForEach(FrequencyPreset.allCases, id: \.self) { preset in
-                                PresetButton(
-                                    preset: preset,
-                                    isSelected: selectedPreset == preset
-                                ) {
-                                    selectPreset(preset)
-                                }
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(16)
-                    
-                    // Spacer padding so content isn't obscured by sticky footer
-                    Color.clear.frame(height: 140)
-                    
-                    // Frequency Information Button
                     Button("Learn About Brainwave Frequencies") {
                         showingFrequencyInfo = true
                     }
                     .font(.subheadline)
                     .foregroundColor(.blue)
-                    .padding()
+                    .padding(.top, 12)
                 }
-                .padding()
+                .padding(.vertical, 32)
+                .padding(.horizontal, 24)
             }
-            .navigationTitle("Tone Generator")
             .sheet(isPresented: $showingFrequencyInfo) {
                 FrequencyInfoView()
             }
             .safeAreaInset(edge: .bottom) {
-                HStack(spacing: 12) {
-                    // Left: Session info
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Custom Binaural")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        Text("\(Int(leftFrequency)) • \(Int(rightFrequency)) Hz  •  Beat \(String(format: "%.1f", binauralBeatFrequency)) Hz")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    // Volume (compact)
-                    HStack(spacing: 8) {
-                        Image(systemName: "speaker.wave.1.fill").foregroundColor(.secondary)
-                        Slider(value: Binding(
-                            get: { Double(toneGenerator.volume) },
-                            set: { toneGenerator.setVolume(Float($0)) }
-                        ), in: 0...1, step: 0.01)
-                        .tint(.green)
-                        .frame(width: 130)
-                        Image(systemName: "speaker.wave.3.fill").foregroundColor(.secondary)
-                    }
-
-                    // Play/Pause button
-                    Button(action: {
-                        if toneGenerator.isPlaying {
-                            toneGenerator.stop()
-                        } else {
-                            toneGenerator.generateContinuousBinauralBeat(
-                                leftFreq: leftFrequency,
-                                rightFreq: rightFrequency
-                            )
-                        }
-                    }) {
-                        Image(systemName: toneGenerator.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .resizable()
-                            .foregroundColor(.primary)
-                            .frame(width: 44, height: 44)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-                .background(.ultraThinMaterial)
+                footer
             }
         }
     }
@@ -208,12 +60,172 @@ struct ToneGeneratorView: View {
         leftFrequency = preset.leftFrequency
         rightFrequency = preset.rightFrequency
     }
-    
-    private func resetFrequencies() {
-        leftFrequency = 440.0
-        rightFrequency = 450.0
-        selectedPreset = nil
-        toneGenerator.stop()
+
+    private var header: some View {
+        VStack(spacing: 10) {
+            Text("Binaural Beat Generator")
+                .font(.largeTitle.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Text("Use headphones for the best experience")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var frequencySummary: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(spacing: 18) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Left Ear")
+                            .font(.headline)
+                            .foregroundColor(.blue)
+                        Text("\(Int(leftFrequency)) Hz")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing) {
+                        Text("Right Ear")
+                            .font(.headline)
+                            .foregroundColor(.red)
+                        Text("\(Int(rightFrequency)) Hz")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                    }
+                }
+                
+                VStack(spacing: 6) {
+                    Text("Binaural Beat")
+                        .font(.headline)
+                        .foregroundColor(.purple)
+                    Text("\(formattedBeat) Hz")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.purple)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.purple.opacity(0.15))
+                )
+            }
+        }
+    }
+
+    private var frequencyControls: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(spacing: 24) {
+                Text("Frequency Controls")
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Left Ear Frequency")
+                            .font(.headline)
+                        Spacer()
+                        Text("\(Int(leftFrequency)) Hz")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Slider(value: $leftFrequency, in: 20...2000, step: 1)
+                        .tint(.blue)
+                }
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Right Ear Frequency")
+                            .font(.headline)
+                        Spacer()
+                        Text("\(Int(rightFrequency)) Hz")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Slider(value: $rightFrequency, in: 20...2000, step: 1)
+                        .tint(.red)
+                }
+            }
+        }
+    }
+
+    private var presetGrid: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(spacing: 18) {
+                Text("Brainwave Presets")
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 2),
+                    spacing: 14
+                ) {
+                    ForEach(FrequencyPreset.allCases, id: \.self) { preset in
+                        PresetButton(
+                            preset: preset,
+                            isSelected: selectedPreset == preset
+                        ) {
+                            selectPreset(preset)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var footer: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Custom Binaural")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Text("\(Int(leftFrequency)) • \(Int(rightFrequency)) Hz  •  Beat \(formattedBeat) Hz")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 8) {
+                Image(systemName: "speaker.wave.1.fill")
+                    .foregroundStyle(.secondary)
+                Slider(
+                    value: Binding(
+                        get: { Double(toneGenerator.volume) },
+                        set: { toneGenerator.setVolume(Float($0)) }
+                    ),
+                    in: 0...1,
+                    step: 0.01
+                )
+                .tint(.green)
+                .frame(width: 130)
+                Image(systemName: "speaker.wave.3.fill")
+                    .foregroundStyle(.secondary)
+            }
+
+            Button {
+                if toneGenerator.isPlaying {
+                    toneGenerator.stop()
+                } else {
+                    toneGenerator.generateContinuousBinauralBeat(
+                        leftFreq: leftFrequency,
+                        rightFreq: rightFrequency
+                    )
+                }
+            } label: {
+                Image(systemName: toneGenerator.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    .resizable()
+                    .foregroundStyle(Color.primary)
+                    .frame(width: 44, height: 44)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
     }
 }
 
@@ -314,31 +326,25 @@ struct PresetButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
-                Text(preset.rawValue)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
-                Text(preset.frequencyRange)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Text("\(Int(preset.leftFrequency))-\(Int(preset.rightFrequency)) Hz")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+            LiquidGlassCard(cornerRadius: 24, showParticles: true) {
+                VStack(spacing: 8) {
+                    Text(preset.rawValue)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(isSelected ? preset.color : .primary)
+                    
+                    Text(preset.frequencyRange)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text("\(Int(preset.leftFrequency)) – \(Int(preset.rightFrequency)) Hz")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? preset.color.opacity(0.2) : Color(.systemGray5))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? preset.color : Color.clear, lineWidth: 2)
-                    )
-            )
         }
-        .foregroundColor(isSelected ? preset.color : .primary)
+        .buttonStyle(.plain)
     }
 }
 
@@ -347,14 +353,19 @@ struct FrequencyInfoView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    ForEach(FrequencyPreset.allCases, id: \.self) { preset in
-                        FrequencyInfoCard(preset: preset)
+        NavigationStack {
+            ZStack {
+                AuroraBackground()
+                    .ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 20) {
+                        ForEach(FrequencyPreset.allCases, id: \.self) { preset in
+                            FrequencyInfoCard(preset: preset)
+                        }
                     }
+                    .padding(.vertical, 32)
+                    .padding(.horizontal, 24)
                 }
-                .padding()
             }
             .navigationTitle("Brainwave Frequencies")
             .navigationBarTitleDisplayMode(.large)
@@ -374,47 +385,41 @@ struct FrequencyInfoCard: View {
     let preset: FrequencyPreset
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(preset.rawValue)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(preset.color)
-                
-                Spacer()
-                
-                Text(preset.frequencyRange)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            Text("Benefits:")
-                .font(.headline)
-                .padding(.top, 4)
-            
-            ForEach(preset.benefits, id: \.self) { benefit in
-                HStack(alignment: .top) {
-                    Image(systemName: "checkmark.circle.fill")
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(preset.rawValue)
+                        .font(.title2)
+                        .fontWeight(.bold)
                         .foregroundColor(preset.color)
-                        .font(.caption)
-                    Text(benefit)
-                        .font(.subheadline)
+                    
                     Spacer()
+                    
+                    Text(preset.frequencyRange)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Text("Benefits:")
+                    .font(.headline)
+                    .padding(.top, 4)
+                
+                ForEach(preset.benefits, id: \.self) { benefit in
+                    HStack(alignment: .top) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(preset.color)
+                            .font(.caption)
+                        Text(benefit)
+                            .font(.subheadline)
+                        Spacer()
+                    }
                 }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(preset.color.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(preset.color.opacity(0.3), lineWidth: 1)
-                )
-        )
     }
 }
 
 #Preview {
     ToneGeneratorView()
+        .environmentObject(ToneGenerator())
 }

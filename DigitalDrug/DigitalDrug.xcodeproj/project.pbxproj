@@ -17,6 +17,7 @@
 		9D8DD7BC2D30675900F4A123 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BB2D30675300F4A123 /* SettingsView.swift */; };
 		9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */; };
 		9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */; };
+		C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		9D8DD7BB2D30675300F4A123 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGenerator.swift; sourceTree = "<group>"; };
 		9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGeneratorView.swift; sourceTree = "<group>"; };
+		C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -112,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				9D8DD7AF2D3059F400F4A123 /* Audio */,
+				C0E1E1022F0CFF1F00A63D5B /* Design */,
 				9D8DD7AB2D303EEC00F4A123 /* Views */,
 				9D8DD7A92D303B6200F4A123 /* Managers */,
 				9D8DD7792D303AC900F4A123 /* DigitalDrug */,
@@ -160,6 +163,14 @@
 				9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		C0E1E1022F0CFF1F00A63D5B /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */,
+			);
+			path = Design;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -316,6 +327,7 @@
 				9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */,
 				9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */,
 				9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */,
+				C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

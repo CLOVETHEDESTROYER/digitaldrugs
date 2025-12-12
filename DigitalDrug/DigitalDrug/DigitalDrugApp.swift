@@ -17,13 +17,14 @@ struct DigitalDrugApp: App {
     var body: some Scene {
         WindowGroup {
             if hasSeenOnboarding {
-                HomeView()
+                MainTabView()
                     .environmentObject(audioManager)
                     .environmentObject(colorSchemeManager)
                     .environmentObject(toneGenerator)
                     .preferredColorScheme(colorSchemeManager.selectedScheme)
             } else {
                 OnboardingView()
+                    .background(AuroraBackground().ignoresSafeArea())
             }
         }
     }

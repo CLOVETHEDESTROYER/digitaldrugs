@@ -109,7 +109,7 @@ class ToneGenerator: ObservableObject {
         }
     }
     
-    func generateBinauralBeat(leftFreq: Double, rightFreq: Double, duration: TimeInterval = 0) {
+    func generateBinauralBeat(leftFreq: Double, rightFreq: Double, duration: TimeInterval = 10) {
         guard audioFormat != nil else { return }
         
         leftFrequency = leftFreq
@@ -120,8 +120,9 @@ class ToneGenerator: ObservableObject {
         stop()
         
         // Generate tones
-        let leftBuffer = generateTone(frequency: leftFreq, duration: duration)
-        let rightBuffer = generateTone(frequency: rightFreq, duration: duration)
+        let renderDuration = duration > 0 ? duration : 10
+        let leftBuffer = generateTone(frequency: leftFreq, duration: renderDuration)
+        let rightBuffer = generateTone(frequency: rightFreq, duration: renderDuration)
         
         // Schedule playback
         leftPlayerNode.scheduleBuffer(leftBuffer, at: nil, options: [], completionHandler: { [weak self] in
@@ -200,10 +201,18 @@ class ToneGenerator: ObservableObject {
         
         let samples = buffer.floatChannelData![0]
         let phaseIncrement = 2.0 * Double.pi * frequency / sampleRate
+        let total = Int(frameCount)
+        let fadeSamples = min(1024, max(32, total / 24))
         
-        for i in 0..<Int(frameCount) {
-            // Do not bake volume into samples so slider updates apply in real time
-            samples[i] = Float(sin(phaseIncrement * Double(i)))
+        for i in 0..<total {
+            let rawSample = sin(phaseIncrement * Double(i))
+            var window: Double = 1.0
+            if i < fadeSamples {
+                window = Double(i) / Double(fadeSamples)
+            } else if i > total - fadeSamples {
+                window = Double(total - i) / Double(fadeSamples)
+            }
+            samples[i] = Float(rawSample * window)
         }
         
         return buffer
