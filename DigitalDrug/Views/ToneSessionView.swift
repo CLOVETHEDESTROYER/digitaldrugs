@@ -115,6 +115,7 @@ struct ToneSessionView: View {
                         }
                     }
                     
+                    equalizerCard
                     controlCluster
                 }
                 .padding(.horizontal, 24)
@@ -129,6 +130,80 @@ struct ToneSessionView: View {
                 toneGenerator.stop()
                 audioManager.stopAll()
             }
+        }
+    }
+    
+    private var equalizerCard: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Visual Equalizer")
+                    .font(.title3.weight(.semibold))
+                
+                Text("Tune the tone generator to smooth harsher frequencies.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                EqualizerBarsView(
+                    lowGain: toneGenerator.eqLowGain,
+                    midGain: toneGenerator.eqMidGain,
+                    highGain: toneGenerator.eqHighGain
+                )
+                
+                equalizerSliderRow(
+                    title: "Low",
+                    color: .blue,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqLowGain) },
+                        set: { toneGenerator.setEqualizer(low: Float($0)) }
+                    )
+                )
+                
+                equalizerSliderRow(
+                    title: "Mid",
+                    color: .cyan,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqMidGain) },
+                        set: { toneGenerator.setEqualizer(mid: Float($0)) }
+                    )
+                )
+                
+                equalizerSliderRow(
+                    title: "High",
+                    color: .orange,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqHighGain) },
+                        set: { toneGenerator.setEqualizer(high: Float($0)) }
+                    )
+                )
+                
+                HStack(spacing: 12) {
+                    Button("Softer Mix") {
+                        toneGenerator.applySofterEQPreset()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    
+                    Button("Flat") {
+                        toneGenerator.resetEqualizer()
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
+    }
+    
+    private func equalizerSliderRow(title: String, color: Color, value: Binding<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("\(title) Band")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(String(format: "%.1f dB", value.wrappedValue))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Slider(value: value, in: -12...12, step: 0.5)
+                .tint(color)
         }
     }
     

@@ -1,0 +1,26 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build App (Simulator)
+        run: |
+          xcodebuild \
+            -project DigitalDrug/DigitalDrug.xcodeproj \
+            -scheme DigitalDrug \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
