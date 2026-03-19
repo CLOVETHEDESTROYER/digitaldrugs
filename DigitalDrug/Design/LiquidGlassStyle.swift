@@ -319,6 +319,7 @@ enum BrainwaveIcon {
 
 enum NavigationIcon {
     case waves
+    case chakra
     case volume
     case lotus
     case profile
@@ -326,6 +327,7 @@ enum NavigationIcon {
     var systemName: String {
         switch self {
         case .waves: return "waveform"
+        case .chakra: return "sparkles"
         case .volume: return "speaker.wave.3"
         case .lotus: return "sparkles"
         case .profile: return "person.fill"

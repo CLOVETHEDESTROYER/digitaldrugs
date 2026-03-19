@@ -98,6 +98,120 @@ extension BinauralSession {
     ]
 }
 
+// MARK: - Chakra Tone Model
+struct ChakraTone: Identifiable, Hashable {
+    let id = UUID()
+    let name: String
+    let chakraName: String
+    let frequency: Double
+    let meaning: String
+    let color: Color
+    let bellTimbre: ToneGenerator.ChakraBellTimbre
+}
+
+extension ChakraTone {
+    static let allChakras: [ChakraTone] = [
+        ChakraTone(
+            name: "Root Chakra",
+            chakraName: "Muladhara",
+            frequency: 396,
+            meaning: "Grounding, safety, and clearing fear.",
+            color: .red,
+            bellTimbre: .init(
+                ringDuration: 3.4,
+                loopInterval: 4.8,
+                brightness: 0.22,
+                decayScale: 1.35,
+                warmth: 0.88
+            )
+        ),
+        ChakraTone(
+            name: "Sacral Chakra",
+            chakraName: "Swadhisthana",
+            frequency: 417,
+            meaning: "Creativity, emotional balance, and change.",
+            color: .orange,
+            bellTimbre: .init(
+                ringDuration: 3.1,
+                loopInterval: 4.4,
+                brightness: 0.38,
+                decayScale: 1.20,
+                warmth: 0.72
+            )
+        ),
+        ChakraTone(
+            name: "Solar Plexus Chakra",
+            chakraName: "Manipura",
+            frequency: 528,
+            meaning: "Personal power, confidence, and transformation.",
+            color: .yellow,
+            bellTimbre: .init(
+                ringDuration: 2.8,
+                loopInterval: 4.0,
+                brightness: 0.62,
+                decayScale: 1.05,
+                warmth: 0.54
+            )
+        ),
+        ChakraTone(
+            name: "Heart Chakra",
+            chakraName: "Anahata",
+            frequency: 639,
+            meaning: "Love, relationships, and compassion.",
+            color: .green,
+            bellTimbre: .init(
+                ringDuration: 3.5,
+                loopInterval: 5.0,
+                brightness: 0.44,
+                decayScale: 1.42,
+                warmth: 0.66
+            )
+        ),
+        ChakraTone(
+            name: "Throat Chakra",
+            chakraName: "Vishuddha",
+            frequency: 741,
+            meaning: "Communication, expression, and truth.",
+            color: .blue,
+            bellTimbre: .init(
+                ringDuration: 2.6,
+                loopInterval: 3.8,
+                brightness: 0.72,
+                decayScale: 0.95,
+                warmth: 0.38
+            )
+        ),
+        ChakraTone(
+            name: "Third Eye Chakra",
+            chakraName: "Ajna",
+            frequency: 852,
+            meaning: "Intuition, insight, and spiritual awakening.",
+            color: .indigo,
+            bellTimbre: .init(
+                ringDuration: 3.0,
+                loopInterval: 4.2,
+                brightness: 0.84,
+                decayScale: 1.18,
+                warmth: 0.30
+            )
+        ),
+        ChakraTone(
+            name: "Crown Chakra",
+            chakraName: "Sahasrara",
+            frequency: 963,
+            meaning: "Higher consciousness, enlightenment, and connection.",
+            color: .purple,
+            bellTimbre: .init(
+                ringDuration: 3.6,
+                loopInterval: 5.1,
+                brightness: 0.94,
+                decayScale: 1.46,
+                warmth: 0.26
+            )
+        )
+    ]
+}
+
 struct HomeView: View {
     @EnvironmentObject private var toneGenerator: ToneGenerator
     @EnvironmentObject private var audioManager: AudioManager
@@ -307,6 +421,364 @@ struct HomeView_Previews: PreviewProvider {
     }
 }
 
+struct ChakraView: View {
+    @EnvironmentObject private var toneGenerator: ToneGenerator
+    @EnvironmentObject private var audioManager: AudioManager
+    
+    @State private var activeChakra: ChakraTone?
+    @State private var isAmbientEnabled = true
+    @State private var progressionStepDuration: Double = 45
+    @State private var isProgressionRunning = false
+    @State private var progressionIndex = 0
+    @State private var progressionSecondsRemaining = 0
+    @State private var progressionTask: Task<Void, Never>?
+    
+    private let ambientLayerFile = "Ocean.wav"
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                AuroraBackground()
+                    .ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        headerCard
+                        progressionCard
+                        ambientCard
+                        chakraCards
+                        equalizerCard
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 32)
+                }
+            }
+            .navigationTitle("Chakra Sounds")
+            .navigationBarTitleDisplayMode(.inline)
+            .onDisappear {
+                stopProgressionSession(stopAudio: true)
+            }
+        }
+    }
+    
+    private var headerCard: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Solfeggio Bell Frequencies")
+                    .font(.title3.weight(.semibold))
+                Text("Each chakra uses a unique bell timbre profile for a different emotional texture.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    private var progressionCard: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Timed Progression Session")
+                    .font(.title3.weight(.semibold))
+                
+                Text("Auto-advance through all 7 chakras.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                HStack {
+                    Text("Per-Chakra Duration")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text("\(Int(progressionStepDuration)) sec")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Slider(value: $progressionStepDuration, in: 10...180, step: 5)
+                    .tint(.mint)
+                    .disabled(isProgressionRunning)
+                
+                if isProgressionRunning, let chakra = activeChakra {
+                    Text(
+                        "Step \(progressionIndex + 1)/7 - \(chakra.name) - \(progressionSecondsRemaining)s left"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                
+                Button {
+                    if isProgressionRunning {
+                        stopProgressionSession(stopAudio: true)
+                    } else {
+                        startProgressionSession()
+                    }
+                } label: {
+                    Label(
+                        isProgressionRunning ? "Stop Progression" : "Start Progression",
+                        systemImage: isProgressionRunning ? "stop.fill" : "forward.end.alt.fill"
+                    )
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(isProgressionRunning ? .red : .mint)
+            }
+        }
+    }
+    
+    private var ambientCard: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 14) {
+                Toggle(isOn: $isAmbientEnabled) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Background Ambient Layer")
+                            .font(.headline)
+                        Text("Blend ocean ambience underneath chakra bells.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .teal))
+                .onChange(of: isAmbientEnabled) { _, _ in
+                    updateAmbientPlayback()
+                }
+                
+                HStack {
+                    Text("Ambient Volume")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text("\(Int(audioManager.natureVolume * 100))%")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Slider(
+                    value: Binding(
+                        get: { Double(audioManager.natureVolume) },
+                        set: { audioManager.setNatureVolume(Float($0)) }
+                    ),
+                    in: 0...1,
+                    step: 0.01
+                )
+                .tint(.teal)
+            }
+        }
+    }
+    
+    private var chakraCards: some View {
+        VStack(spacing: 14) {
+            ForEach(ChakraTone.allChakras) { chakra in
+                LiquidGlassCard(cornerRadius: 30, showParticles: true) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(chakra.name)
+                                    .font(.headline)
+                                    .foregroundStyle(chakra.color)
+                                Text(chakra.chakraName)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Text("\(Int(chakra.frequency)) Hz")
+                                .font(.headline.monospacedDigit())
+                        }
+                        
+                        Text(chakra.meaning)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        HStack(spacing: 12) {
+                            Button {
+                                toggleChakra(chakra)
+                            } label: {
+                                Label(
+                                    activeChakra == chakra && !isProgressionRunning ? "Stop Bell" : "Play Bell",
+                                    systemImage: activeChakra == chakra && !isProgressionRunning
+                                        ? "stop.circle.fill"
+                                        : "play.circle.fill"
+                                )
+                                .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(chakra.color.opacity(0.9))
+                            
+                            if isProgressionRunning && activeChakra == chakra {
+                                Text("LIVE")
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(Capsule().fill(chakra.color.opacity(0.25)))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var equalizerCard: some View {
+        LiquidGlassCard(cornerRadius: 34, showParticles: true) {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Bell Equalizer")
+                    .font(.title3.weight(.semibold))
+                
+                Text("Soften harsh overtones by reducing Mid and High.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                EqualizerBarsView(
+                    lowGain: toneGenerator.eqLowGain,
+                    midGain: toneGenerator.eqMidGain,
+                    highGain: toneGenerator.eqHighGain
+                )
+                
+                equalizerSliderRow(
+                    title: "Low",
+                    color: .blue,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqLowGain) },
+                        set: { toneGenerator.setEqualizer(low: Float($0)) }
+                    )
+                )
+                
+                equalizerSliderRow(
+                    title: "Mid",
+                    color: .cyan,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqMidGain) },
+                        set: { toneGenerator.setEqualizer(mid: Float($0)) }
+                    )
+                )
+                
+                equalizerSliderRow(
+                    title: "High",
+                    color: .orange,
+                    value: Binding(
+                        get: { Double(toneGenerator.eqHighGain) },
+                        set: { toneGenerator.setEqualizer(high: Float($0)) }
+                    )
+                )
+                
+                HStack(spacing: 12) {
+                    Button("Softer Mix") {
+                        toneGenerator.applySofterEQPreset()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    
+                    Button("Flat") {
+                        toneGenerator.resetEqualizer()
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
+    }
+    
+    private func equalizerSliderRow(title: String, color: Color, value: Binding<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("\(title) Band")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(String(format: "%.1f dB", value.wrappedValue))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Slider(value: value, in: -12...12, step: 0.5)
+                .tint(color)
+        }
+    }
+    
+    private func toggleChakra(_ chakra: ChakraTone) {
+        if isProgressionRunning {
+            stopProgressionSession(stopAudio: false)
+        }
+        
+        if activeChakra == chakra {
+            stopPlayback()
+            return
+        }
+        
+        playChakra(chakra)
+    }
+    
+    private func playChakra(_ chakra: ChakraTone) {
+        audioManager.stopBinaural()
+        toneGenerator.generateChakraBell(
+            frequency: chakra.frequency,
+            timbre: chakra.bellTimbre
+        )
+        activeChakra = chakra
+        updateAmbientPlayback()
+    }
+    
+    private func updateAmbientPlayback() {
+        if isAmbientEnabled && (activeChakra != nil || isProgressionRunning) {
+            audioManager.playNature(fileName: ambientLayerFile)
+        } else {
+            audioManager.stopNature()
+        }
+    }
+    
+    private func stopPlayback() {
+        toneGenerator.stop()
+        audioManager.stopNature()
+        activeChakra = nil
+    }
+    
+    private func startProgressionSession() {
+        stopProgressionSession(stopAudio: false)
+        
+        isProgressionRunning = true
+        progressionIndex = 0
+        progressionSecondsRemaining = max(1, Int(progressionStepDuration))
+        
+        progressionTask = Task {
+            let chakras = ChakraTone.allChakras
+            
+            for (index, chakra) in chakras.enumerated() {
+                if Task.isCancelled { return }
+                
+                await MainActor.run {
+                    progressionIndex = index
+                    playChakra(chakra)
+                }
+                
+                let totalSeconds = await MainActor.run { max(1, Int(progressionStepDuration)) }
+                
+                for remaining in stride(from: totalSeconds, through: 1, by: -1) {
+                    if Task.isCancelled { return }
+                    
+                    await MainActor.run {
+                        progressionSecondsRemaining = remaining
+                    }
+                    
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                }
+            }
+            
+            if Task.isCancelled { return }
+            
+            await MainActor.run {
+                stopProgressionSession(stopAudio: true)
+            }
+        }
+    }
+    
+    private func stopProgressionSession(stopAudio: Bool) {
+        progressionTask?.cancel()
+        progressionTask = nil
+        isProgressionRunning = false
+        progressionIndex = 0
+        progressionSecondsRemaining = 0
+        
+        if stopAudio {
+            stopPlayback()
+        }
+    }
+}
+
 // MARK: - Main Tab View
 struct MainTabView: View {
     @State private var selectedTab: Tab = .lotus
@@ -322,6 +794,8 @@ struct MainTabView: View {
                     switch selectedTab {
                     case .waves:
                         ToneGeneratorView()
+                    case .chakra:
+                        ChakraView()
                     case .volume:
                         SessionsListView()
                     case .lotus:
@@ -342,6 +816,7 @@ struct MainTabView: View {
 // MARK: - Tab Navigation
 enum Tab: String, CaseIterable {
     case waves = "Waves"
+    case chakra = "Chakra"
     case volume = "Volume"
     case lotus = "Home"
     case profile = "Profile"
@@ -349,6 +824,7 @@ enum Tab: String, CaseIterable {
     var icon: NavigationIcon {
         switch self {
         case .waves: return .waves
+        case .chakra: return .chakra
         case .volume: return .volume
         case .lotus: return .lotus
         case .profile: return .profile
