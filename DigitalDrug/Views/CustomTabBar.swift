@@ -17,7 +17,6 @@ struct MainTabView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Content based on selected tab
                 Group {
                     switch selectedTab {
                     case .waves:
@@ -31,9 +30,12 @@ struct MainTabView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
                 
-                // Bottom navigation bar
                 CustomTabBar(selectedTab: $selectedTab)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 10)
+                    .padding(.bottom, 28)
             }
         }
     }
@@ -86,15 +88,22 @@ struct CustomTabBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
-        .overlay(
-            Rectangle()
-                .fill(Color.white.opacity(0.20))
-                .frame(height: 1)
-                .offset(y: -0.5)
+        .frame(height: 64)
+        .frame(maxWidth: 340)
+        .padding(.horizontal, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(ZenWavePalette.toolbarGradient)
+                .overlay(Color.black.opacity(0.08))
         )
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .strokeBorder(ZenWavePalette.electricPurple.opacity(0.62), lineWidth: 1)
+                .allowsHitTesting(false)
+        )
+        .shadow(color: ZenWavePalette.deepPurple.opacity(0.48), radius: 20, y: 10)
     }
 }
 
@@ -198,4 +207,3 @@ struct SessionListCard: View {
         }
     }
 }
-

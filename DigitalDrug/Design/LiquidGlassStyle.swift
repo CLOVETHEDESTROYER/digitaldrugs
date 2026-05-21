@@ -12,46 +12,49 @@ import SwiftUI
 /// - https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass
 /// - https://developer.apple.com/documentation/technologyoverviews/liquid-glass
 
+enum ZenWavePalette {
+    static let electricPurple = Color(red: 123.0 / 255.0, green: 44.0 / 255.0, blue: 191.0 / 255.0)
+    static let deepPurple = Color(red: 60.0 / 255.0, green: 9.0 / 255.0, blue: 108.0 / 255.0)
+    static let toolbarGradient = LinearGradient(
+        colors: [
+            electricPurple.opacity(0.62),
+            deepPurple.opacity(0.78)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+}
+
 // MARK: - Aurora Background
 struct AuroraBackground: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    
     var body: some View {
         ZStack {
-            auroraGradient
-            lightStreaks
-            blurLayer
+            Image("DeepSpaceBackground")
+                .resizable()
+                .scaledToFill()
+                .overlay(
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(0.28),
+                            Color(red: 0.03, green: 0.04, blue: 0.11).opacity(0.18),
+                            Color.black.opacity(0.38)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+            auroraTint
         }
         .clipped()
+        .allowsHitTesting(false)
     }
     
-    private var auroraGradient: some View {
-        // Deep indigo/purple to lighter blue/teal/pink gradient
-        let gradient = Gradient(colors: [
-            Color(red: 0.15, green: 0.10, blue: 0.25), // Deep indigo/purple
-            Color(red: 0.20, green: 0.15, blue: 0.35), // Medium purple
-            Color(red: 0.12, green: 0.25, blue: 0.40), // Deep blue
-            Color(red: 0.15, green: 0.35, blue: 0.45), // Teal
-            Color(red: 0.25, green: 0.30, blue: 0.50), // Lighter blue
-            Color(red: 0.35, green: 0.25, blue: 0.45)  // Pink/teal blend
-        ])
-        
-        return LinearGradient(
-            gradient: gradient,
-            startPoint: .bottomLeading,
-            endPoint: .topTrailing
-        )
-    }
-    
-    private var lightStreaks: some View {
-        // Soft light streaks from top-right
+    private var auroraTint: some View {
         ZStack {
             RadialGradient(
                 gradient: Gradient(colors: [
-                    Color.white.opacity(0.15),
-                    Color.cyan.opacity(0.10),
-                    Color.pink.opacity(0.05),
+                    Color.cyan.opacity(0.18),
+                    Color.blue.opacity(0.08),
                     Color.clear
                 ]),
                 center: UnitPoint(x: 0.85, y: 0.15),
@@ -61,18 +64,6 @@ struct AuroraBackground: View {
             .blendMode(.screen)
         }
         .allowsHitTesting(false)
-    }
-    
-    @ViewBuilder
-    private var blurLayer: some View {
-        if !reduceTransparency {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    Rectangle()
-                        .fill(Color.white.opacity(0.02))
-                )
-        }
     }
 }
 
@@ -175,6 +166,7 @@ struct LiquidGlassCard<Content: View>: View {
                 // Inner border: 1pt white, 20% opacity, inside alignment
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(Color.white.opacity(reduceTransparency ? 0 : 0.20), lineWidth: 1)
+                    .allowsHitTesting(false)
             )
             .overlay(
                 // Inner shadow/glow: White, Y: 0, Blur: 20, Spread: 0, Opacity: 15%
@@ -192,6 +184,7 @@ struct LiquidGlassCard<Content: View>: View {
                     )
                     .blur(radius: 20)
                     .blendMode(.screen)
+                    .allowsHitTesting(false)
             )
             .shadow(
                 // Drop shadow: Cyan/Purple tinted, Y: 10, Blur: 30, Opacity: 20%
@@ -207,8 +200,10 @@ struct LiquidGlassCard<Content: View>: View {
                         ParticleTexture()
                             .blendMode(.overlay)
                             .opacity(0.3)
+                            .allowsHitTesting(false)
                     }
                 }
+                .allowsHitTesting(false)
             )
     }
     
@@ -412,5 +407,3 @@ extension Image {
             .symbolRenderingMode(.hierarchical)
     }
 }
-
-

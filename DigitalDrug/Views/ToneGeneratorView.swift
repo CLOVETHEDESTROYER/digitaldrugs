@@ -9,8 +9,11 @@ import SwiftUI
 
 struct ToneGeneratorView: View {
     @EnvironmentObject private var toneGenerator: ToneGenerator
+    @State private var generatorMode: GeneratorMode = .binaural
     @State private var leftFrequency: Double = 440.0
     @State private var rightFrequency: Double = 450.0
+    @State private var carrierFrequency: Double = 440.0
+    @State private var pulseFrequency: Double = 10.0
     @State private var selectedPreset: FrequencyPreset? = nil
     @State private var showingFrequencyInfo = false
     
@@ -19,7 +22,7 @@ struct ToneGeneratorView: View {
     }
     
     private var formattedBeat: String {
-        String(format: "%.1f", binauralBeatFrequency)
+        String(format: "%.1f", generatorMode == .binaural ? binauralBeatFrequency : pulseFrequency)
     }
     
     var body: some View {
@@ -30,12 +33,12 @@ struct ToneGeneratorView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 28) {
                     header
+                    modePicker
                     frequencySummary
+                    presetGrid
                     frequencyControls
                     equalizerControls
-                    presetGrid
-                    
-                    Spacer().frame(height: 140)
+                    footer
                     
                     Button("Learn About Brainwave Frequencies") {
                         showingFrequencyInfo = true
@@ -44,22 +47,41 @@ struct ToneGeneratorView: View {
                     .foregroundColor(.blue)
                     .padding(.top, 12)
                 }
-                .padding(.vertical, 32)
+                .padding(.top, 76)
+                .padding(.bottom, 180)
                 .padding(.horizontal, 24)
             }
             .sheet(isPresented: $showingFrequencyInfo) {
                 FrequencyInfoView()
             }
-            .safeAreaInset(edge: .bottom) {
-                footer
-            }
         }
     }
     
-    private func selectPreset(_ preset: FrequencyPreset) {
+    private func selectPreset(_ preset: FrequencyPreset, startPlayback: Bool = true) {
         selectedPreset = preset
         leftFrequency = preset.leftFrequency
         rightFrequency = preset.rightFrequency
+        carrierFrequency = preset.leftFrequency
+        pulseFrequency = preset.beatFrequency
+        
+        guard startPlayback else { return }
+        
+        switch generatorMode {
+        case .binaural:
+            toneGenerator.generateContinuousBinauralBeat(
+                leftFreq: preset.leftFrequency,
+                rightFreq: preset.rightFrequency,
+                title: preset.rawValue,
+                subtitle: "\(preset.binauralSummary) - \(String(format: "%.1f", preset.beatFrequency)) Hz binaural beat"
+            )
+        case .pulsed:
+            toneGenerator.generatePulsedTone(
+                carrierFreq: preset.leftFrequency,
+                pulseFreq: preset.beatFrequency,
+                title: preset.rawValue,
+                subtitle: "\(Int(preset.leftFrequency)) Hz carrier - \(String(format: "%.1f", preset.beatFrequency)) Hz pulsed beat"
+            )
+        }
     }
 
     private var header: some View {
@@ -74,34 +96,73 @@ struct ToneGeneratorView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+    
+    private var modePicker: some View {
+        Picker("Generator Mode", selection: $generatorMode) {
+            ForEach(GeneratorMode.allCases, id: \.self) { mode in
+                Label(mode.title, systemImage: mode.iconName)
+                    .tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+        .onChange(of: generatorMode) { _, _ in
+            if toneGenerator.isPlaying {
+                startSelectedMode()
+            }
+        }
+    }
 
     private var frequencySummary: some View {
         LiquidGlassCard(cornerRadius: 34, showParticles: true) {
             VStack(spacing: 18) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Left Ear")
-                            .font(.headline)
-                            .foregroundColor(.blue)
-                        Text("\(Int(leftFrequency)) Hz")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                if generatorMode == .binaural {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Left Ear")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                            Text("\(Int(leftFrequency)) Hz")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing) {
+                            Text("Right Ear")
+                                .font(.headline)
+                                .foregroundColor(.red)
+                            Text("\(Int(rightFrequency)) Hz")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
                     }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .trailing) {
-                        Text("Right Ear")
-                            .font(.headline)
-                            .foregroundColor(.red)
-                        Text("\(Int(rightFrequency)) Hz")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                } else {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Carrier Tone")
+                                .font(.headline)
+                                .foregroundColor(.cyan)
+                            Text("\(Int(carrierFrequency)) Hz")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing) {
+                            Text("Pulse Rate")
+                                .font(.headline)
+                                .foregroundColor(.orange)
+                            Text("\(formattedBeat) Hz")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                        }
                     }
                 }
                 
                 VStack(spacing: 6) {
-                    Text("Binaural Beat")
+                    Text(generatorMode == .binaural ? "Binaural Beat" : "Pulsed Beat")
                         .font(.headline)
                         .foregroundColor(.purple)
                     Text("\(formattedBeat) Hz")
@@ -125,30 +186,58 @@ struct ToneGeneratorView: View {
                     .font(.title3.weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Left Ear Frequency")
-                            .font(.headline)
-                        Spacer()
-                        Text("\(Int(leftFrequency)) Hz")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                if generatorMode == .binaural {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Left Ear Frequency")
+                                .font(.headline)
+                            Spacer()
+                            Text("\(Int(leftFrequency)) Hz")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $leftFrequency, in: 20...2000, step: 1)
+                            .tint(.blue)
                     }
-                    Slider(value: $leftFrequency, in: 20...2000, step: 1)
-                        .tint(.blue)
-                }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("Right Ear Frequency")
-                            .font(.headline)
-                        Spacer()
-                        Text("\(Int(rightFrequency)) Hz")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Right Ear Frequency")
+                                .font(.headline)
+                            Spacer()
+                            Text("\(Int(rightFrequency)) Hz")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $rightFrequency, in: 20...2000, step: 1)
+                            .tint(.red)
                     }
-                    Slider(value: $rightFrequency, in: 20...2000, step: 1)
-                        .tint(.red)
+                } else {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Carrier Frequency")
+                                .font(.headline)
+                            Spacer()
+                            Text("\(Int(carrierFrequency)) Hz")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $carrierFrequency, in: 80...1200, step: 1)
+                            .tint(.cyan)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Pulse Rate")
+                                .font(.headline)
+                            Spacer()
+                            Text("\(formattedBeat) Hz")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Slider(value: $pulseFrequency, in: 0.5...40, step: 0.5)
+                            .tint(.orange)
+                    }
                 }
             }
         }
@@ -242,7 +331,9 @@ struct ToneGeneratorView: View {
                     ForEach(FrequencyPreset.allCases, id: \.self) { preset in
                         PresetButton(
                             preset: preset,
-                            isSelected: selectedPreset == preset
+                            mode: generatorMode,
+                            isSelected: selectedPreset == preset,
+                            isPlaying: selectedPreset == preset && toneGenerator.isPlaying
                         ) {
                             selectPreset(preset)
                         }
@@ -255,10 +346,10 @@ struct ToneGeneratorView: View {
     private var footer: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Custom Binaural")
+                Text(selectedPreset?.rawValue ?? (generatorMode == .binaural ? "Custom Binaural" : "Custom Pulsed"))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                Text("\(Int(leftFrequency)) - \(Int(rightFrequency)) Hz - Beat \(formattedBeat) Hz")
+                Text(footerSubtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -286,10 +377,7 @@ struct ToneGeneratorView: View {
                 if toneGenerator.isPlaying {
                     toneGenerator.stop()
                 } else {
-                    toneGenerator.generateContinuousBinauralBeat(
-                        leftFreq: leftFrequency,
-                        rightFreq: rightFrequency
-                    )
+                    startSelectedMode()
                 }
             } label: {
                 Image(systemName: toneGenerator.isPlaying ? "pause.circle.fill" : "play.circle.fill")
@@ -300,7 +388,67 @@ struct ToneGeneratorView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .background(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(Color.black.opacity(0.14))
+        )
+    }
+    
+    private func startSelectedMode() {
+        switch generatorMode {
+        case .binaural:
+            toneGenerator.generateContinuousBinauralBeat(
+                leftFreq: leftFrequency,
+                rightFreq: rightFrequency,
+                title: selectedPreset?.rawValue ?? "Custom Binaural",
+                subtitle: "\(Int(leftFrequency)) - \(Int(rightFrequency)) Hz - \(formattedBeat) Hz binaural beat"
+            )
+        case .pulsed:
+            toneGenerator.generatePulsedTone(
+                carrierFreq: carrierFrequency,
+                pulseFreq: pulseFrequency,
+                title: selectedPreset?.rawValue ?? "Custom Pulsed",
+                subtitle: "\(Int(carrierFrequency)) Hz carrier - \(formattedBeat) Hz pulsed beat"
+            )
+        }
+    }
+    
+    private var footerSubtitle: String {
+        if let selectedPreset {
+            switch generatorMode {
+            case .binaural:
+                return "\(selectedPreset.binauralSummary) - Beat \(String(format: "%.1f", selectedPreset.beatFrequency)) Hz"
+            case .pulsed:
+                return "\(Int(selectedPreset.leftFrequency)) Hz carrier - Pulse \(String(format: "%.1f", selectedPreset.beatFrequency)) Hz"
+            }
+        }
+        
+        switch generatorMode {
+        case .binaural:
+            return "\(Int(leftFrequency)) - \(Int(rightFrequency)) Hz - Beat \(formattedBeat) Hz"
+        case .pulsed:
+            return "\(Int(carrierFrequency)) Hz carrier - Pulse \(formattedBeat) Hz"
+        }
+    }
+}
+
+enum GeneratorMode: String, CaseIterable {
+    case binaural
+    case pulsed
+    
+    var title: String {
+        switch self {
+        case .binaural: return "Binaural"
+        case .pulsed: return "Pulsed"
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .binaural: return "headphones"
+        case .pulsed: return "waveform.path.ecg"
+        }
     }
 }
 
@@ -330,6 +478,14 @@ enum FrequencyPreset: String, CaseIterable {
         case .beta: return 808.0   // 8 Hz binaural beat
         case .gamma: return 1630.0 // 30 Hz binaural beat
         }
+    }
+    
+    var beatFrequency: Double {
+        abs(rightFrequency - leftFrequency)
+    }
+    
+    var binauralSummary: String {
+        "\(Int(leftFrequency)) - \(Int(rightFrequency)) Hz"
     }
     
     var frequencyRange: String {
@@ -396,25 +552,41 @@ enum FrequencyPreset: String, CaseIterable {
 // MARK: - Preset Button
 struct PresetButton: View {
     let preset: FrequencyPreset
+    let mode: GeneratorMode
     let isSelected: Bool
+    let isPlaying: Bool
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             LiquidGlassCard(cornerRadius: 24, showParticles: true) {
-                VStack(spacing: 8) {
-                    Text(preset.rawValue)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(isSelected ? preset.color : .primary)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(preset.rawValue)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(isSelected ? preset.color : .primary)
+                            
+                            Text(preset.frequencyRange)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: isPlaying ? "waveform.circle.fill" : "play.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(isSelected ? preset.color : .secondary)
+                    }
                     
-                    Text(preset.frequencyRange)
+                    Text(mode == .binaural ? preset.binauralSummary : "\(Int(preset.leftFrequency)) Hz carrier")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text("\(Int(preset.leftFrequency)) - \(Int(preset.rightFrequency)) Hz")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                    Text(isPlaying ? "Playing \(String(format: "%.1f", preset.beatFrequency)) Hz" : "Tap to start \(String(format: "%.1f", preset.beatFrequency)) Hz")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(isSelected ? preset.color : .white.opacity(0.72))
                 }
                 .frame(maxWidth: .infinity)
             }

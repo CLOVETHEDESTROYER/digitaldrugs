@@ -69,8 +69,9 @@ class AudioManager: ObservableObject {
                 options: [.allowBluetooth]
             )
             try AVAudioSession.sharedInstance().setActive(true)
+            AppLog.info("AudioManager audio session configured")
         } catch {
-            print("Audio session setup failed: \(error)")
+            AppLog.error("AudioManager audio session setup failed: \(error.localizedDescription)")
         }
     }
     
@@ -79,16 +80,19 @@ class AudioManager: ObservableObject {
         
         do {
             try audioEngine.start()
+            AppLog.info("AudioManager engine started")
         } catch {
-            print("Audio engine start failed: \(error)")
+            AppLog.error("AudioManager engine start failed: \(error.localizedDescription)")
         }
     }
 
     func playBinaural(fileName: String) {
+        AppLog.info("AudioManager play binaural file requested: \(fileName)")
         playLooping(fileName: fileName, on: binauralPlayerNode)
     }
 
     func playNature(fileName: String) {
+        AppLog.info("AudioManager play nature file requested: \(fileName)")
         playLooping(fileName: fileName, on: naturePlayerNode)
     }
 
@@ -98,6 +102,7 @@ class AudioManager: ObservableObject {
     }
 
     func stopAll() {
+        AppLog.info("AudioManager stop all requested")
         binauralPlayerNode.stop()
         binauralPlayerNode.reset()
         naturePlayerNode.stop()
@@ -193,7 +198,7 @@ class AudioManager: ObservableObject {
         }
         
         guard let url = Bundle.main.url(forResource: fileName, withExtension: nil) else {
-            print("Error: Audio file '\(fileName)' not found in bundle!")
+            AppLog.error("Audio file not found in bundle: \(fileName)")
             return nil
         }
         
@@ -211,7 +216,7 @@ class AudioManager: ObservableObject {
             cachedBuffers[fileName] = buffer
             return buffer
         } catch {
-            print("Error reading audio file '\(fileName)': \(error.localizedDescription)")
+            AppLog.error("Error reading audio file \(fileName): \(error.localizedDescription)")
             return nil
         }
     }

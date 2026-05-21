@@ -17,6 +17,14 @@
 		9D8DD7BC2D30675900F4A123 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BB2D30675300F4A123 /* SettingsView.swift */; };
 		9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */; };
 		9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */; };
+		A10000000000000000000001 /* SessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* SessionModel.swift */; };
+		A10000000000000000000002 /* ChakraModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* ChakraModels.swift */; };
+		A10000000000000000000003 /* GuidedRitualModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* GuidedRitualModels.swift */; };
+		A10000000000000000000004 /* GuidedVoiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000014 /* GuidedVoiceManager.swift */; };
+		A10000000000000000000005 /* GuidedRitualSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* GuidedRitualSessionView.swift */; };
+		A10000000000000000000006 /* Ocean.wav in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* Ocean.wav */; };
+		A20000000000000000000001 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* StoreManager.swift */; };
+		A20000000000000000000002 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* PaywallView.swift */; };
 		C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +59,15 @@
 		9D8DD7BB2D30675300F4A123 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGenerator.swift; sourceTree = "<group>"; };
 		9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGeneratorView.swift; sourceTree = "<group>"; };
+		A10000000000000000000011 /* SessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionModel.swift; sourceTree = "<group>"; };
+		A10000000000000000000012 /* ChakraModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChakraModels.swift; sourceTree = "<group>"; };
+		A10000000000000000000013 /* GuidedRitualModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedRitualModels.swift; sourceTree = "<group>"; };
+		A10000000000000000000014 /* GuidedVoiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedVoiceManager.swift; sourceTree = "<group>"; };
+		A10000000000000000000015 /* GuidedRitualSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedRitualSessionView.swift; sourceTree = "<group>"; };
+		A10000000000000000000016 /* Ocean.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Ocean.wav; sourceTree = "<group>"; };
+		A20000000000000000000011 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		A20000000000000000000012 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* ZenWavePremium.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ZenWavePremium.storekit; sourceTree = "<group>"; };
 		C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,6 +134,8 @@
 				C0E1E1022F0CFF1F00A63D5B /* Design */,
 				9D8DD7AB2D303EEC00F4A123 /* Views */,
 				9D8DD7A92D303B6200F4A123 /* Managers */,
+				A10000000000000000000020 /* Models */,
+				A20000000000000000000013 /* ZenWavePremium.storekit */,
 				9D8DD7792D303AC900F4A123 /* DigitalDrug */,
 				9D8DD78E2D303ACB00F4A123 /* DigitalDrugTests */,
 				9D8DD7982D303ACB00F4A123 /* DigitalDrugUITests */,
@@ -140,6 +159,8 @@
 				9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */,
 				9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */,
 				9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */,
+				A10000000000000000000014 /* GuidedVoiceManager.swift */,
+				A20000000000000000000011 /* StoreManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -152,6 +173,8 @@
 				9D8DD7B42D30609500F4A123 /* HomeView.swift */,
 				9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */,
 				9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */,
+				A10000000000000000000015 /* GuidedRitualSessionView.swift */,
+				A20000000000000000000012 /* PaywallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -161,8 +184,19 @@
 			children = (
 				9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */,
 				9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */,
+				A10000000000000000000016 /* Ocean.wav */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000020 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000011 /* SessionModel.swift */,
+				A10000000000000000000012 /* ChakraModels.swift */,
+				A10000000000000000000013 /* GuidedRitualModels.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		C0E1E1022F0CFF1F00A63D5B /* Design */ = {
@@ -295,6 +329,7 @@
 			files = (
 				9D8DD7B22D305A2D00F4A123 /* lucid_dream.mp3 in Resources */,
 				9D8DD7B32D305A2D00F4A123 /* hangover_cure.mp3 in Resources */,
+				A10000000000000000000006 /* Ocean.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,6 +362,13 @@
 				9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */,
 				9D8DD7BD2D30680000F4A123 /* ToneGenerator.swift in Sources */,
 				9D8DD7BF2D30680000F4A123 /* ToneGeneratorView.swift in Sources */,
+				A10000000000000000000001 /* SessionModel.swift in Sources */,
+				A10000000000000000000002 /* ChakraModels.swift in Sources */,
+				A10000000000000000000003 /* GuidedRitualModels.swift in Sources */,
+				A10000000000000000000004 /* GuidedVoiceManager.swift in Sources */,
+				A10000000000000000000005 /* GuidedRitualSessionView.swift in Sources */,
+				A20000000000000000000001 /* StoreManager.swift in Sources */,
+				A20000000000000000000002 /* PaywallView.swift in Sources */,
 				C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,12 +410,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigitalDrug/DigitalDrug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalDrug/Preview Content\"";
 				DEVELOPMENT_TEAM = 67AR6NPQWB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DigitalDrug/Info.plist;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -383,7 +426,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hyperlabsAI.DigitalDrug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -399,12 +442,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigitalDrug/DigitalDrug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalDrug/Preview Content\"";
 				DEVELOPMENT_TEAM = 67AR6NPQWB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DigitalDrug/Info.plist;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -414,7 +458,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hyperlabsAI.DigitalDrug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

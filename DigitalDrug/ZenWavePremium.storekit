@@ -1,0 +1,148 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "ZenWavePremiumConfiguration",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "com.hyperlabsAI.DigitalDrug",
+    "_developerTeamID" : "67AR6NPQWB",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "zenwave-premium",
+      "localizations" : [
+        {
+          "description" : "Premium guided sound rituals and reflection tools.",
+          "displayName" : "ZenWave Premium",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "ZenWave Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "com.hyperlabsAI.DigitalDrug.premium.monthly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlock ZenWave Premium rituals, guided sessions, challenges, and journaling.",
+              "displayName" : "ZenWave Premium Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.hyperlabsAI.DigitalDrug.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "ZenWave Premium Monthly",
+          "subscriptionGroupID" : "zenwave-premium",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "com.hyperlabsAI.DigitalDrug.premium.annual",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlock ZenWave Premium rituals, guided sessions, challenges, and journaling for one year.",
+              "displayName" : "ZenWave Premium Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.hyperlabsAI.DigitalDrug.premium.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "ZenWave Premium Annual",
+          "subscriptionGroupID" : "zenwave-premium",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
