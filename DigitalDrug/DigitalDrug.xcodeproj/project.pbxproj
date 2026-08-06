@@ -10,7 +10,6 @@
 		9D8DD7AD2D30423200F4A123 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */; };
 		9D8DD7AE2D30428D00F4A123 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */; };
 		9D8DD7B22D305A2D00F4A123 /* lucid_dream.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */; };
-		9D8DD7B32D305A2D00F4A123 /* hangover_cure.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */; };
 		9D8DD7B52D30609B00F4A123 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B42D30609500F4A123 /* HomeView.swift */; };
 		9D8DD7B82D30623C00F4A123 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B72D30623800F4A123 /* OnboardingView.swift */; };
 		9D8DD7BA2D3066D000F4A123 /* ColorSchemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D8DD7B92D3066CE00F4A123 /* ColorSchemeManager.swift */; };
@@ -25,7 +24,17 @@
 		A10000000000000000000006 /* Ocean.wav in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* Ocean.wav */; };
 		A20000000000000000000001 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* StoreManager.swift */; };
 		A20000000000000000000002 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* PaywallView.swift */; };
+		A30000000000000000000001 /* GamificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000011 /* GamificationManager.swift */; };
+		A30000000000000000000002 /* RitualNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000012 /* RitualNotificationManager.swift */; };
+		A30000000000000000000003 /* GamificationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000013 /* GamificationViews.swift */; };
+		A40000000000000000000001 /* GuidedVoice in Resources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000011 /* GuidedVoice */; };
+		A40000000000000000000002 /* ChakraSounds in Resources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000012 /* ChakraSounds */; };
+		A50000000000000000000001 /* DDrituals  in Resources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000011 /* DDrituals  */; };
+		A60000000000000000000001 /* NatureSounds in Resources */ = {isa = PBXBuildFile; fileRef = A60000000000000000000011 /* NatureSounds */; };
+		A70000000000000000000001 /* ManifestationMantras in Resources */ = {isa = PBXBuildFile; fileRef = A70000000000000000000011 /* ManifestationMantras */; };
 		C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */; };
+		M10000000000000000000001 /* ManifestationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = M10000000000000000000011 /* ManifestationModels.swift */; };
+		M10000000000000000000002 /* ManifestationViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = M10000000000000000000012 /* ManifestationViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,7 +60,6 @@
 		9D8DD7952D303ACB00F4A123 /* DigitalDrugUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalDrugUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8DD7AA2D303B8F00F4A123 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		9D8DD7AC2D303F9E00F4A123 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
-		9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = hangover_cure.mp3; sourceTree = "<group>"; };
 		9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = lucid_dream.mp3; sourceTree = "<group>"; };
 		9D8DD7B42D30609500F4A123 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		9D8DD7B72D30623800F4A123 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -68,7 +76,17 @@
 		A20000000000000000000011 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		A20000000000000000000013 /* ZenWavePremium.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ZenWavePremium.storekit; sourceTree = "<group>"; };
+		A30000000000000000000011 /* GamificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamificationManager.swift; sourceTree = "<group>"; };
+		A30000000000000000000012 /* RitualNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RitualNotificationManager.swift; sourceTree = "<group>"; };
+		A30000000000000000000013 /* GamificationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamificationViews.swift; sourceTree = "<group>"; };
+		A40000000000000000000011 /* GuidedVoice */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GuidedVoice; sourceTree = "<group>"; };
+		A40000000000000000000012 /* ChakraSounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ChakraSounds; sourceTree = "<group>"; };
+		A50000000000000000000011 /* DDrituals  */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "DDrituals "; sourceTree = "<group>"; };
+		A60000000000000000000011 /* NatureSounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = NatureSounds; sourceTree = "<group>"; };
+		A70000000000000000000011 /* ManifestationMantras */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ManifestationMantras; sourceTree = "<group>"; };
 		C0E1E1002F0CFE8C00A63D5B /* LiquidGlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassStyle.swift; sourceTree = "<group>"; };
+		M10000000000000000000011 /* ManifestationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManifestationModels.swift; sourceTree = "<group>"; };
+		M10000000000000000000012 /* ManifestationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManifestationViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -161,6 +179,8 @@
 				9D8DD7BE2D30680000F4A123 /* ToneGenerator.swift */,
 				A10000000000000000000014 /* GuidedVoiceManager.swift */,
 				A20000000000000000000011 /* StoreManager.swift */,
+				A30000000000000000000011 /* GamificationManager.swift */,
+				A30000000000000000000012 /* RitualNotificationManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -175,6 +195,8 @@
 				9D8DD7C02D30680000F4A123 /* ToneGeneratorView.swift */,
 				A10000000000000000000015 /* GuidedRitualSessionView.swift */,
 				A20000000000000000000012 /* PaywallView.swift */,
+				A30000000000000000000013 /* GamificationViews.swift */,
+				M10000000000000000000012 /* ManifestationViews.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -182,9 +204,13 @@
 		9D8DD7AF2D3059F400F4A123 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				9D8DD7B02D305A2D00F4A123 /* hangover_cure.mp3 */,
 				9D8DD7B12D305A2D00F4A123 /* lucid_dream.mp3 */,
 				A10000000000000000000016 /* Ocean.wav */,
+				A40000000000000000000011 /* GuidedVoice */,
+				A40000000000000000000012 /* ChakraSounds */,
+				A50000000000000000000011 /* DDrituals  */,
+				A60000000000000000000011 /* NatureSounds */,
+				A70000000000000000000011 /* ManifestationMantras */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -195,6 +221,7 @@
 				A10000000000000000000011 /* SessionModel.swift */,
 				A10000000000000000000012 /* ChakraModels.swift */,
 				A10000000000000000000013 /* GuidedRitualModels.swift */,
+				M10000000000000000000011 /* ManifestationModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -328,8 +355,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D8DD7B22D305A2D00F4A123 /* lucid_dream.mp3 in Resources */,
-				9D8DD7B32D305A2D00F4A123 /* hangover_cure.mp3 in Resources */,
 				A10000000000000000000006 /* Ocean.wav in Resources */,
+				A40000000000000000000001 /* GuidedVoice in Resources */,
+				A40000000000000000000002 /* ChakraSounds in Resources */,
+				A50000000000000000000001 /* DDrituals  in Resources */,
+				A60000000000000000000001 /* NatureSounds in Resources */,
+				A70000000000000000000001 /* ManifestationMantras in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,7 +400,12 @@
 				A10000000000000000000005 /* GuidedRitualSessionView.swift in Sources */,
 				A20000000000000000000001 /* StoreManager.swift in Sources */,
 				A20000000000000000000002 /* PaywallView.swift in Sources */,
+				A30000000000000000000001 /* GamificationManager.swift in Sources */,
+				A30000000000000000000002 /* RitualNotificationManager.swift in Sources */,
+				A30000000000000000000003 /* GamificationViews.swift in Sources */,
 				C0E1E1012F0CFE8C00A63D5B /* LiquidGlassStyle.swift in Sources */,
+				M10000000000000000000001 /* ManifestationModels.swift in Sources */,
+				M10000000000000000000002 /* ManifestationViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +446,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigitalDrug/DigitalDrug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalDrug/Preview Content\"";
 				DEVELOPMENT_TEAM = 67AR6NPQWB;
 				ENABLE_PREVIEWS = YES;
@@ -426,7 +462,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hyperlabsAI.DigitalDrug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -442,7 +478,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigitalDrug/DigitalDrug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalDrug/Preview Content\"";
 				DEVELOPMENT_TEAM = 67AR6NPQWB;
 				ENABLE_PREVIEWS = YES;
@@ -458,7 +494,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hyperlabsAI.DigitalDrug;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

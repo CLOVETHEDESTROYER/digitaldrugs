@@ -8,18 +8,21 @@ import SwiftUI
 enum GuidedRitualModule: String, Codable, Hashable {
     case gateway = "Gateway"
     case quantumCodes = "Quantum Codes"
-    
+    case manifestation = "Manifestation"
+
     var title: String {
         switch self {
         case .gateway: return "Gateway Rituals"
         case .quantumCodes: return "Quantum Code Rituals"
+        case .manifestation: return "Manifestation Ritual"
         }
     }
-    
+
     var badge: String {
         switch self {
         case .gateway: return "Gateway-inspired"
         case .quantumCodes: return "Esoteric code ritual"
+        case .manifestation: return "Guided manifestation"
         }
     }
 }
@@ -42,7 +45,7 @@ struct GuidedRitualStep: Identifiable, Hashable {
     let spokenPrompt: String
     let visualKind: GuidedRitualVisualKind
     let duration: TimeInterval?
-    
+
     init(
         id: String,
         startTime: TimeInterval,
@@ -74,11 +77,11 @@ struct GuidedRitual: Identifiable, Hashable {
     let safeDisclaimer: String
     let summary: String
     let codeSequence: [String]
-    
+
     var durationMinutes: Int {
         Int(ceil(duration / 60))
     }
-    
+
     var frequencyLabel: String {
         switch audioKind {
         case .binaural(let left, let right):
@@ -87,7 +90,7 @@ struct GuidedRitual: Identifiable, Hashable {
             return "\(Int(frequency)) Hz"
         }
     }
-    
+
     var codeLine: String {
         codeSequence.joined(separator: "  ")
     }
@@ -216,7 +219,7 @@ extension GuidedRitual {
             journalPrompts: ["What did the float-up visualization feel like?", "Did any vibration, imagery, or dreamlike state appear?"]
         )
     ]
-    
+
     static let quantumCodeRituals: [GuidedRitual] = [
         quantum(id: "calm-code", title: "Calm Code", subtitle: "Soothe emotional charge", intent: .meditate, audioKind: .binaural(left: 300, right: 308), minutes: 6, accent: .teal, codes: ["12 57 901"], summary: "A reflective ritual using a code allegedly associated with patience and calm."),
         quantum(id: "sleep-code", title: "Sleep Code", subtitle: "Night signal", intent: .sleep, audioKind: .binaural(left: 100, right: 103), minutes: 8, accent: .indigo, codes: ["11 21 495"], summary: "A bedtime ritual using a code allegedly associated with long-standing insomnia support."),
@@ -227,7 +230,7 @@ extension GuidedRitual {
         quantum(id: "spiritual-energy-code", title: "Spiritual Energy", subtitle: "Service and light", intent: .chakra, audioKind: .chakra(frequency: 963, chakraName: "Crown"), minutes: 9, accent: .purple, codes: ["51 34 581"], summary: "A reflective ritual using a code allegedly associated with shining your light."),
         quantum(id: "grounding-code", title: "Grounding Code", subtitle: "Return to the body", intent: .chakra, audioKind: .chakra(frequency: 396, chakraName: "Root"), minutes: 7, accent: .red, codes: ["51 86 923"], summary: "A grounding ritual using a code allegedly associated with grounding.")
     ]
-    
+
     private static func gateway(
         id: String,
         title: String,
@@ -256,7 +259,7 @@ extension GuidedRitual {
             codeSequence: []
         )
     }
-    
+
     private static func quantum(
         id: String,
         title: String,
@@ -285,7 +288,7 @@ extension GuidedRitual {
             codeSequence: codes
         )
     }
-    
+
     private static func quantumSteps(codes: [String], minutes: Int) -> [GuidedRitualStep] {
         let codeLine = codes.joined(separator: ". ")
         let spokenCode = codes.map { code in
@@ -298,7 +301,7 @@ extension GuidedRitual {
             .init(id: "integrate", startTime: max(240, TimeInterval(minutes * 60 - 90)), title: "Integrate", spokenPrompt: "Release the numbers. Notice your breath, body, and state.", visualKind: .grounding, duration: 90)
         ]
     }
-    
+
     private static func spokenQuantumCode(_ code: String) -> String {
         let numberWords: [Character: String] = [
             "0": "zero",
@@ -312,7 +315,7 @@ extension GuidedRitual {
             "8": "eight",
             "9": "nine"
         ]
-        
+
         return code
             .split(separator: " ")
             .map { group in

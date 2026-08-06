@@ -31,6 +31,13 @@ playground.xcworkspace
 
 .build/
 
+# macOS metadata and locally generated release/design artifacts
+.DS_Store
+AppStoreScreenshots/
+DesignConcepts/
+VoiceAssets/
+DigitalDrug/Audio/hangover_cure.mp3
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However

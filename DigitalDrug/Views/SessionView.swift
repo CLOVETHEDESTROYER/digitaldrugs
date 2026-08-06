@@ -11,21 +11,23 @@ struct SessionView: View {
     @EnvironmentObject private var audioManager: AudioManager
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    
+
     let binauralFile: String
     let natureFile: String
     let sessionDescription: String
-    
+
     @State private var isNatureEnabled = false
     @State private var progress: Double = 0.0
     @State private var isPlaying = false
     @State private var timer: Timer?
-    
+    @State private var hasPreparedAmbientVolume = false
+    @State private var isSoundMixExpanded = false
+
     var body: some View {
         ZStack {
             AuroraBackground()
                 .ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: 28) {
                     LiquidGlassCard(cornerRadius: 34, showParticles: true) {
@@ -48,53 +50,21 @@ struct SessionView: View {
                                 }
                             }
                             .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: isPlaying)
-                            
+
                             Text(sessionDescription)
                                 .font(.title3.weight(.semibold))
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    
-                    LiquidGlassCard {
-                        VStack(spacing: 18) {
-                            ProgressView(value: progress, total: 100)
-                                .tint(.purple)
-                                .scaleEffect(x: 1.0, y: 1.4, anchor: .center)
-                            
-                            HStack {
-                                Text("Progress")
-                                    .font(.headline)
-                                Spacer()
-                                Text("\(Int(progress))%")
-                                    .font(.headline)
-                                    .monospacedDigit()
-                            }
-                        }
-                    }
-                    
-                    LiquidGlassCard {
-                        Toggle(isOn: $isNatureEnabled.animation(reduceMotion ? nil : .easeInOut(duration: 0.2))) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Nature Layer")
-                                    .font(.headline)
-                                Text("Blend in ambient textures (Ocean) alongside the binaural carrier tone.")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        .toggleStyle(SwitchToggleStyle(tint: .blue))
-                        .onChange(of: isNatureEnabled) { _, newValue in
-                            if newValue {
-                                audioManager.playNature(fileName: natureFile)
-                            } else {
-                                audioManager.stopNature()
-                            }
-                        }
-                    }
-                    
-                    equalizerCard
+
                     controlCluster
+
+                    if isPlaying {
+                        progressCard
+                    }
+
+                    soundMixDisclosure
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 32)
@@ -106,23 +76,100 @@ struct SessionView: View {
             timer = nil
         }
     }
-    
+
+    private var progressCard: some View {
+        LiquidGlassCard(cornerRadius: 28, showParticles: false) {
+            VStack(spacing: 14) {
+                ProgressView(value: progress, total: 100)
+                    .tint(.purple)
+                    .scaleEffect(x: 1.0, y: 1.3, anchor: .center)
+
+                HStack {
+                    Text("Session Progress")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text("\(Int(progress))%")
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    private var soundMixDisclosure: some View {
+        DisclosureGroup(isExpanded: $isSoundMixExpanded) {
+            VStack(spacing: 18) {
+                natureLayerCard
+                equalizerCard
+            }
+            .padding(.top, 12)
+        } label: {
+            Label("Sound mix", systemImage: "slider.horizontal.3")
+                .font(.headline)
+                .foregroundStyle(.primary)
+        }
+        .tint(.blue)
+        .padding(.horizontal, 4)
+    }
+
+    private var natureLayerCard: some View {
+        LiquidGlassCard(cornerRadius: 28, showParticles: false) {
+            VStack(alignment: .leading, spacing: 16) {
+                Toggle(isOn: $isNatureEnabled.animation(reduceMotion ? nil : .easeInOut(duration: 0.2))) {
+                    Text("Nature Layer")
+                        .font(.headline)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .onChange(of: isNatureEnabled) { _, newValue in
+                    if newValue {
+                        prepareAudibleAmbientVolumeIfNeeded()
+                        audioManager.playNature(fileName: natureFile)
+                    } else {
+                        audioManager.stopNature()
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Label("Nature Volume", systemImage: "speaker.wave.2.fill")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text("\(Int(audioManager.natureVolume * 100))%")
+                            .font(.subheadline.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Slider(
+                        value: Binding(
+                            get: { Double(audioManager.natureVolume) },
+                            set: { audioManager.setNatureVolume(Float($0)) }
+                        ),
+                        in: 0...0.6
+                    )
+                    .tint(.blue)
+                }
+                .opacity(isNatureEnabled ? 1 : 0.55)
+                .disabled(!isNatureEnabled)
+            }
+        }
+    }
+
     private var equalizerCard: some View {
         LiquidGlassCard(cornerRadius: 34, showParticles: true) {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Visual Equalizer")
                     .font(.title3.weight(.semibold))
-                
+
                 Text("Applies to both binaural tracks and nature layers.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                
+
                 EqualizerBarsView(
                     lowGain: audioManager.eqLowGain,
                     midGain: audioManager.eqMidGain,
                     highGain: audioManager.eqHighGain
                 )
-                
+
                 equalizerSliderRow(
                     title: "Low",
                     color: .blue,
@@ -131,7 +178,7 @@ struct SessionView: View {
                         set: { audioManager.setEqualizer(low: Float($0)) }
                     )
                 )
-                
+
                 equalizerSliderRow(
                     title: "Mid",
                     color: .cyan,
@@ -140,7 +187,7 @@ struct SessionView: View {
                         set: { audioManager.setEqualizer(mid: Float($0)) }
                     )
                 )
-                
+
                 equalizerSliderRow(
                     title: "High",
                     color: .orange,
@@ -149,13 +196,13 @@ struct SessionView: View {
                         set: { audioManager.setEqualizer(high: Float($0)) }
                     )
                 )
-                
+
                 HStack(spacing: 12) {
                     Button("Softer Mix") {
                         audioManager.applySofterEQPreset()
                     }
                     .buttonStyle(.borderedProminent)
-                    
+
                     Button("Flat") {
                         audioManager.resetEqualizer()
                     }
@@ -164,7 +211,7 @@ struct SessionView: View {
             }
         }
     }
-    
+
     private func equalizerSliderRow(title: String, color: Color, value: Binding<Double>) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -175,12 +222,12 @@ struct SessionView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Slider(value: value, in: -12...12, step: 0.5)
                 .tint(color)
         }
     }
-    
+
     private var controlCluster: some View {
         LiquidGlassCard(cornerRadius: 34, showParticles: true) {
             VStack(spacing: 20) {
@@ -196,7 +243,7 @@ struct SessionView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .liquidGlassButtonStyle()
-                    
+
                     Button {
                         stopSession()
                     } label: {
@@ -206,7 +253,7 @@ struct SessionView: View {
                     .buttonStyle(.borderedProminent)
                 }
                 .buttonBorderShape(.capsule)
-                
+
                 Button(role: .cancel) {
                     resetSession()
                 } label: {
@@ -217,23 +264,33 @@ struct SessionView: View {
             }
         }
     }
-    
+
     // MARK: - Session Controls
     private func startSession() {
         isPlaying = true
         audioManager.playBinaural(fileName: binauralFile)
         if isNatureEnabled {
+            prepareAudibleAmbientVolumeIfNeeded()
             audioManager.playNature(fileName: natureFile)
         }
         startProgressTimer()
     }
-    
+
+    private func prepareAudibleAmbientVolumeIfNeeded() {
+        guard !hasPreparedAmbientVolume else { return }
+        hasPreparedAmbientVolume = true
+
+        if audioManager.natureVolume < 0.15 {
+            audioManager.setNatureVolume(0.18)
+        }
+    }
+
     private func pauseSession() {
         isPlaying = false
         timer?.invalidate()
         audioManager.stopAll()
     }
-    
+
     private func stopSession() {
         isPlaying = false
         timer?.invalidate()
@@ -241,12 +298,12 @@ struct SessionView: View {
         progress = 0.0
         audioManager.stopAll()
     }
-    
+
     private func resetSession() {
         stopSession()
         isNatureEnabled = false
     }
-    
+
     // MARK: - Progress Timer
     private func startProgressTimer() {
         timer?.invalidate()

@@ -10,7 +10,7 @@ struct GuidedVoiceOption: Identifiable, Hashable {
     let id: String
     let name: String
     let detail: String
-    
+
     var isSystemDefault: Bool {
         id == GuidedVoiceManager.systemDefaultVoiceID
     }
@@ -22,9 +22,9 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
     case brightClear
     case oracle
     case system
-    
+
     var id: String { rawValue }
-    
+
     var title: String {
         switch self {
         case .softGuide: return "Soft Guide"
@@ -34,7 +34,7 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
         case .system: return "Natural"
         }
     }
-    
+
     var subtitle: String {
         switch self {
         case .softGuide: return "Warm, slow, and gentle"
@@ -44,7 +44,7 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
         case .system: return "Closest to the selected system voice"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .softGuide: return "moon.stars.fill"
@@ -54,7 +54,7 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
         case .system: return "speaker.wave.2.fill"
         }
     }
-    
+
     var rateOffset: Double {
         switch self {
         case .softGuide: return -0.03
@@ -64,7 +64,7 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
         case .system: return 0
         }
     }
-    
+
     var pitchMultiplier: Double {
         switch self {
         case .softGuide: return 0.96
@@ -74,7 +74,7 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
         case .system: return 0.94
         }
     }
-    
+
     static func fromStoredValue(_ value: String) -> GuidedVoiceProfile {
         GuidedVoiceProfile(rawValue: value) ?? .softGuide
     }
@@ -83,40 +83,41 @@ enum GuidedVoiceProfile: String, CaseIterable, Identifiable {
 @MainActor
 final class GuidedVoiceManager: NSObject, ObservableObject {
     nonisolated static let systemDefaultVoiceID = "zenwave.system.default.voice"
-    
+
     private let synthesizer = AVSpeechSynthesizer()
-    
+    private var assetPlayer: AVAudioPlayer?
+
     @AppStorage("guidedVoiceEnabled") var isVoiceEnabled = true
     @AppStorage("guidedVoiceRate") var rate = 0.44
     @AppStorage("guidedVoiceVolume") var volume = 0.85
     @AppStorage("guidedVoiceIdentifier") var selectedVoiceIdentifier = GuidedVoiceManager.systemDefaultVoiceID
     @AppStorage("guidedVoiceProfile") var selectedProfileRawValue = GuidedVoiceProfile.softGuide.rawValue
-    
+
     @Published var isSpeaking = false
-    
+
     override init() {
         super.init()
         synthesizer.delegate = self
     }
-    
+
     var selectedProfile: GuidedVoiceProfile {
         get { GuidedVoiceProfile.fromStoredValue(selectedProfileRawValue) }
         set { selectedProfileRawValue = newValue.rawValue }
     }
-    
+
     var selectedVoiceName: String {
         Self.availableVoiceOptions()
             .first { $0.id == selectedVoiceIdentifier }?
             .name ?? "System Default"
     }
-    
+
     static func availableVoiceOptions() -> [GuidedVoiceOption] {
         let defaultOption = GuidedVoiceOption(
             id: systemDefaultVoiceID,
             name: "System Default",
             detail: "Best available English voice"
         )
-        
+
         let englishVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language.lowercased().hasPrefix("en") }
             .sorted { left, right in
@@ -135,31 +136,39 @@ final class GuidedVoiceManager: NSObject, ObservableObject {
                     detail: "\(voice.language) · \(voice.quality.displayName)"
                 )
             }
-        
+
         var seen = Set<String>()
         let uniqueVoices = englishVoices.filter { option in
             seen.insert(option.id).inserted
         }
-        
+
         return [defaultOption] + uniqueVoices
     }
-    
+
     func speak(
         _ text: String,
         module: GuidedRitualModule? = nil,
         intent: RitualIntent? = nil,
-        isCodePrompt: Bool = false
+        isCodePrompt: Bool = false,
+        bundledAssetBaseName: String? = nil
     ) {
+        configureAudioSession()
+
         guard isVoiceEnabled else {
             AppLog.info("GuidedVoice speak skipped because voice is disabled")
             return
         }
         let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanText.isEmpty else { return }
-        AppLog.info("GuidedVoice speak requested: \(cleanText), voice=\(selectedVoiceName), profile=\(selectedProfile.title)")
-        
+        AppLog.info("GuidedVoice speak requested: \(cleanText), voice=\(selectedVoiceName), profile=\(selectedProfile.title), asset=\(bundledAssetBaseName ?? "none")")
+
         synthesizer.stopSpeaking(at: .immediate)
-        
+        stopBundledAsset()
+
+        if let bundledAssetBaseName, playBundledAsset(baseName: bundledAssetBaseName, module: module) {
+            return
+        }
+
         let speechText = isCodePrompt ? cleanText.withMeditativePauses : cleanText
         let utterance = AVSpeechUtterance(string: speechText)
         let style = speechStyle(module: module, intent: intent, isCodePrompt: isCodePrompt)
@@ -168,15 +177,15 @@ final class GuidedVoiceManager: NSObject, ObservableObject {
         utterance.pitchMultiplier = Float(style.pitch)
         utterance.preUtteranceDelay = style.preDelay
         utterance.postUtteranceDelay = style.postDelay
-        
+
         if let voice = resolvedVoice() {
             utterance.voice = voice
         }
-        
+
         isSpeaking = true
         synthesizer.speak(utterance)
     }
-    
+
     func previewSelectedVoice() {
         let sample: String
         switch selectedProfile {
@@ -193,22 +202,103 @@ final class GuidedVoiceManager: NSObject, ObservableObject {
         }
         speak(sample, module: .gateway, intent: .meditate, isCodePrompt: selectedProfile == .oracle)
     }
-    
+
     func stop() {
         AppLog.info("GuidedVoice stop requested")
         synthesizer.stopSpeaking(at: .immediate)
+        stopBundledAsset()
         isSpeaking = false
     }
-    
+
+    private func playBundledAsset(baseName: String, module: GuidedRitualModule?) -> Bool {
+        guard let url = bundledAssetURL(baseName: baseName, module: module) else {
+            AppLog.info("GuidedVoice bundled asset not found, falling back to system voice: \(baseName)")
+            return false
+        }
+
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.delegate = self
+            player.volume = Float(volume)
+            player.prepareToPlay()
+            assetPlayer = player
+            isSpeaking = true
+            player.play()
+            AppLog.info("GuidedVoice bundled asset playing: \(url.lastPathComponent)")
+            return true
+        } catch {
+            AppLog.error("GuidedVoice bundled asset failed: \(url.lastPathComponent), error=\(error.localizedDescription)")
+            assetPlayer = nil
+            return false
+        }
+    }
+
+    private func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: [.allowBluetoothHFP, .allowBluetoothA2DP, .allowAirPlay]
+            )
+            try AVAudioSession.sharedInstance().setActive(true)
+            AppLog.info("GuidedVoice audio session configured")
+        } catch {
+            AppLog.error("GuidedVoice audio session setup failed: \(error.localizedDescription)")
+        }
+    }
+
+    private func stopBundledAsset() {
+        assetPlayer?.stop()
+        assetPlayer = nil
+    }
+
+    private func bundledAssetURL(baseName: String, module: GuidedRitualModule?) -> URL? {
+        let extensions = ["m4a", "mp3", "wav"]
+        let subdirectories = bundledAssetSubdirectories(for: module)
+
+        for subdirectory in subdirectories {
+            for fileExtension in extensions {
+                if let url = Bundle.main.url(
+                    forResource: baseName,
+                    withExtension: fileExtension,
+                    subdirectory: subdirectory
+                ) {
+                    return url
+                }
+            }
+        }
+
+        for fileExtension in extensions {
+            if let url = Bundle.main.url(forResource: baseName, withExtension: fileExtension) {
+                return url
+            }
+        }
+
+        return nil
+    }
+
+    private func bundledAssetSubdirectories(for module: GuidedRitualModule?) -> [String] {
+        switch module {
+        case .gateway:
+            return ["GuidedVoice/Gateway", "Audio/GuidedVoice/Gateway"]
+        case .quantumCodes:
+            return ["GuidedVoice/QuantumCodes", "Audio/GuidedVoice/QuantumCodes"]
+        case .manifestation:
+            return ["GuidedVoice/Manifestation", "Audio/GuidedVoice/Manifestation", "GuidedVoice", "Audio/GuidedVoice"]
+        case .none:
+            return ["GuidedVoice", "Audio/GuidedVoice"]
+        }
+    }
+
     private func resolvedVoice() -> AVSpeechSynthesisVoice? {
         if selectedVoiceIdentifier != Self.systemDefaultVoiceID,
            let selectedVoice = AVSpeechSynthesisVoice(identifier: selectedVoiceIdentifier) {
             return selectedVoice
         }
-        
+
         return AVSpeechSynthesisVoice(language: "en-US")
     }
-    
+
     private func speechStyle(
         module: GuidedRitualModule?,
         intent: RitualIntent?,
@@ -217,13 +307,13 @@ final class GuidedVoiceManager: NSObject, ObservableObject {
         var finalRate = rate + selectedProfile.rateOffset
         var finalPitch = selectedProfile.pitchMultiplier
         var postDelay = 0.24
-        
+
         if isCodePrompt || module == .quantumCodes {
             finalRate -= 0.06
             finalPitch -= 0.02
             postDelay = 0.45
         }
-        
+
         switch intent {
         case .sleep:
             finalRate -= 0.05
@@ -236,7 +326,7 @@ final class GuidedVoiceManager: NSObject, ObservableObject {
         case .chakra, .meditate, .none:
             break
         }
-        
+
         return (
             rate: finalRate.clamped(to: 0.28...0.58),
             pitch: finalPitch.clamped(to: 0.76...1.08),
@@ -253,11 +343,33 @@ extension GuidedVoiceManager: AVSpeechSynthesizerDelegate {
             AppLog.info("GuidedVoice finished utterance")
         }
     }
-    
+
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
             isSpeaking = false
             AppLog.info("GuidedVoice cancelled utterance")
+        }
+    }
+}
+
+extension GuidedVoiceManager: AVAudioPlayerDelegate {
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in
+            if assetPlayer === player {
+                assetPlayer = nil
+            }
+            isSpeaking = false
+            AppLog.info("GuidedVoice bundled asset finished successfully=\(flag)")
+        }
+    }
+
+    nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        Task { @MainActor in
+            if assetPlayer === player {
+                assetPlayer = nil
+            }
+            isSpeaking = false
+            AppLog.error("GuidedVoice bundled asset decode error: \(error?.localizedDescription ?? "unknown")")
         }
     }
 }
@@ -271,7 +383,7 @@ private extension AVSpeechSynthesisVoiceQuality {
         @unknown default: return "Available"
         }
     }
-    
+
     var sortRank: Int {
         switch self {
         case .premium: return 3

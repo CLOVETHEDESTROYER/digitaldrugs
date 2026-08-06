@@ -2,7 +2,7 @@
 //  LiquidGlassStyle.swift
 //  DigitalDrug
 //
-//  Created by Carlos Alvarez on 1/9/25. 
+//  Created by Carlos Alvarez on 1/9/25.
 //
 
 import SwiftUI
@@ -48,7 +48,7 @@ struct AuroraBackground: View {
         .clipped()
         .allowsHitTesting(false)
     }
-    
+
     private var auroraTint: some View {
         ZStack {
             RadialGradient(
@@ -71,7 +71,7 @@ struct AuroraBackground: View {
 struct LiquidGlassBackground: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    
+
     var body: some View {
         AuroraBackground()
     }
@@ -85,29 +85,29 @@ struct ParticleTexture: View {
                 let tileSize: CGFloat = 500
                 let numTilesX = Int(ceil(size.width / tileSize)) + 1
                 let numTilesY = Int(ceil(size.height / tileSize)) + 1
-                
+
                 // Generate particles for each tile
                 for tileY in 0..<numTilesY {
                     for tileX in 0..<numTilesX {
                         let offsetX = CGFloat(tileX) * tileSize
                         let offsetY = CGFloat(tileY) * tileSize
-                        
+
                         // Generate random particles within this tile (using deterministic seed per tile)
                         let seed = UInt64(tileX * 1000 + tileY)
                         var generator = SeededRandomGenerator(seed: seed)
-                        
+
                         for _ in 0..<15 {
                             let x = offsetX + generator.next(in: 0..<tileSize)
                             let y = offsetY + generator.next(in: 0..<tileSize)
                             let radius = generator.next(in: 0.5...2.5)
                             let opacity = generator.next(in: 0.1...0.4)
-                            
+
                             // Mix of white and gold tones
                             let isGold = generator.next(in: 0...1) < 0.3
-                            let color = isGold 
+                            let color = isGold
                                 ? Color(red: 1.0, green: 0.85, blue: 0.5, opacity: opacity)
                                 : Color.white.opacity(opacity)
-                            
+
                             var path = Path()
                             path.addEllipse(in: CGRect(
                                 x: x - radius,
@@ -127,17 +127,17 @@ struct ParticleTexture: View {
 // Simple seeded random generator for consistent particle patterns
 struct SeededRandomGenerator {
     private var state: UInt64
-    
+
     init(seed: UInt64) {
         self.state = seed
     }
-    
+
     mutating func next<T: BinaryFloatingPoint>(in range: Range<T>) -> T where T.RawSignificand: FixedWidthInteger {
         state = state &* 1103515245 &+ 12345
         let normalized = Double(state & 0x7FFFFFFF) / Double(0x7FFFFFFF)
         return T(normalized) * (range.upperBound - range.lowerBound) + range.lowerBound
     }
-    
+
     mutating func next<T: BinaryFloatingPoint>(in range: ClosedRange<T>) -> T where T.RawSignificand: FixedWidthInteger {
         state = state &* 1103515245 &+ 12345
         let normalized = Double(state & 0x7FFFFFFF) / Double(0x7FFFFFFF)
@@ -150,13 +150,14 @@ struct LiquidGlassCard<Content: View>: View {
     private let content: Content
     private let cornerRadius: CGFloat
     private let showParticles: Bool
-    
+    private let glassOpacity: CGFloat = 0.60
+
     init(cornerRadius: CGFloat = 34, showParticles: Bool = false, @ViewBuilder content: () -> Content) {
         self.cornerRadius = cornerRadius
         self.showParticles = showParticles
         self.content = content()
     }
-    
+
     var body: some View {
         content
             .padding()
@@ -206,7 +207,7 @@ struct LiquidGlassCard<Content: View>: View {
                 .allowsHitTesting(false)
             )
     }
-    
+
     @ViewBuilder
     private var background: some View {
         if reduceTransparency {
@@ -215,9 +216,10 @@ struct LiquidGlassCard<Content: View>: View {
         } else {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(.ultraThinMaterial)
+                .opacity(glassOpacity)
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(Color.white.opacity(0.06))
+                        .fill(Color.white.opacity(0.03))
                 )
         }
     }
@@ -225,7 +227,7 @@ struct LiquidGlassCard<Content: View>: View {
 
 struct LiquidGlassButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline.weight(.semibold))
@@ -238,7 +240,7 @@ struct LiquidGlassButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1.0)
             .animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.72), value: configuration.isPressed)
     }
-    
+
     private func background(isPressed: Bool) -> some View {
         let gradient = LinearGradient(
             colors: [
@@ -269,7 +271,7 @@ struct RadialGlowEffect: View {
     var center: UnitPoint = .center
     var radius: CGFloat = 200
     var opacity: Double = 0.30
-    
+
     var body: some View {
         RadialGradient(
             gradient: Gradient(colors: [
@@ -292,7 +294,7 @@ enum BrainwaveIcon {
     case gamma    // Focus & Flow
     case theta    // Relaxation
     case beta     // Energy Boost
-    
+
     var systemName: String {
         switch self {
         case .delta: return "moon.stars.fill"
@@ -301,7 +303,7 @@ enum BrainwaveIcon {
         case .beta: return "sun.max.fill"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .delta: return .purple
@@ -315,17 +317,19 @@ enum BrainwaveIcon {
 enum NavigationIcon {
     case waves
     case chakra
+    case manifest
     case volume
     case lotus
     case profile
-    
+
     var systemName: String {
         switch self {
         case .waves: return "waveform"
-        case .chakra: return "sparkles"
+        case .chakra: return "circle.hexagongrid.fill"
+        case .manifest: return "sparkles"
         case .volume: return "speaker.wave.3"
-        case .lotus: return "sparkles"
-        case .profile: return "person.fill"
+        case .lotus: return "house.fill"
+        case .profile: return "gearshape.fill"
         }
     }
 }
@@ -335,10 +339,10 @@ struct EqualizerBarsView: View {
     let lowGain: Float
     let midGain: Float
     let highGain: Float
-    
+
     private let minGain: Float = -12.0
     private let maxGain: Float = 12.0
-    
+
     var body: some View {
         HStack(spacing: 24) {
             bar(title: "Low", gain: lowGain, color: .blue)
@@ -348,14 +352,14 @@ struct EqualizerBarsView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
     }
-    
+
     private func bar(title: String, gain: Float, color: Color) -> some View {
         VStack(spacing: 8) {
             ZStack(alignment: .bottom) {
                 Capsule()
                     .fill(Color.white.opacity(0.12))
                     .frame(width: 18, height: 62)
-                
+
                 Capsule()
                     .fill(
                         LinearGradient(
@@ -367,13 +371,13 @@ struct EqualizerBarsView: View {
                     .frame(width: 18, height: normalizedHeight(for: gain))
                     .animation(.easeInOut(duration: 0.15), value: gain)
             }
-            
+
             Text(title)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     private func normalizedHeight(for gain: Float) -> CGFloat {
         let clamped = min(max(gain, minGain), maxGain)
         let normalized = (clamped - minGain) / (maxGain - minGain)
@@ -386,7 +390,7 @@ extension View {
     func liquidGlassCard(cornerRadius: CGFloat = 34, showParticles: Bool = false) -> some View {
         LiquidGlassCard(cornerRadius: cornerRadius, showParticles: showParticles) { self }
     }
-    
+
     func liquidGlassButtonStyle() -> some View {
         buttonStyle(LiquidGlassButtonStyle())
     }
@@ -399,7 +403,7 @@ extension Image {
             .foregroundStyle(.white)
             .symbolRenderingMode(.hierarchical)
     }
-    
+
     func navigationIcon(size: CGFloat = 24) -> some View {
         self
             .font(.system(size: size, weight: .medium))

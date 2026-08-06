@@ -14,86 +14,110 @@ final class StoreManager: ObservableObject {
         case free
         case premium
         case legacyPremium
-        
+#if DEBUG
+        case developmentPremium
+#endif
+
         var title: String {
             switch self {
             case .loading: return "Checking Access"
             case .free: return "Free"
             case .premium: return "Premium"
             case .legacyPremium: return "Legacy Premium"
+#if DEBUG
+            case .developmentPremium: return "Dev Premium"
+#endif
             }
         }
-        
+
         var subtitle: String {
             switch self {
             case .loading: return "Confirming your App Store access."
             case .free: return "Generator access is free. Premium rituals are locked."
             case .premium: return "All premium rituals and guided sessions are unlocked."
             case .legacyPremium: return "Unlocked because you purchased ZenWave before version 2.0."
+#if DEBUG
+            case .developmentPremium: return "Unlocked by a DEBUG-only development override."
+#endif
             }
         }
     }
-    
+
     static let monthlyProductID = "com.hyperlabsAI.DigitalDrug.premium.monthly"
     static let annualProductID = "com.hyperlabsAI.DigitalDrug.premium.annual"
     static let premiumProductIDs = [monthlyProductID, annualProductID]
     static let legacyCutoffVersion = "2.0"
-    
+
     @Published private(set) var products: [Product] = []
     @Published private(set) var purchasedProductIDs = Set<String>()
     @Published private(set) var accessLevel: AccessLevel = .loading
     @Published private(set) var isPurchasing = false
     @Published private(set) var isRestoring = false
+#if DEBUG
+    @Published private(set) var isDevelopmentPremiumOverrideEnabled: Bool
+#endif
     @Published var errorMessage: String?
-    
+
+#if DEBUG
+    private static let developmentPremiumOverrideKey = "zenwaveDevelopmentPremiumOverride"
+#endif
     private var transactionUpdatesTask: Task<Void, Never>?
     private var hasLoadedProducts = false
-    
+
     var isPremiumUnlocked: Bool {
-        accessLevel == .premium || accessLevel == .legacyPremium
+#if DEBUG
+        if accessLevel == .developmentPremium { return true }
+#endif
+        return accessLevel == .premium || accessLevel == .legacyPremium
     }
-    
+
     var isLegacyPaidUser: Bool {
         accessLevel == .legacyPremium
     }
-    
+
     var monthlyProduct: Product? {
         products.first { $0.id == Self.monthlyProductID }
     }
-    
+
     var annualProduct: Product? {
         products.first { $0.id == Self.annualProductID }
     }
-    
+
     init() {
+#if DEBUG
+        if UserDefaults.standard.object(forKey: Self.developmentPremiumOverrideKey) == nil {
+            UserDefaults.standard.set(true, forKey: Self.developmentPremiumOverrideKey)
+        }
+        isDevelopmentPremiumOverrideEnabled = UserDefaults.standard.bool(forKey: Self.developmentPremiumOverrideKey)
+#endif
         transactionUpdatesTask = observeTransactionUpdates()
         Task {
             await refresh()
         }
     }
-    
+
     deinit {
         transactionUpdatesTask?.cancel()
     }
-    
+
     func refresh() async {
         AppLog.info("StoreManager refresh requested")
         await loadProductsIfNeeded()
         await updateAccessLevel()
     }
-    
+
     func purchase(_ product: Product) async {
         isPurchasing = true
         errorMessage = nil
         AppLog.info("StoreManager purchase requested: \(product.id)")
-        
+
         defer {
             isPurchasing = false
         }
-        
+
         do {
             let result = try await product.purchase()
-            
+
             switch result {
             case .success(let verification):
                 let transaction = try checkVerified(verification)
@@ -115,16 +139,16 @@ final class StoreManager: ObservableObject {
             AppLog.error("StoreManager purchase failed: \(product.id), error=\(error.localizedDescription)")
         }
     }
-    
+
     func restorePurchases() async {
         isRestoring = true
         errorMessage = nil
         AppLog.info("StoreManager restore requested")
-        
+
         defer {
             isRestoring = false
         }
-        
+
         do {
             try await AppStore.sync()
             await updateAccessLevel()
@@ -133,15 +157,26 @@ final class StoreManager: ObservableObject {
             AppLog.error("StoreManager restore failed: \(error.localizedDescription)")
         }
     }
-    
+
     func openManageSubscriptions() {
         guard let url = URL(string: "https://apps.apple.com/account/subscriptions") else { return }
         UIApplication.shared.open(url)
     }
-    
+
+#if DEBUG
+    func setDevelopmentPremiumOverrideEnabled(_ isEnabled: Bool) {
+        isDevelopmentPremiumOverrideEnabled = isEnabled
+        UserDefaults.standard.set(isEnabled, forKey: Self.developmentPremiumOverrideKey)
+        AppLog.info("StoreManager development premium override changed: \(isEnabled)")
+        Task {
+            await updateAccessLevel()
+        }
+    }
+#endif
+
     private func loadProductsIfNeeded() async {
         guard !hasLoadedProducts else { return }
-        
+
         do {
             let loadedProducts = try await Product.products(for: Self.premiumProductIDs)
             products = loadedProducts.sorted { lhs, rhs in
@@ -154,11 +189,18 @@ final class StoreManager: ObservableObject {
             AppLog.error("StoreManager failed to load products: \(error.localizedDescription)")
         }
     }
-    
+
     private func updateAccessLevel() async {
+#if DEBUG
+        if isDevelopmentPremiumOverrideEnabled {
+            accessLevel = .developmentPremium
+            AppLog.info("StoreManager access updated: Dev Premium override enabled")
+            return
+        }
+#endif
         let legacyPaidUser = await checkLegacyPaidUser()
         var activeProductIDs = Set<String>()
-        
+
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try checkVerified(result)
@@ -168,9 +210,9 @@ final class StoreManager: ObservableObject {
                 AppLog.error("StoreManager entitlement verification failed: \(error.localizedDescription)")
             }
         }
-        
+
         purchasedProductIDs = activeProductIDs
-        
+
         if legacyPaidUser {
             accessLevel = .legacyPremium
         } else if !activeProductIDs.isEmpty {
@@ -178,10 +220,10 @@ final class StoreManager: ObservableObject {
         } else {
             accessLevel = .free
         }
-        
+
         AppLog.info("StoreManager access updated: \(accessLevel.title), activeProducts=\(activeProductIDs.joined(separator: ", "))")
     }
-    
+
     private func checkLegacyPaidUser() async -> Bool {
         do {
             let result = try await AppTransaction.shared
@@ -195,13 +237,13 @@ final class StoreManager: ObservableObject {
             return false
         }
     }
-    
+
     private func observeTransactionUpdates() -> Task<Void, Never> {
         Task(priority: .background) { [weak self] in
             for await result in Transaction.updates {
                 do {
                     guard let self else { return }
-                    let transaction = try await self.checkVerified(result)
+                    let transaction = try self.checkVerified(result)
                     await transaction.finish()
                     await self.updateAccessLevel()
                 } catch {
@@ -213,7 +255,7 @@ final class StoreManager: ObservableObject {
             }
         }
     }
-    
+
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .verified(let safe):
@@ -222,20 +264,20 @@ final class StoreManager: ObservableObject {
             throw error
         }
     }
-    
+
     private static func isVersion(_ version: String, earlierThan cutoff: String) -> Bool {
         let versionParts = version.split(separator: ".").map { Int($0) ?? 0 }
         let cutoffParts = cutoff.split(separator: ".").map { Int($0) ?? 0 }
         let count = max(versionParts.count, cutoffParts.count)
-        
+
         for index in 0..<count {
             let versionValue = index < versionParts.count ? versionParts[index] : 0
             let cutoffValue = index < cutoffParts.count ? cutoffParts[index] : 0
-            
+
             if versionValue < cutoffValue { return true }
             if versionValue > cutoffValue { return false }
         }
-        
+
         return false
     }
 }

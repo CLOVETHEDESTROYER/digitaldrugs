@@ -13,7 +13,7 @@ enum BrainwaveIcon {
     case gamma    // Focus & Flow
     case theta    // Relaxation
     case beta     // Energy Boost
-    
+
     var systemName: String {
         switch self {
         case .delta: return "moon.stars.fill"
@@ -22,7 +22,7 @@ enum BrainwaveIcon {
         case .beta: return "sun.max.fill"
         }
     }
-    
+
     var color: Color {
         switch self {
         case .delta: return .purple
@@ -37,17 +37,19 @@ enum BrainwaveIcon {
 enum NavigationIcon {
     case waves
     case chakra
+    case manifest
     case volume
     case lotus
     case profile
-    
+
     var systemName: String {
         switch self {
         case .waves: return "waveform"
-        case .chakra: return "sparkles"
+        case .chakra: return "circle.hexagongrid.fill"
+        case .manifest: return "sparkles"
         case .volume: return "speaker.wave.3"
-        case .lotus: return "sparkles"
-        case .profile: return "person.fill"
+        case .lotus: return "house.fill"
+        case .profile: return "gearshape.fill"
         }
     }
 }
@@ -60,7 +62,7 @@ extension Image {
             .foregroundStyle(.white)
             .symbolRenderingMode(.hierarchical)
     }
-    
+
     func navigationIcon(size: CGFloat = 24) -> some View {
         self
             .font(.system(size: size, weight: .medium))
@@ -68,4 +70,3 @@ extension Image {
             .symbolRenderingMode(.hierarchical)
     }
 }
-
