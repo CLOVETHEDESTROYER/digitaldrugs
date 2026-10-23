@@ -21,6 +21,9 @@ struct VisualizerUniforms {
     float style;
     float presentation;
     float light;
+    float motionAmount;
+    float audioResponse;
+    float palette;
 };
 
 vertex VertexOut zenWaveFullscreenVertex(uint vertexID [[vertex_id]]) {
@@ -251,8 +254,13 @@ float3 liquidConstellationField(float2 point, constant VisualizerUniforms& u) {
     float drive = clamp(u.level, 0.0, 1.0) * u.activity;
     float morph = smoothstep(0.15, 0.85, 0.5 + 0.5 * sin(u.time * 0.23));
     float2 p = point / max(min(u.aspect, 1.0), 0.25) * 5.0;
-    p.y += u.time * 0.07 * morph;
-    p.x += sin(p.y * 0.8 - u.time * 0.22) * morph * 0.30;
+    // Shape morphing must not gate translation. A bounded sinusoidal path keeps
+    // scrolling through both completed shapes and eases continuously into reversal.
+    float travelPhase = u.time * 0.115;
+    float travelVelocity = cos(travelPhase);
+    float travelDirection = travelVelocity / sqrt(travelVelocity * travelVelocity + 0.04);
+    p.y += sin(travelPhase) * 1.35;
+    p.x += sin(p.y * 0.8 - u.time * 0.22) * (0.11 + morph * 0.19);
     float2 cell = floor(p);
     float aa = max(fwidth(p.x), fwidth(p.y));
     float3 result = float3(0.006, 0.01, 0.027);
@@ -273,7 +281,8 @@ float3 liquidConstellationField(float2 point, constant VisualizerUniforms& u) {
                 float gate = smoothstep(0.20, 0.65, waveHash(tile + offset * 3.1));
                 result += hue * (1.0 - smoothstep(0.004, 0.004 + aa, link)) * (1.0 - morph) * gate * 0.30;
             }
-            float2 tail = node + float2(sin(u.time * 0.22 + h * 6.28) * 0.045, 0.24 + drive * 0.08);
+            float2 tail = node + float2(sin(u.time * 0.22 + h * 6.28) * 0.045,
+                (0.24 + drive * 0.08) * travelDirection);
             float stream = constellationEdge(p, node, tail);
             result += hue * exp(-stream * stream / 0.0018) * morph * 0.38;
         }
@@ -286,14 +295,19 @@ float3 prismaticBloomField(float2 point, constant VisualizerUniforms& u) {
     float drive = clamp(u.level, 0.0, 1.0) * u.activity;
     float2 p = point / max(min(u.aspect, 1.0), 0.25);
     float radius = length(p);
-    float angle = atan2(p.y, p.x) + u.time * 0.025;
-    float breath = 1.0 + sin(u.time * 0.18) * 0.09 + bass * 0.06;
+    float angle = atan2(p.y, p.x) + u.time * 0.085;
+    float breath = 1.0 + sin(u.time * 0.32) * 0.04
+        + u.motionAmount * (sin(u.time * 0.46) * 0.12 + sin(u.time * 0.79 + 1.0) * 0.035)
+        + bass * 0.09;
     float aa = max(fwidth(radius), 0.001);
     float3 result = float3(0.010, 0.009, 0.029) + float3(0.04, 0.025, 0.10) * exp(-radius * radius * 4.0);
     for (int ring = 0; ring < 10; ring++) {
         float index = float(ring);
-        float fold = angle + index * 0.055 + sin(u.time * 0.08) * 0.08;
-        float contour = (0.04 + index * 0.034) * breath
+        float fold = angle + index * 0.080
+            + sin(u.time * 0.42 - index * 0.28) * 0.18 * u.motionAmount
+            + sin(radius * 5.0 - u.time * 0.30) * 0.06;
+        float opening = breath + sin(u.time * 0.70 - index * 0.55) * 0.065 * u.motionAmount;
+        float contour = (0.04 + index * 0.034) * opening
             * (1.0 + 0.22 * cos(fold * 12.0) + 0.035 * cos(fold * 24.0));
         float outer = abs(radius - contour);
         float inner = abs(radius - contour * 0.80);
@@ -302,7 +316,7 @@ float3 prismaticBloomField(float2 point, constant VisualizerUniforms& u) {
         float edges = 1.0 - smoothstep(0.001, 0.001 + aa, min(outer, inner));
         float hue = 0.5 + 0.5 * sin(index * 0.60 + fold * 2.0 + u.time * 0.09);
         float3 pigment = mix(float3(0.03, 0.66, 0.86), float3(0.58, 0.18, 0.88), hue);
-        float glint = pow(0.5 + 0.5 * cos(fold * 12.0 - index * 0.24 + u.time * 0.10), 12.0);
+        float glint = pow(0.5 + 0.5 * cos(fold * 12.0 - index * 0.24 + u.time * 0.55), 12.0);
         float glow = exp(-outer * outer / 0.00008);
         result += pigment * (facet * 0.19 + edges * 0.45 + glow * 0.10) * (0.85 + drive * 0.30);
         result += float3(0.62, 0.83, 0.96) * glint * facet * 0.12;
@@ -333,13 +347,292 @@ float3 auroraVeilField(float2 point, constant VisualizerUniforms& u) {
     return 1.0 - exp(-result * 1.45);
 }
 
+// Studio fields share a continuous, low-frequency current. Audio bends the current;
+// it never resets phase or substitutes rapid flashes for motion.
+float2 studioFlowPoint(float2 point, constant VisualizerUniforms& u) {
+    float t = u.time;
+    float amount = u.motionAmount;
+    float scale = max(min(u.aspect, 1.0), 0.25);
+    float breath = sin(t * 0.42) * 0.075 + sin(t * 0.19 + 1.2) * 0.035;
+    float2 p = point / (1.0 + amount * (breath + u.bass * 0.10));
+    float2 curl = float2(sin(p.y / scale * 2.8 - t * 0.24),
+                         cos(p.x / scale * 2.4 + t * 0.21));
+    p += curl * scale * amount * (0.035 + u.mids * 0.035);
+    p += float2(sin(t * 0.13), cos(t * 0.17)) * scale * 0.025 * amount;
+    return p;
+}
+
+float3 studioAtmosphere(float2 p, constant VisualizerUniforms& u) {
+    float2 q = p / max(min(u.aspect, 1.0), 0.25);
+    float cloud = nebulaDust(q * 2.2 + float2(u.time * 0.045, -u.time * 0.035));
+    float halo = exp(-dot(q * float2(0.9, 0.65), q * float2(0.9, 0.65)) * 1.8);
+    float hue = 0.5 + 0.5 * sin(q.x * 1.2 - q.y + u.time * 0.08);
+    return float3(0.006, 0.012, 0.031) + mix(float3(0.015, 0.12, 0.15),
+        float3(0.085, 0.025, 0.17), hue) * halo * (0.25 + cloud * 0.65 + u.bass * 0.18);
+}
+
+float3 studioSilkField(float2 point, constant VisualizerUniforms& u) {
+    float scale = max(min(u.aspect, 1.0), 0.25);
+    float2 p = point / scale;
+    float t = u.time;
+    float ebb = sin(t * 0.40) * 0.5 + sin(t * 0.17 + 1.1) * 0.25;
+    float3 result = studioAtmosphere(point, u);
+    float aa = max(fwidth(p.y), 0.0008);
+    for (int family = 0; family < 3; family++) {
+        float f = float(family);
+        float phase = f * 2.1;
+        float sweep = sin(p.x * 3.3 - t * 0.38 + phase);
+        float fold = sin(p.x * 5.5 + t * 0.22 + phase) * 0.042 * u.motionAmount;
+        float center = (f - 1.0) * 0.12 + sweep * (0.13 + u.motionAmount * 0.07 + u.mids * 0.11)
+            + fold + ebb * 0.085 * u.motionAmount;
+        float fan = (0.025 + 0.075 * (0.5 + 0.5 * sin(p.x * 3.0 - t * 0.27 + phase)))
+            * (1.0 + u.bass * 0.6 + ebb * 0.18 * u.motionAmount);
+        for (int ribbon = 0; ribbon < 16; ribbon++) {
+            float lane = (float(ribbon) - 7.5) / 7.5;
+            float curve = center + lane * fan + lane * lane * sin(p.x * 4.8 + t * 0.31 + phase) * 0.035;
+            float distance = abs(p.y - curve);
+            float core = 1.0 - smoothstep(0.0007, 0.0007 + aa, distance);
+            float glow = exp(-distance * distance / (0.000075 + u.treble * 0.00004));
+            float hue = 0.5 + 0.5 * sin(f * 1.8 + lane * 0.4 + p.x * 1.4 + t * 0.08);
+            float3 color = mix(float3(0.03, 0.80, 0.84), float3(0.48, 0.19, 0.92), hue);
+            float depth = 0.5 + 0.5 * (1.0 - abs(lane));
+            result += color * (core * 0.58 + glow * 0.09) * depth * (0.75 + u.level * 0.25);
+        }
+    }
+    return 1.0 - exp(-result * 1.1);
+}
+
+float3 tidalFlowField(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float t = u.time;
+    float2 current = float2(t * 0.075, -t * 0.055);
+    float2 q = p * 2.1 + current;
+    float2 warp = float2(nebulaDust(q + float2(0.0, t * 0.035)),
+                         nebulaDust(q + float2(4.8, -t * 0.04)));
+    float density = nebulaDust(q + (warp - 0.5) * (2.4 + u.motionAmount * 1.3 + u.bass * 0.7));
+    float contour = density * (12.0 + u.mids * 2.5) + p.y * 1.8 - t * 0.15;
+    float tide = 0.5 + 0.5 * sin(contour * 6.2831853);
+    float foam = pow(tide, 12.0) * (0.18 + u.treble * 0.16);
+    float channel = smoothstep(0.28, 0.78, density);
+    float hue = 0.5 + 0.5 * sin(density * 5.0 + p.x * 0.7 + t * 0.08);
+    float3 pigment = mix(float3(0.02, 0.38, 0.45), float3(0.32, 0.08, 0.55), hue);
+    float3 result = studioAtmosphere(point, u) + pigment * (0.18 + channel * 0.9) * (0.6 + tide * 0.4);
+    result += mix(float3(0.08, 0.85, 0.79), float3(0.60, 0.47, 0.90), hue) * foam;
+    return 1.0 - exp(-result * 1.45);
+}
+
+// The original palette is a passthrough. Other palettes remap only shader pixels,
+// preserving the dark field, highlight detail, and independently composed white captions.
+float3 studioColor(float3 color, constant VisualizerUniforms& u) {
+    if (u.palette < 0.5) { return color; }
+    float3 low, mid, high;
+    if (u.palette < 1.5) {
+        low = float3(0.345, 0.906, 0.886); mid = float3(0.918, 0.498, 0.773); high = float3(0.973, 0.851, 0.514);
+    } else if (u.palette < 2.5) {
+        low = float3(0.616, 0.220, 0.412); mid = float3(0.953, 0.616, 0.616); high = float3(1.0, 0.878, 0.651);
+    } else if (u.palette < 3.5) {
+        low = float3(0.620, 0.090, 0.290); mid = float3(0.980, 0.337, 0.200); high = float3(1.0, 0.812, 0.302);
+    } else if (u.palette < 4.5) {
+        low = float3(0.035, 0.326, 0.306); mid = float3(0.114, 0.788, 0.596); high = float3(0.757, 0.929, 0.529);
+    } else if (u.palette < 5.5) {
+        low = float3(0.082, 0.298, 0.620); mid = float3(0.329, 0.804, 0.922); high = float3(0.855, 0.973, 1.0);
+    } else if (u.palette < 6.5) {
+        low = float3(0.286, 0.141, 0.659); mid = float3(0.710, 0.212, 0.910); high = float3(0.984, 0.643, 0.922);
+    } else if (u.palette < 7.5) {
+        low = float3(0.333, 0.631, 1.0); mid = float3(0.949, 0.290, 0.675); high = float3(1.0, 0.671, 0.808);
+    } else {
+        low = float3(0.063, 0.678, 0.659); mid = float3(0.690, 0.337, 0.729); high = float3(1.0, 0.682, 0.404);
+    }
+    float brightness = max(color.r, max(color.g, color.b));
+    float hue = clamp((color.b - color.g) / max(brightness, 0.001) * 1.6 - 0.18, 0.0, 1.0);
+    float position = clamp(hue * 0.80 + brightness * 0.20, 0.0, 1.0);
+    float3 pigment = position < 0.5 ? mix(low, mid, smoothstep(0.0, 0.5, position))
+                                     : mix(mid, high, smoothstep(0.5, 1.0, position));
+    float3 mapped = pigment / max(max(pigment.r, max(pigment.g, pigment.b)), 0.001) * brightness;
+    float white = min(color.r, min(color.g, color.b)) / max(brightness, 0.001);
+    return mix(mapped, float3(brightness), smoothstep(0.72, 1.0, white) * 0.42);
+}
+
+float3 portalPigment(float hue) {
+    return mix(float3(0.03, 0.76, 0.85), float3(0.63, 0.14, 0.87), hue);
+}
+
+float3 prismaticWormhole(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float t = u.time;
+    float3 result = studioAtmosphere(point, u) * 0.65;
+    float aa = max(fwidth(length(p)), 0.001);
+    for (int ring = 0; ring < 24; ring++) {
+        float travel = fract(float(ring) / 24.0 + t * 0.065);
+        float radius = 0.035 + pow(travel, 1.9) * 1.55;
+        float depth = travel * travel;
+        float2 bend = float2(sin(t * 0.15 + travel * 2.5), cos(t * 0.12 + travel * 2.2))
+            * depth * 0.12 * u.motionAmount;
+        float2 q = p - bend;
+        float angle = atan2(q.y, q.x) + t * 0.13 + travel * 1.8;
+        float petals = cos(angle * 12.0 + sin(t * 0.3 - travel * 3.0) * 0.5);
+        float contour = radius * (1.0 + petals * (0.10 + u.mids * 0.04)
+            + cos(angle * 24.0) * 0.018) * (1.0 + u.bass * 0.12);
+        float distance = abs(length(q) - contour);
+        float width = 0.0007 + depth * 0.003;
+        float edge = 1.0 - smoothstep(width, width + aa, distance);
+        float glow = exp(-distance * distance / (0.00002 + depth * 0.00035));
+        float fade = smoothstep(0.0, 0.08, travel) * (1.0 - smoothstep(0.86, 1.0, travel));
+        float hue = 0.5 + 0.5 * sin(travel * 7.0 + angle * 2.0 - t * 0.14);
+        result += portalPigment(hue) * (edge * 0.65 + glow * 0.18) * fade * (0.65 + u.level * 0.4);
+    }
+    float hole = smoothstep(0.015, 0.065, length(p));
+    return (1.0 - exp(-result * 1.3)) * hole;
+}
+
+float3 auroraWormhole(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float t = u.time;
+    p -= float2(sin(t * 0.16), cos(t * 0.13)) * 0.035 * u.motionAmount;
+    float r = length(p);
+    float angle = atan2(p.y, p.x);
+    float depth = 1.0 / (r + 0.13);
+    float twist = angle + depth * 0.42 + t * 0.18 + sin(depth - t * 0.3) * 0.16 * u.motionAmount;
+    float3 result = studioAtmosphere(point, u);
+    for (int veil = 0; veil < 6; veil++) {
+        float i = float(veil);
+        float fold = 0.5 + 0.5 * cos(twist * 6.0 + i * 0.25 + sin(depth * 1.4 - t * 0.6 + i) * 0.30);
+        float fabric = pow(fold, 9.0);
+        float seam = pow(fold, 60.0);
+        float tide = 0.6 + 0.4 * sin(depth * 2.5 - t * 1.1 + i * 0.8);
+        float hue = 0.5 + 0.5 * sin(depth * 0.8 + i + t * 0.08);
+        result += portalPigment(hue) * (fabric * 0.10 + seam * 0.16) * tide * (0.7 + u.mids * 0.4);
+    }
+    float rings = pow(0.5 + 0.5 * cos(depth * 8.0 - t * 2.4), 15.0);
+    result += float3(0.12, 0.55, 0.68) * rings * 0.20 * (0.7 + u.bass * 0.5);
+    return (1.0 - exp(-result * 1.5)) * smoothstep(0.025, 0.10, r);
+}
+
+float3 cosmicVortex(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float r = length(p);
+    float t = u.time;
+    float angle = atan2(p.y, p.x);
+    float spiral = angle * 5.0 - log(r + 0.035) * (5.0 + u.bass * 0.6) - t * 0.65;
+    float arms = pow(0.5 + 0.5 * cos(spiral + sin(r * 9.0 - t * 0.45) * 0.6 * u.motionAmount), 9.0);
+    float dust = nebulaDust(p * 4.0 + float2(t * 0.08, -t * 0.06));
+    float glow = exp(-r * 0.8) * smoothstep(0.025, 0.13, r);
+    float hue = 0.5 + 0.5 * sin(log(r + 0.06) * 2.0 + angle * 2.0 + t * 0.12);
+    float3 result = studioAtmosphere(point, u) + portalPigment(hue) * arms * glow * (0.15 + dust * 0.65 + u.mids * 0.25);
+    result += starDriftField(point, u) * 0.35;
+    float rim = exp(-pow((r - 0.085 - u.bass * 0.012) * 80.0, 2.0));
+    result += float3(0.25, 0.68, 0.85) * rim * 0.38;
+    return (1.0 - exp(-result * 1.55)) * smoothstep(0.035, 0.065, r);
+}
+
+float3 liquidPortal(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float t = u.time;
+    float r = length(p);
+    float angle = atan2(p.y, p.x);
+    float depth = 1.0 / (r + 0.10);
+    // Integer angular harmonics keep the cylindrical seam continuous.
+    float ripple = sin(angle * 7.0 + t * 0.35 + depth * 0.3) * (0.2 + u.mids * 0.16)
+        + cos(angle * 3.0 - t * 0.22) * 0.15 * u.motionAmount;
+    float rings = 0.5 + 0.5 * sin(depth * 5.0 - t * 1.6 + ripple * 3.0);
+    float caustic = pow(rings, 14.0);
+    float sheen = pow(0.5 + 0.5 * cos(angle * 12.0 + depth * 2.0 - t * 0.4), 6.0);
+    float hue = 0.5 + 0.5 * sin(depth * 0.75 + angle * 2.0 + t * 0.10);
+    float3 result = studioAtmosphere(point, u) + portalPigment(hue)
+        * (0.07 + rings * 0.16 + caustic * (0.30 + u.treble * 0.18) + sheen * caustic * 0.35);
+    return (1.0 - exp(-result * 1.4)) * smoothstep(0.015, 0.09, r);
+}
+
+float3 crystalLotus(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float r = length(p), t = u.time;
+    float angle = atan2(p.y, p.x);
+    float aa = max(fwidth(r), 0.001);
+    float3 result = studioAtmosphere(point, u);
+    for (int layer = 0; layer < 14; layer++) {
+        float i = float(layer);
+        float rotation = angle + i * 0.18 + sin(t * 0.36 - i * 0.31) * 0.24 * u.motionAmount;
+        float opening = 1.0 + sin(t * 0.52 - i * 0.42) * 0.13 * u.motionAmount + u.bass * 0.12;
+        float petals = pow(0.5 + 0.5 * cos(rotation * 8.0), 0.60);
+        float edge = (0.04 + i * 0.032) * opening * (0.63 + petals * 0.46);
+        float distance = abs(r - edge);
+        float facet = smoothstep(edge * 0.72, edge * 0.88, r) * (1.0 - smoothstep(edge * 0.96, edge * 1.02, r));
+        float line = 1.0 - smoothstep(0.001, 0.001 + aa, distance);
+        float hue = 0.5 + 0.5 * sin(i * 0.55 + rotation * 2.0 + t * 0.12);
+        result += portalPigment(hue) * (line * 0.40 + facet * 0.17) * (0.7 + u.level * 0.30);
+        result += float3(0.68, 0.80, 0.94) * pow(petals, 16.0) * facet * (0.10 + u.treble * 0.10);
+    }
+    return 1.0 - exp(-result * 1.35);
+}
+
+float3 radiantIris(float2 point, constant VisualizerUniforms& u) {
+    float2 p = point / max(min(u.aspect, 1.0), 0.25);
+    float r = length(p), t = u.time;
+    float angle = atan2(p.y, p.x) + t * 0.10;
+    float aa = max(fwidth(r), 0.001);
+    float3 result = studioAtmosphere(point, u);
+    float breathing = 1.0 + sin(t * 0.48) * 0.10 * u.motionAmount + u.bass * 0.10;
+    for (int layer = 0; layer < 12; layer++) {
+        float i = float(layer);
+        float twist = angle + sin(t * 0.44 - i * 0.45) * 0.18 * u.motionAmount;
+        float petal = cos(twist * 16.0 - i * 0.20);
+        float contour = (0.055 + i * 0.032) * breathing * (1.0 + petal * 0.13);
+        float distance = abs(r - contour);
+        float edge = 1.0 - smoothstep(0.001, 0.001 + aa, distance);
+        float glow = exp(-distance * distance / 0.00015);
+        float hue = 0.5 + 0.5 * sin(i * 0.75 + twist * 2.0 + t * 0.15);
+        result += portalPigment(hue) * (edge * 0.38 + glow * 0.13) * (0.70 + u.mids * 0.35);
+        float ray = pow(0.5 + 0.5 * cos(twist * 32.0 + r * 15.0 - t * 0.5), 18.0);
+        result += float3(0.58, 0.78, 0.95) * ray * glow * (0.08 + u.treble * 0.12);
+    }
+    return 1.0 - exp(-result * 1.30);
+}
+
+// STUDIO_SACRED_GEOMETRY
+
 fragment half4 zenWaveVisualizerFragment(
     VertexOut input [[stage_in]],
     constant VisualizerUniforms& uniforms [[buffer(0)]]
 ) {
-    float2 point = (input.uv - 0.5) * float2(uniforms.aspect, 1.0);
-    // New styles are additive; the original four rendering branches are untouched.
-    if (uniforms.style > 3.5) {
+    if (uniforms.style > 25.5) {
+        float2 p = (input.uv - 0.5) * float2(uniforms.aspect, 1.0);
+        float3 field = studioAtmosphere(p, uniforms) * 0.55;
+        return half4(half3(studioColor(field, uniforms)), half(1.0));
+    }
+    if (uniforms.style > 19.5) {
+        // Keep sacred constructions rigid: no fluid domain warp is applied to their vertices.
+        float2 p = (input.uv - 0.5) * float2(uniforms.aspect, 1.0)
+            / max(min(uniforms.aspect, 1.0), 0.25);
+        float3 field;
+        if (uniforms.style < 20.5) { field = merkabaField(p, uniforms); }
+        else if (uniforms.style < 21.5) { field = metatronField(p, uniforms); }
+        else if (uniforms.style < 22.5) { field = circleLatticeField(p, uniforms, false); }
+        else if (uniforms.style < 23.5) { field = circleLatticeField(p, uniforms, true); }
+        else if (uniforms.style < 24.5) { field = vesicaField(p, uniforms); }
+        else { field = octahedralField(p, uniforms); }
+        return half4(half3(studioColor(field, uniforms)), half(1.0));
+    }
+    if (uniforms.style > 13.5) {
+        float2 p = studioFlowPoint((input.uv - 0.5) * float2(uniforms.aspect, 1.0), uniforms);
+        float3 field;
+        if (uniforms.style < 14.5) { field = prismaticWormhole(p, uniforms); }
+        else if (uniforms.style < 15.5) { field = auroraWormhole(p, uniforms); }
+        else if (uniforms.style < 16.5) { field = cosmicVortex(p, uniforms); }
+        else if (uniforms.style < 17.5) { field = liquidPortal(p, uniforms); }
+        else if (uniforms.style < 18.5) { field = crystalLotus(p, uniforms); }
+        else { field = radiantIris(p, uniforms); }
+        return half4(half3(studioColor(field, uniforms)), half(1.0));
+    }
+    float2 original = (input.uv - 0.5) * float2(uniforms.aspect, 1.0);
+    float2 point = studioFlowPoint(original, uniforms);
+    if (uniforms.style > 11.5 && uniforms.style < 12.5) {
+        return half4(half3(studioColor(tidalFlowField(point, uniforms), uniforms)), half(1.0));
+    }
+    if (uniforms.style > 2.5 && uniforms.style < 3.5) {
+        return half4(half3(studioColor(studioSilkField(point, uniforms), uniforms)), half(1.0));
+    }
+    // Retain each field’s identity while adding a shared ebb and a luminous atmosphere.
+    if (uniforms.style > 3.5 && uniforms.style < 11.5) {
         float3 field;
         if (uniforms.style < 4.5) { field = deepParticleField(point, uniforms); }
         else if (uniforms.style < 5.5) { field = geometricKaleidoscope(point, uniforms); }
@@ -349,13 +642,14 @@ fragment half4 zenWaveVisualizerFragment(
         else if (uniforms.style < 9.5) { field = liquidConstellationField(point, uniforms); }
         else if (uniforms.style < 10.5) { field = prismaticBloomField(point, uniforms); }
         else { field = auroraVeilField(point, uniforms); }
+        field += studioAtmosphere(point, uniforms) * 0.45;
         if (uniforms.light > 0.5) {
             float mask = clamp(max(field.r, max(field.g, field.b)) * 1.5, 0.0, 1.0);
             float3 ink = mix(float3(0.02, 0.30, 0.39), float3(0.34, 0.14, 0.56),
                 clamp(field.b - field.g + 0.5, 0.0, 1.0));
             field = mix(float3(0.953, 0.933, 0.898), ink, mask);
         }
-        return half4(half3(field), half(1.0));
+        return half4(half3(studioColor(field, uniforms)), half(1.0));
     }
     float liveEnergy = max(uniforms.level, uniforms.peak * 0.82);
     float normalizedBeat = clamp(uniforms.beatFrequency / 30.0, 0.0, 1.0);
@@ -399,7 +693,7 @@ fragment half4 zenWaveVisualizerFragment(
     } else if (uniforms.style < 1.5) {
         // Bloom: an audio-driven radial mandala whose petals open with the mid band.
         float angle = atan2(point.y, point.x);
-        float petalCount = 5.0 + floor(uniforms.mids * 5.0);
+        float petalCount = 8.0;
         float petals = 0.5 + 0.5 * cos(angle * petalCount + motion * 0.65);
         float bloomRadius = 0.13 + uniforms.bass * 0.13 + petals * (0.08 + uniforms.mids * 0.13);
         float bloomEdge = smoothstep(0.052, 0.0, abs(radius - bloomRadius));
@@ -417,7 +711,7 @@ fragment half4 zenWaveVisualizerFragment(
         float tunnelRadius = max(0.0, radius + warp);
         float bandPosition = abs(fract(tunnelRadius * (7.0 + uniforms.treble * 10.0) - motion * 0.24) - 0.5);
         float tunnelRings = smoothstep(0.13 + uniforms.peak * 0.08, 0.0, bandPosition);
-        float spokes = smoothstep(0.93, 1.0, abs(sin(angle * (7.0 + floor(uniforms.mids * 6.0)) - motion * 0.72)));
+        float spokes = smoothstep(0.93, 1.0, abs(sin(angle * 8.0 - motion * 0.72)));
         float centerPortal = smoothstep(0.24 + uniforms.bass * 0.10, 0.02, radius);
         float tunnelFade = smoothstep(0.82, 0.08, radius);
         color = mix(float3(0.015, 0.025, 0.12), violet, centerPortal * 0.62);
@@ -442,7 +736,7 @@ fragment half4 zenWaveVisualizerFragment(
             float midResponse = clamp(uniforms.mids, 0.0, 1.0) * uniforms.activity;
             float highResponse = clamp(uniforms.treble, 0.0, 1.0) * uniforms.activity;
             float swell = loudness * uniforms.activity;
-            float rocking = 0.045 * sin(phase * 0.7);
+            float rocking = 0.085 * uniforms.motionAmount * sin(phase * 0.7);
             p = float2(p.x * cos(rocking) - p.y * sin(rocking),
                        p.x * sin(rocking) + p.y * cos(rocking));
             angle = atan2(p.y, p.x);
@@ -453,7 +747,7 @@ fragment half4 zenWaveVisualizerFragment(
             float support = log(exp(planes.x * 12.0) + exp(planes.y * 12.0)
                 + exp(planes.z * 12.0)) / 12.0;
             float triangleRadius = 0.34 / support;
-            float breath = 1.0 + (0.022 + swell * 0.022) * sin(phase)
+            float breath = 1.0 + (0.055 * uniforms.motionAmount + swell * 0.040) * sin(phase)
                 + swell * 0.035 + uniforms.peak * uniforms.activity * 0.012;
             float fold = sin(angle * 3.0 - phase) * (0.050 + bassResponse * 0.030 + swell * 0.020);
             float drift = (0.018 + midResponse * 0.017) * sin(angle * 2.0 + phase * 0.9);
@@ -484,7 +778,7 @@ fragment half4 zenWaveVisualizerFragment(
             float3 result = uniforms.light > 0.5
                 ? mix(base, mix(float3(0.0, 0.36, 0.41), float3(0.39, 0.16, 0.62), hue), lightMask)
                 : base + ribbonColor * (core + glow * 0.22) * luminance;
-            return half4(half3(result), half(1.0));
+            return half4(half3(studioColor(result, uniforms)), half(1.0));
         }
         // Signature Waves: two sculptural families of fine cyan and violet
         // traces. Audio opens the ribbons and changes their light; the beat
@@ -536,12 +830,12 @@ fragment half4 zenWaveVisualizerFragment(
         color = uniforms.light > 0.5
             ? mix(ink, clamp(float3(0.0, 0.20, 0.28) + ribbons * float3(0.28, 0.12, 0.32), 0.0, 1.0), mask)
             : ink + ribbons;
-        return half4(half3(color), half(1.0));
+        return half4(half3(studioColor(color, uniforms)), half(1.0));
     }
 
     if (uniforms.light > 0.5) {
         color = mix(float3(0.953, 0.933, 0.898), clamp(1.0 - color, 0.05, 0.65), clamp(visualMask, 0.0, 1.0));
     }
     float alpha = 1.0;
-    return half4(half3(color), half(alpha));
+    return half4(half3(studioColor(color, uniforms)), half(alpha));
 }

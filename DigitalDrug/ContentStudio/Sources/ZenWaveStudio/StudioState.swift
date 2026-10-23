@@ -1,6 +1,7 @@
 import AppKit
 import AVFoundation
 import Observation
+import UniformTypeIdentifiers
 
 @MainActor @Observable
 final class StudioState {
@@ -16,6 +17,8 @@ final class StudioState {
     var elapsed = 0.0
     var duration = 0.0
     var playing = false
+    var preparingAudio = false
+    var backgroundURL: URL?
     var clipIndex = -1
     var exporting = false
     var progress = 0.0
@@ -27,7 +30,11 @@ final class StudioState {
     private var player: AVAudioPlayer?
     private var timer: Timer?
     private var exportTask: Task<Void, Never>?
+    private var previewTask: Task<Void, Never>?
+    private var previewGeneration = 0
+    private var previewAudioFolder: URL?
 
+    var audioReady: Bool { player != nil && !preparingAudio }
     var selected: Mantra? { library.first { $0.id == selectedID } }
     var filtered: [Mantra] {
         library.filter { search.isEmpty || "\($0.title) \($0.subtitle) \($0.category)".localizedCaseInsensitiveContains(search) }
@@ -48,19 +55,28 @@ final class StudioState {
             library = try StudioResources.library()
             renderer = try FrameRenderer()
             selectedID = library.first?.id
+            if let path = UserDefaults.standard.string(forKey: "backgroundAudioPath"),
+               FileManager.default.fileExists(atPath: path) {
+                backgroundURL = URL(fileURLWithPath: path)
+            }
             loadSelected()
         } catch { self.error = error.localizedDescription }
     }
     func loadSelected() {
+        previewTask?.cancel(); previewGeneration += 1
         pause(); clipIndex = -1; elapsed = 0; duration = 0; previewImage = nil
+        preparingAudio = false
+        player = nil; envelope = nil
+        clearPreviewMix()
         guard let selected else { return }
         do {
-            envelope = try AudioEnvelope(url: selected.audioURL)
             player = try AVAudioPlayer(contentsOf: selected.audioURL)
             player?.prepareToPlay()
-            duration = envelope?.duration ?? 0
+            duration = player?.duration ?? 0
+            envelope = AudioEnvelope(silence: duration)
             status = "Ready · \(library.count) recordings available"
             redraw()
+            if backgroundURL != nil || settings.soundscape.active { refreshAudioMix() }
         } catch { self.error = error.localizedDescription }
     }
     func redraw() {
@@ -74,12 +90,12 @@ final class StudioState {
     }
     func togglePlayback() {
         if playing { pause(); return }
-        guard let player else { return }
+        guard !preparingAudio, let player else { return }
         if elapsed >= clipEnd - 0.04 || elapsed < clipStart { elapsed = clipStart }
         player.currentTime = elapsed
         guard player.play() else { error = "The recording could not start playing."; return }
         playing = true
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 15, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self, self.playing, let player = self.player else { return }
                 self.elapsed = min(player.currentTime, self.clipEnd)
@@ -93,6 +109,75 @@ final class StudioState {
     func pause() { timer?.invalidate(); timer = nil; player?.pause(); playing = false }
     func seek(_ value: Double) { elapsed = value; player?.currentTime = value; redraw() }
     func clipChanged() { pause(); seek(clipStart) }
+    func chooseBackground() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.audio]
+        panel.canChooseFiles = true; panel.canChooseDirectories = false
+        panel.prompt = "Add background audio"
+        if panel.runModal() == .OK, let url = panel.url {
+            backgroundURL = url
+            UserDefaults.standard.set(url.path, forKey: "backgroundAudioPath")
+            refreshAudioMix()
+        }
+    }
+    func removeBackground() {
+        backgroundURL = nil
+        UserDefaults.standard.removeObject(forKey: "backgroundAudioPath")
+        refreshAudioMix()
+    }
+    private func clearPreviewMix() {
+        if let previewAudioFolder { try? FileManager.default.removeItem(at: previewAudioFolder) }
+        previewAudioFolder = nil
+    }
+    func refreshAudioMix() {
+        guard !exporting, let selected else { return }
+        pause(); previewTask?.cancel(); previewGeneration += 1
+        let generation = previewGeneration
+        let background = backgroundURL
+        let volume = settings.backgroundVolume
+        let soundscape = settings.soundscape
+        let original = selected.audioURL
+        preparingAudio = true
+        status = background == nil ? "Preparing recording…" : "Preparing background mix…"
+        previewTask = Task { [weak self] in
+            guard let self else { return }
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-Preview-\(UUID())", isDirectory: true)
+            var keepFolder = false
+            defer { if !keepFolder { try? FileManager.default.removeItem(at: folder) } }
+            do {
+                try await Task.sleep(nanoseconds: 180_000_000)
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                let worker = Task.detached(priority: .userInitiated) {
+                    let audio = try await AudioMix.prepareForPlayback(voice: original, background: background, volume: volume,
+                        output: folder.appendingPathComponent("preview.m4a"), soundscape: soundscape)
+                    return (audio.playbackURL, audio.motion)
+                }
+                let (url, analysis) = try await withTaskCancellationHandler {
+                    try await worker.value
+                } onCancel: { worker.cancel() }
+                try Task.checkCancellation()
+                guard self.previewGeneration == generation else { return }
+                let newPlayer = try AVAudioPlayer(contentsOf: url)
+                newPlayer.prepareToPlay()
+                self.player = newPlayer
+                self.clearPreviewMix()
+                self.previewAudioFolder = folder; keepFolder = true
+                self.envelope = analysis
+                self.elapsed = min(self.clipEnd, max(self.clipStart, self.elapsed))
+                self.preparingAudio = false
+                self.status = background == nil && !soundscape.active ? "Ready · Original voice with ambient motion" : "Ready · Motion follows background layers only"
+                self.redraw()
+            } catch is CancellationError {
+                if self.previewGeneration == generation { self.preparingAudio = false }
+            } catch {
+                guard self.previewGeneration == generation else { return }
+                self.preparingAudio = false
+                self.player = nil; self.envelope = nil; self.previewImage = nil
+                self.error = error.localizedDescription
+                self.status = "Background audio unavailable. Remove it or choose another file."
+            }
+        }
+    }
     func chooseFolder() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true; panel.canChooseFiles = false
@@ -107,12 +192,12 @@ final class StudioState {
         if queued.contains(id) { queued.remove(id) } else { queued.insert(id) }
     }
     func startExport(batch: Bool) {
-        guard !exporting else { return }
+        guard !exporting, !preparingAudio, player != nil else { return }
         let records = batch ? library.filter { queued.contains($0.id) } : selected.map { [$0] } ?? []
         guard !records.isEmpty else { return }
         pause(); settings.save()
         let settings = settings
-        let jobs = records.map { ExportJob(mantra: $0, settings: settings, start: batch ? 0 : clipStart, end: batch ? nil : clipEnd) }
+        let jobs = records.map { ExportJob(mantra: $0, settings: settings, start: batch ? 0 : clipStart, end: batch ? nil : clipEnd, backgroundURL: backgroundURL) }
         let stamp = DateFormatter(); stamp.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let folder = outputFolder.appendingPathComponent("\(stamp.string(from: Date()))-\(UUID().uuidString.prefix(4))", isDirectory: true)
         exporting = true; progress = 0; completed = 0; batchTotal = jobs.count

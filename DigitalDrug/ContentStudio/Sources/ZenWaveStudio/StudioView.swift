@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StudioView: View {
     @Bindable var studio: StudioState
+    @Environment(\.openWindow) private var openWindow
     var body: some View {
         HSplitView {
             libraryPanel.frame(minWidth: 260, idealWidth: 290, maxWidth: 340)
@@ -16,7 +17,10 @@ struct StudioView: View {
             Button("OK") { studio.error = nil }
         } message: { Text(studio.error ?? "") }
         .onChange(of: studio.selectedID) { _, _ in studio.loadSelected() }
-        .onChange(of: studio.settings) { _, _ in studio.settings.save(); studio.redraw() }
+        .onChange(of: studio.settings) { old, new in
+            studio.settings.save(); studio.redraw()
+            if old.soundscape != new.soundscape || (old.backgroundVolume != new.backgroundVolume && studio.backgroundURL != nil) { studio.refreshAudioMix() }
+        }
         .onChange(of: studio.clipIndex) { _, _ in studio.clipChanged() }
     }
 
@@ -27,6 +31,10 @@ struct StudioView: View {
                 Text("Content Studio").font(.title2.weight(.semibold))
                 Text("Your daily content starts here.").font(.subheadline).foregroundStyle(.secondary)
             }.padding(.top, 18)
+            Button("Live Session…", systemImage: "play.rectangle.on.rectangle") { studio.pause(); openWindow(id: "live-session") }
+                .buttonStyle(.borderedProminent)
+            Button("Random Batch…", systemImage: "shuffle") { studio.pause(); openWindow(id: "random-batch") }
+                .buttonStyle(.bordered)
             TextField("Search recordings", text: $studio.search).textFieldStyle(.roundedBorder)
             HStack {
                 Text("\(studio.library.count) RECORDINGS").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
@@ -67,7 +75,7 @@ struct StudioView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(studio.selected?.title ?? "Preview").font(.title3.weight(.semibold))
-                    Text("Original audio · App visualizers").font(.caption).foregroundStyle(.secondary)
+                    Text(studio.backgroundURL == nil && !studio.settings.soundscape.active ? "Original voice · Ambient motion" : "Voice + background · Background-reactive visuals").font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text("PREVIEW").font(.caption2.weight(.medium)).tracking(2).foregroundStyle(.cyan)
@@ -93,7 +101,7 @@ struct StudioView: View {
                     .accessibilityLabel("Playback position")
                 Text("\(clock(studio.elapsed - studio.clipStart)) / \(clock(studio.clipEnd - studio.clipStart))")
                     .font(.caption.monospacedDigit()).foregroundStyle(.secondary).frame(width: 90)
-            }.disabled(studio.exporting || studio.duration == 0)
+            }.disabled(studio.exporting || !studio.audioReady || studio.duration == 0)
             VStack(alignment: .leading, spacing: 8) {
                 if studio.exporting { ProgressView(value: studio.progress) }
                 HStack {
@@ -114,8 +122,20 @@ struct StudioView: View {
                     GroupBox("VIDEO") {
                         VStack(alignment: .leading, spacing: 16) {
                             Picker("Visualizer", selection: $studio.settings.style) {
-                                ForEach(VisualStyle.all) { Text($0.title).tag($0.id) }
+                                Section("Flow, blooms & space") {
+                                    ForEach(VisualStyle.all.filter { $0.id < 20 }) { Text($0.title).tag($0.id) }
+                                }
+                                Section("Chakras") {
+                                    ForEach(VisualStyle.all.filter { $0.id >= 26 }) { Text($0.title).tag($0.id) }
+                                }
+                                Section("Sacred geometry") {
+                                    ForEach(VisualStyle.all.filter { $0.id >= 20 && $0.id < 26 }) { Text($0.title).tag($0.id) }
+                                }
                             }
+                            Picker("Colors", selection: $studio.settings.palette) {
+                                ForEach(VisualPalette.all) { Text($0.title).tag($0.id) }
+                            }
+                            paletteSwatches
                             Picker("Format", selection: $studio.settings.format) {
                                 ForEach(VideoFormat.allCases) { Text($0.rawValue).tag($0) }
                             }
@@ -123,10 +143,36 @@ struct StudioView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }.padding(8)
                     }
+                    motionControls
+                    SoundscapeControls(soundscape: $studio.settings.soundscape)
+                    backgroundControls
                     GroupBox("TEXT & BRANDING") {
                         VStack(alignment: .leading, spacing: 14) {
                             Toggle("Show mantra captions", isOn: $studio.settings.captions)
-                            Toggle("ZenWave wordmark", isOn: $studio.settings.branding)
+                            Toggle("Show ZenWave branding", isOn: $studio.settings.branding)
+                            if studio.settings.branding {
+                                Picker("Branding", selection: $studio.settings.brandStyle) {
+                                    ForEach(StudioBrandStyle.allCases) { Text($0.rawValue).tag($0) }
+                                }
+                                if studio.settings.brandStyle.showsLogo {
+                                    HStack {
+                                        Image(nsImage: StudioBranding.previewImage)
+                                            .resizable().scaledToFit().frame(width: 48, height: 48).clipShape(RoundedRectangle(cornerRadius: 8))
+                                        Text("Official ZenWave brand mark").font(.caption).foregroundStyle(.secondary)
+                                    }
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text("Logo size").font(.caption)
+                                        Slider(value: $studio.settings.logoSize, in: 0.08...0.20).accessibilityLabel("Logo size")
+                                    }
+                                    HStack {
+                                        Text("Logo opacity").font(.caption)
+                                        Spacer()
+                                        Text(studio.settings.logoOpacity, format: .percent.precision(.fractionLength(0))).font(.caption)
+                                    }
+                                    Slider(value: $studio.settings.logoOpacity, in: 0.25...1).accessibilityLabel("Logo opacity")
+                                    Text("Keeps the original logo colors. Size adapts to stay below captions.").font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
                             TextField("Optional heading", text: $studio.settings.heading, axis: .vertical)
                                 .lineLimit(2...3).textFieldStyle(.roundedBorder)
                             if studio.settings.captions {
@@ -171,11 +217,77 @@ struct StudioView: View {
                 Button(action: { studio.startExport(batch: false) }) {
                     Label("Export this video", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent).controlSize(.large)
-                    .disabled(studio.selected == nil || studio.exporting)
+                    .disabled(studio.selected == nil || studio.exporting || !studio.audioReady)
                 Button("Export queue · \(studio.queued.count) videos") { studio.startExport(batch: true) }
-                    .buttonStyle(.bordered).frame(maxWidth: .infinity).disabled(studio.queued.isEmpty || studio.exporting)
+                    .buttonStyle(.bordered).frame(maxWidth: .infinity).disabled(studio.queued.isEmpty || studio.exporting || !studio.audioReady)
                 Text("Videos are generated locally on this Mac.").font(.caption2).foregroundStyle(.secondary)
             }.padding(20)
+        }
+    }
+    private var paletteSwatches: some View {
+        HStack(spacing: 7) {
+            ForEach((VisualPalette.all.first { $0.id == studio.settings.palette } ?? VisualPalette.all[0]).colors, id: \.self) { hex in
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color(red: Double((hex >> 16) & 255) / 255,
+                                green: Double((hex >> 8) & 255) / 255,
+                                blue: Double(hex & 255) / 255))
+                    .frame(height: 12)
+            }
+        }.accessibilityLabel("Selected color palette")
+    }
+    private var motionControls: some View {
+        GroupBox("MOVEMENT") {
+            VStack(alignment: .leading, spacing: 14) {
+                motionSlider("Pace", value: $studio.settings.motionSpeed, range: 0.25...2)
+                motionSlider("Flow & swell", value: $studio.settings.motionAmount, range: 0...2)
+                motionSlider("Sound response", value: $studio.settings.audioResponse, range: 0...2)
+                Text("Only background layers drive movement. Background bass opens the field, mids shape the flow, and highs add detail. The mantra never drives the visuals.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Button("Reset movement") {
+                    studio.settings.motionSpeed = 1
+                    studio.settings.motionAmount = 1
+                    studio.settings.audioResponse = 1
+                }.font(.caption)
+            }.padding(8)
+        }
+    }
+    private func motionSlider(_ label: String, value: Binding<Double>, range: ClosedRange<Double>) -> some View {
+        VStack(spacing: 5) {
+            HStack {
+                Text(label).font(.caption)
+                Spacer()
+                Text(value.wrappedValue, format: .number.precision(.fractionLength(1)))
+                    .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            Slider(value: value, in: range).accessibilityLabel(label)
+        }
+    }
+    private var backgroundControls: some View {
+        GroupBox("BACKGROUND AUDIO") {
+            VStack(alignment: .leading, spacing: 12) {
+                if let url = studio.backgroundURL {
+                    Label(url.lastPathComponent, systemImage: "music.note").font(.caption).lineLimit(2)
+                    HStack {
+                        Button("Replace…", action: studio.chooseBackground)
+                        Button("Remove", action: studio.removeBackground)
+                    }
+                    HStack {
+                        Text("Background level").font(.caption)
+                        Spacer()
+                        Text(studio.settings.backgroundVolume, format: .percent.precision(.fractionLength(0)))
+                            .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                    }
+                    Slider(value: $studio.settings.backgroundVolume, in: 0...0.6)
+                        .accessibilityLabel("Background audio level")
+                    Text("Loops with crossfades to fill the mantra. Voice and background share headroom to avoid clipping.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Button("Add music or ambient audio…", action: studio.chooseBackground)
+                    Text("Optional. Visuals react to background layers only. Without a background, gentle ambient motion continues.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if studio.preparingAudio { ProgressView("Preparing mix…").font(.caption) }
+            }.padding(8)
         }
     }
     private func clock(_ seconds: Double) -> String {

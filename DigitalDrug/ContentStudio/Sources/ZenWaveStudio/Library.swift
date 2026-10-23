@@ -54,7 +54,39 @@ struct VisualStyle: Identifiable, Hashable {
         .init(id: 4, title: "Deep Particles"), .init(id: 5, title: "Kaleidoscope"),
         .init(id: 6, title: "Star Drift"), .init(id: 7, title: "Nebula Flight"),
         .init(id: 8, title: "Orbital Waves"), .init(id: 9, title: "Liquid Constellations"),
-        .init(id: 10, title: "Prismatic Bloom"), .init(id: 11, title: "Aurora Veil")
+        .init(id: 10, title: "Prismatic Bloom"), .init(id: 11, title: "Aurora Veil"),
+        .init(id: 12, title: "Tidal Flow"), .init(id: 13, title: "Signature Mark"),
+        .init(id: 14, title: "Prismatic Wormhole"), .init(id: 15, title: "Aurora Wormhole"),
+        .init(id: 16, title: "Cosmic Vortex"), .init(id: 17, title: "Liquid Portal"),
+        .init(id: 18, title: "Crystal Lotus"), .init(id: 19, title: "Radiant Iris"),
+        .init(id: 20, title: "Merkaba"), .init(id: 21, title: "Metatron’s Cube"),
+        .init(id: 22, title: "Flower of Life"), .init(id: 23, title: "Seed of Life"),
+        .init(id: 24, title: "Vesica Piscis"), .init(id: 25, title: "Octahedral Halo"),
+        .init(id: 26, title: "Root Chakra"),
+        .init(id: 27, title: "Sacral Chakra"),
+        .init(id: 28, title: "Solar Plexus Chakra"),
+        .init(id: 29, title: "Heart Chakra"),
+        .init(id: 30, title: "Throat Chakra"),
+        .init(id: 31, title: "Third Eye Chakra"),
+        .init(id: 32, title: "Crown Chakra"),
+        .init(id: 33, title: "Chakra Column")
+    ]
+}
+
+struct VisualPalette: Identifiable {
+    let id: Int
+    let title: String
+    let colors: [UInt32]
+    static let all: [VisualPalette] = [
+        .init(id: 0, title: "Original", colors: [0x08CCE0, 0x803DEB, 0xD5A8F5]),
+        .init(id: 1, title: "Opal Spectrum", colors: [0x58E7E2, 0xEA7FC5, 0xF8D983]),
+        .init(id: 2, title: "Rose Gold", colors: [0x9D3869, 0xF39D9D, 0xFFE0A6]),
+        .init(id: 3, title: "Solar Flare", colors: [0x9E174A, 0xFA5633, 0xFFCF4D]),
+        .init(id: 4, title: "Emerald Tide", colors: [0x09534E, 0x1DC998, 0xC1ED87]),
+        .init(id: 5, title: "Glacier", colors: [0x154C9E, 0x54CDEB, 0xDAF8FF]),
+        .init(id: 6, title: "Ultraviolet", colors: [0x4924A8, 0xB536E8, 0xFBA4EB]),
+        .init(id: 7, title: "Candy Nebula", colors: [0x55A1FF, 0xF24AAC, 0xFFABCE]),
+        .init(id: 8, title: "Ocean Sunset", colors: [0x10ADA8, 0xB056BA, 0xFFAE67])
     ]
 }
 
@@ -69,11 +101,47 @@ enum VideoFormat: String, CaseIterable, Identifiable, Codable {
 
 struct ExportSettings: Codable, Equatable {
     var style = 3
+    var palette = 0
     var format: VideoFormat = .portrait
     var captions = true
     var branding = true
+    var brandStyle: StudioBrandStyle = .logoAndWordmark
+    var logoSize = 0.14
+    var logoOpacity = 0.9
     var heading = ""
     var captionOffset = 0.0
+    var motionSpeed = 1.0
+    var motionAmount = 1.0
+    var audioResponse = 1.0
+    var backgroundVolume = 0.22
+    var soundscape = StudioSoundscape()
+
+    // New controls retain their defaults when loading a preset from an older studio build.
+    init() {}
+    private enum CodingKeys: String, CodingKey {
+        case style, palette, format, captions, branding, brandStyle, logoSize, logoOpacity, heading, captionOffset
+        case motionSpeed, motionAmount, audioResponse, backgroundVolume, soundscape
+    }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        style = try c.decodeIfPresent(Int.self, forKey: .style) ?? 3
+        if !VisualStyle.all.contains(where: { $0.id == style }) { style = 3 }
+        palette = try c.decodeIfPresent(Int.self, forKey: .palette) ?? 0
+        if !VisualPalette.all.contains(where: { $0.id == palette }) { palette = 0 }
+        format = try c.decodeIfPresent(VideoFormat.self, forKey: .format) ?? .portrait
+        captions = try c.decodeIfPresent(Bool.self, forKey: .captions) ?? true
+        branding = try c.decodeIfPresent(Bool.self, forKey: .branding) ?? true
+        brandStyle = try c.decodeIfPresent(StudioBrandStyle.self, forKey: .brandStyle) ?? .logoAndWordmark
+        logoSize = min(0.20, max(0.08, try c.decodeIfPresent(Double.self, forKey: .logoSize) ?? 0.14))
+        logoOpacity = min(1, max(0.25, try c.decodeIfPresent(Double.self, forKey: .logoOpacity) ?? 0.9))
+        heading = try c.decodeIfPresent(String.self, forKey: .heading) ?? ""
+        captionOffset = try c.decodeIfPresent(Double.self, forKey: .captionOffset) ?? 0
+        motionSpeed = try c.decodeIfPresent(Double.self, forKey: .motionSpeed) ?? 1
+        motionAmount = try c.decodeIfPresent(Double.self, forKey: .motionAmount) ?? 1
+        audioResponse = try c.decodeIfPresent(Double.self, forKey: .audioResponse) ?? 1
+        backgroundVolume = try c.decodeIfPresent(Double.self, forKey: .backgroundVolume) ?? 0.22
+        soundscape = try c.decodeIfPresent(StudioSoundscape.self, forKey: .soundscape) ?? StudioSoundscape()
+    }
     static func load() -> ExportSettings {
         guard let data = UserDefaults.standard.data(forKey: "exportSettings"),
               let value = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
@@ -81,44 +149,5 @@ struct ExportSettings: Codable, Equatable {
     }
     func save() {
         if let data = try? JSONEncoder().encode(self) { UserDefaults.standard.set(data, forKey: "exportSettings") }
-    }
-}
-
-/// Analyze the original recording once. Export and preview use the same frame-indexed envelope.
-struct AudioEnvelope {
-    let duration: Double
-    let levels: [Float]
-    let peaks: [Float]
-    init(url: URL) throws {
-        let file = try AVAudioFile(forReading: url)
-        let format = file.processingFormat
-        duration = Double(file.length) / format.sampleRate
-        guard duration.isFinite, duration > 0 else { throw StudioError.message("This recording is empty.") }
-        let hop = AVAudioFrameCount(max(1, Int(format.sampleRate / 30)))
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: hop) else {
-            throw StudioError.message("Could not allocate audio analysis buffer.")
-        }
-        var levels: [Float] = [], peaks: [Float] = []
-        while file.framePosition < file.length {
-            try file.read(into: buffer, frameCount: hop)
-            guard buffer.frameLength > 0, let channels = buffer.floatChannelData else { break }
-            var sum: Float = 0, peak: Float = 0
-            for frame in 0..<Int(buffer.frameLength) {
-                var value: Float = 0
-                for channel in 0..<Int(format.channelCount) { value += channels[channel][frame] }
-                value /= Float(format.channelCount)
-                sum += value * value
-                peak = max(peak, abs(value))
-            }
-            func normalize(_ value: Float) -> Float { min(1, max(0, (20 * log10(max(value, 0.000001)) + 60) / 60)) }
-            levels.append(normalize(sqrt(sum / Float(buffer.frameLength))))
-            peaks.append(normalize(peak))
-        }
-        self.levels = levels; self.peaks = peaks
-    }
-    func signal(at time: Double) -> (Float, Float) {
-        guard !levels.isEmpty else { return (0, 0) }
-        let i = min(levels.count - 1, max(0, Int(time * 30)))
-        return (levels[i], peaks[i])
     }
 }

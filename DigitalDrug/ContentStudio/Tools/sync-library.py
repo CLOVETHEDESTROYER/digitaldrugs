@@ -27,7 +27,6 @@ with tempfile.TemporaryDirectory() as tmp:
     script = Path(tmp) / 'main.swift'
     script.write_text(source + exporter)
     subprocess.run(['xcrun', 'swift', str(script), str(resources / 'catalog.json')], check=True)
-shutil.copy2(repo / 'DigitalDrug/Visualizations/ZenWaveVisualizer.metal', resources / 'Visualizer.metal')
 audio = resources / 'Audio'
 audio.mkdir(exist_ok=True)
 import json
@@ -36,4 +35,28 @@ for record in records:
     original = repo / 'Audio/ManifestationMantras' / record['fileName']
     if not original.exists(): raise FileNotFoundError(original)
     shutil.copy2(original, audio / original.name)
-print(f'Synced {len(records)} mantras and the original Metal shader.')
+print(f'Synced {len(records)} mantras. Studio-specific visualizers were preserved.')
+
+# Bundle the existing local nature recordings for offline studio use.
+nature = resources / 'Nature'
+nature.mkdir(exist_ok=True)
+for original in [*(repo / 'Audio/NatureSounds').glob('*.m4a'), repo / 'Audio/Ocean.wav']:
+    (nature / original.name).write_bytes(original.read_bytes())
+print('Synced bundled nature sounds.')
+
+brand = resources / 'Brand'
+brand.mkdir(exist_ok=True)
+logo = repo / 'DigitalDrug/Assets.xcassets/ZenWaveBrandMark.imageset/ZenWaveBrandMark.png'
+(brand / 'ZenWaveLogo.png').write_bytes(logo.read_bytes())
+print('Synced the official ZenWave brand mark.')
+
+# Preserve the exact chakra recordings, pitch-preserving column loops, and artwork.
+chakra = resources / 'Chakra'
+chakra.mkdir(exist_ok=True)
+for original in (repo / 'Audio/ChakraSounds').glob('*.m4a'):
+    (chakra / original.name).write_bytes(original.read_bytes())
+(chakra / 'ColumnLoops').mkdir(exist_ok=True)
+for original in (repo / 'Audio/ChakraSounds/ColumnLoops').glob('*'):
+    if original.is_file(): (chakra / 'ColumnLoops' / original.name).write_bytes(original.read_bytes())
+(chakra / 'chakra-column.png').write_bytes((repo / 'DigitalDrug/Assets.xcassets/ChakraColumn.imageset/chakra-column.png').read_bytes())
+print('Synced chakra recordings, column loops and official column artwork.')

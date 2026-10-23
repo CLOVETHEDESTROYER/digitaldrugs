@@ -1,0 +1,64 @@
+{
+  "durationSeconds": 10,
+  "sampleRate": 44100,
+  "framesPerLoop": 441000,
+  "method": "Pitch-preserving atempo; 10 ms boundary fades; stereo PCM16 WAV",
+  "recordings": [
+    {
+      "source": "root_chakra.m4a",
+      "sourceSHA256": "866b5f80949b369a36255af64143b92c11b843bc1cbb45eb4431a2e793611a22",
+      "sourceDurationSeconds": 16.114649,
+      "tempoFactor": 1.6114649,
+      "output": "root_chakra_column_10s.wav",
+      "outputSHA256": "03ff847265636617f797747eec2dee56d213d59c2b91513b7a668e3ba63c7836"
+    },
+    {
+      "source": "sacral_417.m4a",
+      "sourceSHA256": "c20dbb9c27526d37950393ac7196767b2dd94edb393fbf98f2d815883143e39b",
+      "sourceDurationSeconds": 16.114649,
+      "tempoFactor": 1.6114649,
+      "output": "sacral_417_column_10s.wav",
+      "outputSHA256": "b4ddf400f79ac2b90c91fc0f02fd23b44cad429cb24bcd4628515a420becf69f"
+    },
+    {
+      "source": "solar_plexus_528.m4a",
+      "sourceSHA256": "6cacbd5c26d79451c05e8e19e33899b46725d34cb0966cb181301cd2284ece6d",
+      "sourceDurationSeconds": 16.114649,
+      "tempoFactor": 1.6114649,
+      "output": "solar_plexus_528_column_10s.wav",
+      "outputSHA256": "bf577594f385746afe72c590011fd00d81e2255b893f5c888a5bce225bbef641"
+    },
+    {
+      "source": "heart_639.m4a",
+      "sourceSHA256": "c51a8bc5fab8394e695c13de4b6ce7414c00a042122ce16ed83df977ece03897",
+      "sourceDurationSeconds": 14.117732,
+      "tempoFactor": 1.4117732,
+      "output": "heart_639_column_10s.wav",
+      "outputSHA256": "f663bbc74a7e541c782a8376adb25ca925613a45df5ad95da0650df2471510fe"
+    },
+    {
+      "source": "throat_741.m4a",
+      "sourceSHA256": "83ae7fb0dd881ad600dc521f6a6ff558ba1e866c580e6c4ab9ce4c5d1fd3b99d",
+      "sourceDurationSeconds": 13.142494,
+      "tempoFactor": 1.3142494,
+      "output": "throat_741_column_10s.wav",
+      "outputSHA256": "740d1ce8bd2341aa1adecae783658ce9ea193f9a8e8cf32369e3acaa3964c818"
+    },
+    {
+      "source": "third_eye_852.m4a",
+      "sourceSHA256": "01f1d0dca8cc6a85bf2fb743d715333109a36df26470b1abde66c4fb2091b1ec",
+      "sourceDurationSeconds": 13.142494,
+      "tempoFactor": 1.3142494,
+      "output": "third_eye_852_column_10s.wav",
+      "outputSHA256": "cdac3fc33207f5c7bf1bf87fe0fda547b4268136ff00f9c1578945dc8ac16560"
+    },
+    {
+      "source": "crown_963.m4a",
+      "sourceSHA256": "d61bb1b8ebc9c21aa90e8b8f24dc81a30074da83f740862985cece0301f1553e",
+      "sourceDurationSeconds": 13.142494,
+      "tempoFactor": 1.3142494,
+      "output": "crown_963_column_10s.wav",
+      "outputSHA256": "8feb0d1e7290d48cd6453d36bfa48af7f5e4a6724e4963ada6606d2eb85f96ef"
+    }
+  ]
+}

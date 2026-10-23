@@ -7,6 +7,10 @@ struct ExportJob: Sendable {
     let settings: ExportSettings
     let start: Double
     let end: Double?
+    var backgroundURL: URL? = nil
+    var liveTimeline: LiveTimeline? = nil
+    var preparedAudio: URL? = nil
+    var preparedMotion: AudioEnvelope? = nil
 }
 
 struct ExportReceipt: Codable {
@@ -16,22 +20,37 @@ struct ExportReceipt: Codable {
     let start: Double
     let end: Double
     let settings: ExportSettings
+    let backgroundFile: String?
+    var motionSource: String? = "background-only"
 }
 
 enum VideoExporter {
     /// Runs off the main actor. No screen capture, window visibility, or real-time playback is involved.
     static func export(_ job: ExportJob, to output: URL, widthOverride: Int? = nil,
                        heightOverride: Int? = nil, progress: @escaping @Sendable (Double) -> Void) async throws {
-        let envelope = try AudioEnvelope(url: job.mantra.audioURL)
+        let scratch = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: scratch, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: scratch) }
+        let source: URL
+        let envelope: AudioEnvelope
+        let audioDuration: Double
+        if let prepared = job.preparedAudio {
+            source = prepared
+            let file = try AVAudioFile(forReading: prepared)
+            audioDuration = Double(file.length) / file.processingFormat.sampleRate
+            // A prepared playback mix may contain speech. Never use it as a fallback motion source.
+            envelope = job.preparedMotion ?? AudioEnvelope(silence: audioDuration)
+        } else {
+            let audio = try await AudioMix.prepareForPlayback(voice: job.mantra.audioURL, background: job.backgroundURL,
+                volume: job.settings.backgroundVolume, output: scratch.appendingPathComponent("mix.m4a"), soundscape: job.settings.soundscape)
+            source = audio.playbackURL; envelope = audio.motion; audioDuration = audio.duration
+        }
         let start = max(0, job.start)
-        let end = min(envelope.duration, job.end ?? envelope.duration)
+        let end = min(audioDuration, job.end ?? audioDuration)
         guard end > start else { throw StudioError.message("The clip must end after it starts.") }
         let duration = end - start
         let width = widthOverride ?? job.settings.format.width
         let height = heightOverride ?? job.settings.format.height
-        let scratch = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: scratch, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: scratch) }
         let silent = scratch.appendingPathComponent("visualizer.mov")
         let staged = scratch.appendingPathComponent("finished.mp4")
         let writer = try AVAssetWriter(outputURL: silent, fileType: .mov)
@@ -56,6 +75,7 @@ enum VideoExporter {
         guard writer.startWriting() else { throw writer.error ?? StudioError.message("Could not begin writing video.") }
         writer.startSession(atSourceTime: .zero)
         let renderer = try FrameRenderer()
+        let liveRenderer = job.liveTimeline == nil ? nil : LiveFrameRenderer()
         let frameCount = Int(ceil(duration * 30))
         do {
             for i in 0..<frameCount {
@@ -67,8 +87,13 @@ enum VideoExporter {
                 }
                 try autoreleasepool {
                     let time = Double(i) / 30
-                    let image = try renderer.frame(width: width, height: height, time: time, audioTime: start + time,
+                    let image: CGImage
+                    if let timeline = job.liveTimeline, let liveRenderer {
+                        image = try liveRenderer.frame(width: width, height: height, time: time, envelope: envelope, timeline: timeline, settings: job.settings)
+                    } else {
+                        image = try renderer.frame(width: width, height: height, time: time, audioTime: start + time,
                                                    envelope: envelope, mantra: job.mantra, settings: job.settings)
+                    }
                     guard let pool = adaptor.pixelBufferPool else { throw StudioError.message("The encoder has no video buffer pool.") }
                     var optional: CVPixelBuffer?
                     let result = CVPixelBufferPoolCreatePixelBuffer(nil, pool, &optional)
@@ -96,7 +121,7 @@ enum VideoExporter {
             progress(0.92)
             let composition = AVMutableComposition()
             let videoAsset = AVURLAsset(url: silent)
-            let audioAsset = AVURLAsset(url: job.mantra.audioURL)
+            let audioAsset = AVURLAsset(url: source)
             guard let video = try await videoAsset.loadTracks(withMediaType: .video).first,
                   let audio = try await audioAsset.loadTracks(withMediaType: .audio).first,
                   let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
@@ -119,9 +144,13 @@ enum VideoExporter {
             // Create the final file only after the full movie is complete. Never overwrite an existing export.
             try FileManager.default.copyItem(at: staged, to: output)
             let receipt = ExportReceipt(title: job.mantra.title, sourceFile: job.mantra.fileName,
-                captionTiming: job.mantra.timing, start: start, end: end, settings: job.settings)
+                captionTiming: job.mantra.timing, start: start, end: end, settings: job.settings,
+                backgroundFile: job.backgroundURL?.lastPathComponent)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(receipt).write(to: output.deletingPathExtension().appendingPathExtension("json"), options: .atomic)
+            if let timeline = job.liveTimeline {
+                try encoder.encode(timeline).write(to: output.deletingPathExtension().appendingPathExtension("playlist.json"), options: .atomic)
+            }
             let srt = subtitles(job: job, start: start, end: end)
             if job.settings.captions {
                 try srt.write(to: output.deletingPathExtension().appendingPathExtension("srt"), atomically: true, encoding: .utf8)
