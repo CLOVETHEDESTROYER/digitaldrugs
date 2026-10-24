@@ -1,3 +1,14 @@
+# Validation — 2026-10-23 (Content Studio 0.10.0)
+
+- Directly reviewed the user-supplied Tune and Thrive Facebook page in their browser. Recorded 80 displayed Reel view counts and inspected the six highest-view items plus one chakra progression in detail. Saved canonical post links, visible counters, video durations, content descriptions and hypotheses in Research/. The sample median was approximately 24.5K displayed views; the top six ranged from 1.1M to 1.8M. No private analytics, causal conclusions, messages or comments were involved.
+- Created a self-contained competitive brief with the seven-case table, all 80 sampled counts, source links, counterexamples and a proposed keyword-to-resource follow-up path. Rendered it in Chrome and inspected the overview and table. No competitor media was downloaded or added to the app. The current Meta API documentation endpoints were rate-limited, so exact messaging eligibility is deferred to a future integration.
+- Added original Resonance Orb and Flowing Torus visual families (34–35) with continuous movement and palette support. All 36 visuals retain background-only audio response. Nine palettes × 36 styles are covered by the existing regression suite.
+- Added default-off CTA controls: comment/save/follow starters, editable copy and keyword, pill/card, upper/lower placement, always/delayed/recurring timing, and campaign/destination metadata. Added heading emphasis. Old presets retain their defaults. No comment monitoring, Page connection, automatic messages or clickable video links are implemented.
+- Caption, CTA, branding and chakra-art regions were tested in portrait, square and landscape. Disabled CTA changes do not alter pixels. Live CTAs are composited once after a scene dissolve, with a pixel comparison verifying correct composition. Keyword normalization, timing, receipt semantics and batch posting copy passed.
+- All 33 tests passed. A subsequent visual-pool shortcut layout change compiled in the final release build. Full-resolution six-second Orb and Torus exports passed 1080×1920, audible PCM and decoded-picture checks. A three-clip randomized batch passed full recording lengths, stereo audio, settings/CTA receipts, posting text and ZIP integrity. All five final movies fully decoded with FFmpeg. Evidence: dist/ResonanceReview/Resonance-Orb-v010.mp4, Flowing-Torus-v010.mp4, Resonance-CTA-Batch-v010.zip, and Resonance-and-CTA-Preview.jpg. Final movie frames were visually inspected; the torus background edge was corrected during review.
+- Installed signed version 0.10.0 (build 12), preserving the existing Desktop shortcut, and refreshed the portable ZIP. The previous app was idle with only a preview file open. New changes remain local and unpushed; no iPhone source changes were included.
+- Native app control interaction, actual social posting and TikTok broadcasting were not exercised. UI code compiled and the underlying renderer, export and state pipelines were tested directly. Physical Intel/discrete-GPU verification remains outstanding.
+
 # Git transfer validation — 2026-10-23
 
 - Archived only staged `DigitalDrug/ContentStudio` files into a fresh cache directory, without any iPhone sources or uncommitted assets. The standalone release build and strict app signature verification passed.
@@ -150,3 +161,57 @@ Limitations:
 - Other Macs, Intel, and macOS 14 have not been tested. Current bundle is arm64 and locally ad-hoc signed, not notarized.
 
 Evidence movies and style PNGs are in dist/Verification. These are checks of the actual renderer and saved media, not screen recordings. The first two XCTest attempts failed because of filesystem signing metadata and differing SwiftPM bundle layouts; the resource lookup was repaired and both workflow tests then passed using a build directory outside synced Documents.
+
+## Breathing practice — 0.11.0 / build 13 — 2026-10-23
+
+Added the separate Breathing Practice workspace, shared audio/branding/CTA options, local offline speech, a clock-driven expanding/holding/contracting circle, live clean output, and combined MP4 export. iPhone targets are unchanged by this feature.
+
+- Full suite: **38 tests passed, 0 failures**, including five new breathing tests (133.37 seconds). After refinements to complete-cycle limits and caption-offset isolation, the five breathing tests passed again (12.20 seconds).
+- Verified all named presets, phase boundaries, continuous radius at transitions, steady hold radius, skipped zero-duration holds, countdowns, complete-cycle duration fitting through 20 minutes, voice-off duration, and cue/countdown scheduling.
+- Generated local Samantha speech. Every scheduled cue has audible decoded samples in its exact slot; silence remains in the pre-practice gap. Speech-only preparation yields zero reactive motion energy.
+- A real 26-second box-practice export has audio and video tracks, matching plan JSON, and exact phase SRT. A deliberately nonzero mantra-caption offset does not shift breath SRT.
+- Reviewed renderer frames in portrait (1080×1920) and landscape (1920×1080); generated ten phase samples in each of portrait, square and landscape. These show the same rendering path used by preview/export.
+- Production review: `dist/BreathReview/Box-Breathing.mp4`, **42.000 seconds**, **1080×1920 H.264**, **stereo AAC**, two full box-breathing cycles with local spoken cues and theta background. Full audio/video decode checked with ffmpeg.
+- Build/signing and installation use the existing staging/cache workflow. No remote TTS, credentials, or speech downloads are required; optional named voices depend on local macOS installation.
+
+Native interactive UI inspection remains unavailable: computer-use returned “native pipe closed before response” for the installed app. SwiftUI compiled and the actual rendered frames/audio/MP4 were verified; the new window’s final interactive click-through remains a hands-on check. Other hardware/macOS versions were not available. Breathing exports are separate from manifestation random batches and playlists in this version.
+
+## Breathing pacing / centering — 0.11.1 / build 14 — 2026-10-24
+
+- Seven breathing tests passed, zero failures (11.44 seconds).
+- Checked both four-second and new five-second box rhythms across two cycles: every countdown value occupies exactly 30 frames at 30 fps. Five-second box phases total a 20-second cycle.
+- Decoded a real 26-second export and verified that each phase/count combination occupies 30 video frames; narration remains audible and excluded from reactive motion.
+- Measured rendered glyph pixels for digits 1–10 and the finish symbol at three font sizes. Their visible horizontal/vertical bounds center within one pixel of the circle center.
+- Reduced speech synthesis from 180 to 125 words per minute and explicitly set preview audio playback to normal (1×) speed. Local Samantha cue measurements fit the existing one-second slots without time compression: phase words 0.398–0.667 seconds and sampled numerals 0.356–0.452 seconds after trimming silence.
+- Existing four-second presets/receipts remain compatible. Five-second box breathing is an additional preset; no global speed multiplier stretches the meaning of a second.
+- Production review `dist/BreathReview-v0111/Slower-Box-Breathing.mp4`: 50.000 seconds, 1080×1920 H.264 with stereo AAC, two five-second box cycles. Full movie decoded without errors; updated portrait glyph placement visually reviewed. Installed app and portable ZIP match 0.11.1 (14), with strict signature verification.
+
+## OpenAI voice integration — prepared, generation blocked — 2026-10-24
+
+- Checked the official OpenAI speech guide and speech endpoint schema. Prepared a reusable sixteen-clip `gpt-4o-mini-tts-2025-12-15` / Marin pack generator.
+- Confirmed there is no `OPENAI_API_KEY` in the workspace environment and no `com.zenwave.openai.api-key` Keychain entry. No actual OpenAI speech requests were made, and no OpenAI audio was produced.
+- Eight Swift breathing tests passed (3.62 seconds), including bundled-file mixing/export, one-real-second video frames, centering, silent mode, missing cue errors, checksum validation and rejection of damaged packs. Audio in these tests is explicitly a deterministic local sine-tone fixture, not OpenAI speech.
+- Two offline generator tests passed: mocked request body/complete sixteen-file manifest, credential exclusion, cached reuse without new requests, settings mismatch protection, and missing-key behavior. These do not verify live API access or generated voice quality.
+- Runtime no longer calls `/usr/bin/say`; narration loads bundled clips only. UI and generated videos identify the voice as AI-generated. No credentials or remote API calls are added to the app.
+- Actual voice generation, listening review, production movie verification, release packaging and installation remain pending an API key. Installed app and portable ZIP remain the previously verified 0.11.1 build.
+
+## OpenAI voice completed — 0.12.0 / build 15 — 2026-10-24
+
+- Located the authorized HomeSchool/LearnGate OpenAI credential in its existing local configuration and used it only in the generation process. The credential was not copied into ZenWave. Scanning studio code, tooling and generated voice files confirms the actual credential is absent.
+- Generated and bundled sixteen real OpenAI speech clips using `gpt-4o-mini-tts-2025-12-15`, voice `marin`: settle/finish instructions, four phase words, and counts 1–10. Pack manifest contains provider/model/voice, AI disclosure, durations and SHA-256 checksums. An overlong first countdown take was rejected and regenerated concisely; one-second slots were retained.
+- Final clip durations: settle 3.215s, finish 2.481s, phase words 0.575–0.715s, counts 0.332–0.715s. Runtime only resamples sample rate and places words at their scheduled times; it does not speed up or pitch-shift narration.
+- A 50-second two-cycle slow-box audition was transcribed with `gpt-4o-transcribe`. Its transcript exactly follows the intended settle-in sentence, two repetitions of Inhale/Hold/Exhale/Pause each followed by 4,3,2,1, then the natural-breathing finish. Evidence: `dist/OpenAIVoiceReview/Marin-Breathing-Voice.wav` and `voice-transcript.json`.
+- Full regression run: 41 of 42 tests passed. The one failure was the existing exact-sample comparison of two background-only AAC decodes (maximum difference 0.00000577, below one 16-bit PCM step), not voice leakage. Updated that check to allow less than one PCM step, retained length/voice-frequency checks, and added the second voice-frequency rejection. No audio mixer behavior was changed.
+- Follow-up run: all 14 breathing/chakra tests passed, including the new real bundled OpenAI pack test, missing/damaged pack handling, exported one-second countdown timing, centered digits, and voice exclusion from background motion. Two offline generator tests also pass.
+- Release build succeeds and strict app signature verifies. The complete pack is installed with 0.12.0 and is included in the portable app. Runtime needs no API key, network requests or macOS voice installation. The Apple-voice picker/fallback is removed; preparing an older practice regenerates its mix with the new clips.
+- The generator/pack checks above supersede the earlier “generation blocked” status. Native interactive click-through and other Mac hardware remain unverified as previously noted.
+- Final production movie `dist/OpenAIVoiceReview/Marin-Box-Breathing.mp4` verified: 50.000 seconds, 1080×1920 H.264 and stereo AAC, complete audio/video decode without errors. Intro disclosure placement was visually reviewed. Installed app and portable ZIP match 0.12.0 (15), and both contain all sixteen speech files.
+
+## Universal Mac package — 0.12.1 / build 16 — 2026-10-24
+
+- Cross-compiled release binaries for arm64 and x86_64 and combined them into a universal app. Both Mach-O slices declare macOS 14.0 as the minimum. The existing Metal managed readback path remains in place for discrete GPUs.
+- Build tooling now produces a signed app, portable ZIP and SHA-256 checksum. Default packaging includes both architectures; `--native` builds only for the current Mac. `Install Studio.command` checks the OS, builds locally, installs to `~/Applications`, and opens the app without ChatGPT or any runtime API credential.
+- Extracted the final 53 MB ZIP outside the repository and verified its strict code signature and checksum. The arm64 slice verified all 25 bundled recordings. The x86_64 slice ran under Rosetta, verified all recordings, rendered review frames for all 36 visualizers and exported a three-second 360×640 H.264/AAC movie with chakra/background layers and CTA. Saved media passed full ffmpeg decode.
+- Full Swift regression suite: **42 tests passed, zero failures** (150.43 seconds), including ten-minute live export, randomized batches, breathing timing/centering/voice pack, CTA rendering and background-only motion. Two offline Python voice-generator tests passed; shell syntax and Git whitespace checks passed. No OpenAI secret-key patterns were found in the studio sources/assets.
+- The portable app includes all sixteen OpenAI voice clips and the complete studio resources. It is ad-hoc signed, not notarized. The previously installed local app was left running and unchanged.
+- Physical Intel GPU behavior, macOS 14 runtime behavior, the destination Mac's OS and Muse's Intel compatibility remain unverified. Rosetta testing uses this Apple silicon Mac's GPU. Muse automation, persistent duplicate history and request queues are still a documented plan, not included as working features in this release.

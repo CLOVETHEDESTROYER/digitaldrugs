@@ -35,12 +35,17 @@ struct RandomBatchView: View {
                     }
                     DisclosureGroup("Visuals · \(batch.stylePool.count) selected") {
                         VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Button("All") { batch.stylePool = Set(VisualStyle.all.map(\.id)) }
-                                Button("Blooms & wormholes") { batch.stylePool = [10, 14, 15, 16, 17, 18, 19] }
-                                Button("Sacred") { batch.stylePool = Set(20...25) }
-                                Button("Chakras") { batch.stylePool = Set(26...33) }
-                                Button("Clear") { batch.stylePool.removeAll() }
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Button("All") { batch.stylePool = Set(VisualStyle.all.map(\.id)) }
+                                    Button("Blooms & wormholes") { batch.stylePool = [10, 14, 15, 16, 17, 18, 19] }
+                                    Button("Clear") { batch.stylePool.removeAll() }
+                                }
+                                HStack {
+                                    Button("Sacred") { batch.stylePool = Set(20...25) }
+                                    Button("Chakras") { batch.stylePool = Set(26...33) }
+                                    Button("Resonance") { batch.stylePool = [34, 35] }
+                                }
                             }
                             ForEach(VisualStyle.all) { style in Toggle(style.title, isOn: membership(style.id, in: $batch.stylePool)) }
                         }.padding(.top, 8)
@@ -89,7 +94,7 @@ struct RandomBatchView: View {
                         Button("Generate batch") { generate(newSeed: false) }.buttonStyle(.borderedProminent)
                         Button("Reshuffle unlocked") { generate(newSeed: true) }.disabled(batch.plan == nil)
                     }
-                    Text("Uses complete recordings and the main studio’s caption, branding, motion and imported background-audio settings at generation time; beat, nature and chakra choices are set here. Export always uses the reviewed batch; generate again to apply settings edits.")
+                    Text("Uses complete recordings and the main studio’s caption, branding, call-to-action, motion and imported background-audio settings at generation time; beat, nature and chakra choices are set here. Export always uses the reviewed batch; generate again to apply settings edits.")
                         .font(.caption).foregroundStyle(.secondary)
                     if let plan = batch.plan {
                         Text("REVIEW · \(plan.clips.count) CLIPS").font(.caption.bold()).foregroundStyle(.cyan)

@@ -50,8 +50,13 @@ enum StudioVerification {
         let audio = try await AudioMix.prepareForPlayback(voice: mantra.audioURL, background: background, volume: 0.22,
             output: scratch.appendingPathComponent("mix.m4a"), soundscape: reviewSoundscape)
         let envelope = audio.motion
+        var reviewCTA = StudioCallToAction()
+        if CommandLine.arguments.contains("--with-cta") {
+            reviewCTA.enabled = true; reviewCTA.delay = 1; reviewCTA.campaign = "Resonance review"
+            reviewCTA.headline = "Comment {keyword}"; reviewCTA.detail = "Share your intention below"
+        }
         for style in VisualStyle.all {
-            var settings = ExportSettings(); settings.style = style.id
+            var settings = ExportSettings(); settings.style = style.id; settings.callToAction = reviewCTA
             settings.palette = Int(argument("--palette") ?? "0") ?? 0
             if CommandLine.arguments.contains("--visual-only") { settings.captions = false; settings.branding = false }
             let image = try renderer.frame(width: 360, height: 640, time: 2, audioTime: 2,
@@ -93,6 +98,7 @@ enum StudioVerification {
         var settings = ExportSettings()
         settings.heading = "Your daily mantra"
         settings.soundscape = reviewSoundscape
+        settings.callToAction = reviewCTA
         settings.style = Int(argument("--style") ?? "3") ?? 3
         settings.palette = Int(argument("--palette") ?? "0") ?? 0
         if CommandLine.arguments.contains("--visual-only") {

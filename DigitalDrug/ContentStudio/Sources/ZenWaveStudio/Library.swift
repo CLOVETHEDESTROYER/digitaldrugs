@@ -69,7 +69,8 @@ struct VisualStyle: Identifiable, Hashable {
         .init(id: 30, title: "Throat Chakra"),
         .init(id: 31, title: "Third Eye Chakra"),
         .init(id: 32, title: "Crown Chakra"),
-        .init(id: 33, title: "Chakra Column")
+        .init(id: 33, title: "Chakra Column"),
+        .init(id: 34, title: "Resonance Orb"), .init(id: 35, title: "Flowing Torus")
     ]
 }
 
@@ -109,18 +110,20 @@ struct ExportSettings: Codable, Equatable {
     var logoSize = 0.14
     var logoOpacity = 0.9
     var heading = ""
+    var headingEmphasis = 1.0
     var captionOffset = 0.0
     var motionSpeed = 1.0
     var motionAmount = 1.0
     var audioResponse = 1.0
     var backgroundVolume = 0.22
     var soundscape = StudioSoundscape()
+    var callToAction = StudioCallToAction()
 
     // New controls retain their defaults when loading a preset from an older studio build.
     init() {}
     private enum CodingKeys: String, CodingKey {
-        case style, palette, format, captions, branding, brandStyle, logoSize, logoOpacity, heading, captionOffset
-        case motionSpeed, motionAmount, audioResponse, backgroundVolume, soundscape
+        case style, palette, format, captions, branding, brandStyle, logoSize, logoOpacity, heading, headingEmphasis, captionOffset
+        case motionSpeed, motionAmount, audioResponse, backgroundVolume, soundscape, callToAction
     }
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -135,12 +138,14 @@ struct ExportSettings: Codable, Equatable {
         logoSize = min(0.20, max(0.08, try c.decodeIfPresent(Double.self, forKey: .logoSize) ?? 0.14))
         logoOpacity = min(1, max(0.25, try c.decodeIfPresent(Double.self, forKey: .logoOpacity) ?? 0.9))
         heading = try c.decodeIfPresent(String.self, forKey: .heading) ?? ""
+        headingEmphasis = min(2.4, max(0.75, try c.decodeIfPresent(Double.self, forKey: .headingEmphasis) ?? 1))
         captionOffset = try c.decodeIfPresent(Double.self, forKey: .captionOffset) ?? 0
         motionSpeed = try c.decodeIfPresent(Double.self, forKey: .motionSpeed) ?? 1
         motionAmount = try c.decodeIfPresent(Double.self, forKey: .motionAmount) ?? 1
         audioResponse = try c.decodeIfPresent(Double.self, forKey: .audioResponse) ?? 1
         backgroundVolume = try c.decodeIfPresent(Double.self, forKey: .backgroundVolume) ?? 0.22
         soundscape = try c.decodeIfPresent(StudioSoundscape.self, forKey: .soundscape) ?? StudioSoundscape()
+        callToAction = try c.decodeIfPresent(StudioCallToAction.self, forKey: .callToAction) ?? StudioCallToAction()
     }
     static func load() -> ExportSettings {
         guard let data = UserDefaults.standard.data(forKey: "exportSettings"),

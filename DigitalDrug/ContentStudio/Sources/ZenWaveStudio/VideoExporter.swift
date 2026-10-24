@@ -11,6 +11,7 @@ struct ExportJob: Sendable {
     var liveTimeline: LiveTimeline? = nil
     var preparedAudio: URL? = nil
     var preparedMotion: AudioEnvelope? = nil
+    var breathPlan: BreathPlan? = nil
 }
 
 struct ExportReceipt: Codable {
@@ -76,6 +77,7 @@ enum VideoExporter {
         writer.startSession(atSourceTime: .zero)
         let renderer = try FrameRenderer()
         let liveRenderer = job.liveTimeline == nil ? nil : LiveFrameRenderer()
+        let breathRenderer = job.breathPlan == nil ? nil : BreathRenderer()
         let frameCount = Int(ceil(duration * 30))
         do {
             for i in 0..<frameCount {
@@ -88,7 +90,9 @@ enum VideoExporter {
                 try autoreleasepool {
                     let time = Double(i) / 30
                     let image: CGImage
-                    if let timeline = job.liveTimeline, let liveRenderer {
+                    if let plan = job.breathPlan, let breathRenderer {
+                        image = try breathRenderer.frame(width: width, height: height, time: start + time, envelope: envelope, plan: plan, settings: job.settings)
+                    } else if let timeline = job.liveTimeline, let liveRenderer {
                         image = try liveRenderer.frame(width: width, height: height, time: time, envelope: envelope, timeline: timeline, settings: job.settings)
                     } else {
                         image = try renderer.frame(width: width, height: height, time: time, audioTime: start + time,
@@ -148,8 +152,14 @@ enum VideoExporter {
                 backgroundFile: job.backgroundURL?.lastPathComponent)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(receipt).write(to: output.deletingPathExtension().appendingPathExtension("json"), options: .atomic)
+            if job.settings.callToAction.enabled {
+                try encoder.encode(StudioFollowUpReceipt(job.settings.callToAction)).write(to: output.deletingPathExtension().appendingPathExtension("cta.json"), options: .atomic)
+            }
             if let timeline = job.liveTimeline {
                 try encoder.encode(timeline).write(to: output.deletingPathExtension().appendingPathExtension("playlist.json"), options: .atomic)
+            }
+            if let plan = job.breathPlan {
+                try encoder.encode(plan).write(to: output.deletingPathExtension().appendingPathExtension("breathing.json"), options: .atomic)
             }
             let srt = subtitles(job: job, start: start, end: end)
             if job.settings.captions {
@@ -164,9 +174,10 @@ enum VideoExporter {
 
     static func subtitles(job: ExportJob, start: Double, end: Double) -> String {
         var count = 0
+        let offset = job.breathPlan == nil ? job.settings.captionOffset : 0
         return job.mantra.cues.compactMap { cue -> String? in
-            let lo = max(start, cue.start + job.settings.captionOffset)
-            let hi = min(end, cue.end + job.settings.captionOffset)
+            let lo = max(start, cue.start + offset)
+            let hi = min(end, cue.end + offset)
             guard hi > lo else { return nil }
             count += 1
             return "\(count)\n\(timestamp(lo - start)) --> \(timestamp(hi - start))\n\(cue.text)\n"

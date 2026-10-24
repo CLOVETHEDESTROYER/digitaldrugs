@@ -35,6 +35,8 @@ struct StudioView: View {
                 .buttonStyle(.borderedProminent)
             Button("Random Batch…", systemImage: "shuffle") { studio.pause(); openWindow(id: "random-batch") }
                 .buttonStyle(.bordered)
+            Button("Breathing Practice…", systemImage: "circle.dotted") { studio.pause(); openWindow(id: "breathing-practice") }
+                .buttonStyle(.bordered)
             TextField("Search recordings", text: $studio.search).textFieldStyle(.roundedBorder)
             HStack {
                 Text("\(studio.library.count) RECORDINGS").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
@@ -125,8 +127,11 @@ struct StudioView: View {
                                 Section("Flow, blooms & space") {
                                     ForEach(VisualStyle.all.filter { $0.id < 20 }) { Text($0.title).tag($0.id) }
                                 }
+                                Section("Resonance") {
+                                    ForEach(VisualStyle.all.filter { $0.id >= 34 }) { Text($0.title).tag($0.id) }
+                                }
                                 Section("Chakras") {
-                                    ForEach(VisualStyle.all.filter { $0.id >= 26 }) { Text($0.title).tag($0.id) }
+                                    ForEach(VisualStyle.all.filter { $0.id >= 26 && $0.id < 34 }) { Text($0.title).tag($0.id) }
                                 }
                                 Section("Sacred geometry") {
                                     ForEach(VisualStyle.all.filter { $0.id >= 20 && $0.id < 26 }) { Text($0.title).tag($0.id) }
@@ -175,6 +180,10 @@ struct StudioView: View {
                             }
                             TextField("Optional heading", text: $studio.settings.heading, axis: .vertical)
                                 .lineLimit(2...3).textFieldStyle(.roundedBorder)
+                            if !studio.settings.heading.isEmpty {
+                                Text("Heading size").font(.caption)
+                                Slider(value: $studio.settings.headingEmphasis, in: 0.75...2.4).accessibilityLabel("Heading size")
+                            }
                             if studio.settings.captions {
                                 Text(studio.selected?.estimated == true ? "Estimated caption timing. Listen through before exporting; the offset shifts all captions together." : "Uses the app’s existing line timestamps. Preview before exporting.")
                                     .font(.caption).foregroundStyle(studio.selected?.estimated == true ? .orange : .secondary)
@@ -189,6 +198,7 @@ struct StudioView: View {
                             }
                         }.padding(8)
                     }
+                    CallToActionControls(cta: $studio.settings.callToAction)
                     GroupBox("CLIP") {
                         VStack(alignment: .leading, spacing: 12) {
                             Picker("Export", selection: $studio.clipIndex) {

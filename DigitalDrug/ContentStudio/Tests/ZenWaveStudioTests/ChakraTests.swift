@@ -58,9 +58,14 @@ final class ChakraTests: XCTestCase {
         let mixed = try await AudioMix.prepare(voice: a, background: nil, volume: 0, output: root.appendingPathComponent("mix-a.m4a"), soundscape: audio, motionOutput: motionA)
         _ = try await AudioMix.prepare(voice: b, background: nil, volume: 0, output: root.appendingPathComponent("mix-b.m4a"), soundscape: audio, motionOutput: motionB)
         let x = try mono(motionA), y = try mono(motionB), playback = try mono(mixed)
-        XCTAssertEqual(x, y, "Chakra motion must be independent of narration")
+        XCTAssertEqual(x.count, y.count)
+        // AAC decoding can vary below one 16-bit PCM step between identical renders.
+        // Keep the comparison below that quantization floor and separately reject voice frequencies.
+        let maxDelta = zip(x, y).map { abs($0 - $1) }.max() ?? 0
+        XCTAssertLessThan(maxDelta, 1 / 32768, "Chakra motion must be independent of narration")
         XCTAssertGreaterThan(amplitude(playback, 2100, at: 2), 0.2, "Manifestation remains audible")
         XCTAssertLessThan(amplitude(x, 2100, at: 2), 0.005)
+        XCTAssertLessThan(amplitude(y, 6500, at: 2), 0.005)
         // The exact same root loop recurs at 10 sec; later layers add energy without shifting its phase.
         XCTAssertEqual(Double(x.count) / 44100, 14, accuracy: 0.03)
         XCTAssertGreaterThan(x.map { abs($0) }.max()!, 0.01)

@@ -38,7 +38,8 @@ final class FrameRenderer {
         // unified-memory GPUs can use shared storage directly.
         let baseSource = try String(contentsOf: StudioResources.root.appendingPathComponent("Visualizer.metal"), encoding: .utf8)
         let sacredSource = try String(contentsOf: StudioResources.root.appendingPathComponent("SacredGeometry.metal"), encoding: .utf8)
-        let source = baseSource.replacingOccurrences(of: "// STUDIO_SACRED_GEOMETRY", with: sacredSource)
+        let resonanceSource = try String(contentsOf: StudioResources.root.appendingPathComponent("Resonance.metal"), encoding: .utf8)
+        let source = baseSource.replacingOccurrences(of: "// STUDIO_SACRED_GEOMETRY", with: sacredSource).replacingOccurrences(of: "// STUDIO_RESONANCE", with: resonanceSource)
         let library = try device.makeLibrary(source: source, options: nil)
         guard let vertex = library.makeFunction(name: "zenWaveFullscreenVertex"),
               let fragment = library.makeFunction(name: "zenWaveVisualizerFragment") else {
@@ -52,7 +53,7 @@ final class FrameRenderer {
     }
 
     func frame(width: Int, height: Int, time: Double, audioTime: Double,
-               envelope: AudioEnvelope, mantra: Mantra, settings: ExportSettings) throws -> CGImage {
+               envelope: AudioEnvelope, mantra: Mantra, settings: ExportSettings, includeCallToAction: Bool = true) throws -> CGImage {
         try ensureTextures(width: width, height: height)
         guard let renderTexture, let readbackTexture, let command = queue.makeCommandBuffer() else {
             throw StudioError.message("Could not start the visualizer.")
@@ -141,7 +142,7 @@ final class FrameRenderer {
             })?.text : nil
             // Keep type inside the middle 72% width, away from social player controls.
             if let caption {
-                let box = CGRect(x: w * 0.12, y: h * (settings.style == 33 ? 0.21 : 0.32), width: w * 0.76, height: h * (settings.style == 33 ? 0.13 : 0.32))
+                let box = StudioCallToAction.captionRect(width: w, height: h, settings: settings)
                 if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceGray(),
                     colors: [CGColor(gray: 0, alpha: 0.42), CGColor(gray: 0, alpha: 0)] as CFArray,
                     locations: [0, 1]) {
@@ -154,8 +155,9 @@ final class FrameRenderer {
             if !settings.heading.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 drawText(settings.heading, context: context,
                          rect: CGRect(x: w * 0.12, y: h * (settings.style == 33 ? 0.94 : 0.78), width: w * 0.76, height: h * (settings.style == 33 ? 0.05 : 0.12)),
-                         size: 33 * scale, weight: .medium, centered: true)
+                         size: 33 * scale * min(2.4, max(0.75, settings.headingEmphasis)), weight: settings.headingEmphasis > 1.2 ? .bold : .medium, centered: true)
             }
+            if includeCallToAction { drawCallToAction(settings.callToAction, context: context, width: w, height: h, time: time, palette: settings.palette, style: settings.style) }
             if settings.branding {
                 if settings.brandStyle.showsLogo {
                     let rect = StudioBranding.logoRect(width: w, height: h, settings: settings)
@@ -177,6 +179,44 @@ final class FrameRenderer {
                 throw StudioError.message("The video frame was empty.")
             }
             return image
+        }
+    }
+
+    /// Live scenes dissolve first; the CTA is composited once to keep its text crisp.
+    func overlayCallToAction(on image: CGImage, time: Double, settings: ExportSettings, rectOverride: CGRect? = nil) throws -> CGImage {
+        guard settings.callToAction.opacity(at: time) > 0 else { return image }
+        let w = image.width, h = image.height
+        guard let context = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+            space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+            throw StudioError.message("Could not compose the live call to action.")
+        }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+        drawCallToAction(settings.callToAction, context: context, width: CGFloat(w), height: CGFloat(h), time: time, palette: settings.palette, style: settings.style, rectOverride: rectOverride)
+        guard let result = context.makeImage() else { throw StudioError.message("Could not finish the live call to action.") }
+        return result
+    }
+
+    private func drawCallToAction(_ cta: StudioCallToAction, context: CGContext, width: CGFloat, height: CGFloat, time: Double, palette: Int, style: Int, rectOverride: CGRect? = nil) {
+        let opacity = cta.opacity(at: time)
+        guard opacity > 0 else { return }
+        let rect = rectOverride ?? StudioCallToAction.rect(width: width, height: height, placement: cta.placement, style: style)
+        let hex = (VisualPalette.all.first { $0.id == palette } ?? VisualPalette.all[0]).colors.last!
+        let accent = CGColor(red: CGFloat((hex >> 16) & 255) / 255, green: CGFloat((hex >> 8) & 255) / 255, blue: CGFloat(hex & 255) / 255, alpha: 1)
+        context.saveGState(); defer { context.restoreGState() }
+        context.setAlpha(opacity)
+        let radius = rect.height * (cta.style == .pill ? 0.48 : 0.18)
+        let path = CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
+        context.setFillColor(CGColor(gray: 0.015, alpha: cta.style == .pill ? 0.82 : 0.94))
+        context.addPath(path); context.fillPath()
+        context.setShadow(offset: .zero, blur: rect.height * 0.10, color: accent.copy(alpha: 0.3))
+        context.setStrokeColor(accent.copy(alpha: 0.8)!); context.setLineWidth(max(1, min(width, height) / 540))
+        context.addPath(path); context.strokePath(); context.setShadow(offset: .zero, blur: 0, color: nil)
+        let hasDetail = !cta.detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let inset = rect.width * 0.05
+        let headlineBox = CGRect(x: rect.minX + inset, y: rect.minY + rect.height * (hasDetail ? 0.41 : 0.13), width: rect.width - inset * 2, height: rect.height * (hasDetail ? 0.46 : 0.74))
+        drawText(cta.renderedHeadline, context: context, rect: headlineBox, size: min(width, height) * 0.034, weight: .bold, centered: true)
+        if hasDetail {
+            drawText(cta.detail, context: context, rect: CGRect(x: rect.minX + inset, y: rect.minY + rect.height * 0.10, width: rect.width - inset * 2, height: rect.height * 0.29), size: min(width, height) * 0.022, weight: .medium, centered: true)
         }
     }
 

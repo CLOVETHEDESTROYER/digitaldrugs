@@ -58,7 +58,7 @@ struct LiveSessionView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }.padding(8)
                     }
-                    Text("Uses the main studio’s format, motion, caption, branding and optional background audio settings when you prepare. Captions may use estimated timing; review before a live.")
+                    Text("Uses the main studio’s format, motion, caption, branding, call-to-action and optional background audio settings when you prepare. Captions may use estimated timing; review before a live.")
                         .font(.caption).foregroundStyle(.secondary)
                     Text("Playlist total: \(clock(live.plan.duration))").font(.headline.monospacedDigit())
                     Button("Prepare / update session") {

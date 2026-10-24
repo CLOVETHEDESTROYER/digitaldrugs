@@ -25,7 +25,7 @@ enum StudioBranding {
     static func logoRect(width: CGFloat, height: CGFloat, settings: ExportSettings) -> CGRect {
         let both = settings.brandStyle == .logoAndWordmark
         let bottom = height * (both ? 0.16 : 0.14)
-        let size = min(min(width, height) * min(0.20, max(0.08, settings.logoSize)), height * (both ? 0.14 : 0.16))
+        let size = min(min(width, height) * min(0.20, max(0.08, settings.logoSize)), height * (settings.callToAction.enabled ? 0.12 : both ? 0.14 : 0.16))
         if settings.style == 33 {
             let columnSize = min(size, height * 0.09)
             return CGRect(x: (width - columnSize) / 2, y: height * 0.10, width: columnSize, height: columnSize)

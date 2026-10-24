@@ -589,11 +589,17 @@ float3 radiantIris(float2 point, constant VisualizerUniforms& u) {
 }
 
 // STUDIO_SACRED_GEOMETRY
+// STUDIO_RESONANCE
 
 fragment half4 zenWaveVisualizerFragment(
     VertexOut input [[stage_in]],
     constant VisualizerUniforms& uniforms [[buffer(0)]]
 ) {
+    if (uniforms.style > 33.5) {
+        float2 p = (input.uv - 0.5) * float2(uniforms.aspect, 1.0) / max(min(uniforms.aspect, 1.0), 0.25);
+        float3 field = uniforms.style < 34.5 ? resonanceOrb(p, uniforms) : resonanceTorus(p, uniforms);
+        return half4(half3(studioColor(field, uniforms)), half(1.0));
+    }
     if (uniforms.style > 25.5) {
         float2 p = (input.uv - 0.5) * float2(uniforms.aspect, 1.0);
         float3 field = studioAtmosphere(p, uniforms) * 0.55;

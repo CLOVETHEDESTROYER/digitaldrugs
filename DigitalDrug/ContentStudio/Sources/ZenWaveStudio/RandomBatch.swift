@@ -179,7 +179,7 @@ enum RandomBatchExporter {
                     progress((Double(index) + value) / Double(plan.clips.count) * 0.97, index)
                 }
                 // Ready-to-copy posting text travels with each finished clip.
-                let text = ([mantra.title, mantra.cues.map(\.text).joined(separator: "\n"), plan.postFooter]
+                let text = ([mantra.title, mantra.cues.map(\.text).joined(separator: "\n"), plan.postFooter, clip.settings(from: plan.settings).callToAction.enabled ? clip.settings(from: plan.settings).callToAction.postingText : ""]
                     .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }).joined(separator: "\n\n") + "\n"
                 try text.write(to: output.deletingPathExtension().appendingPathExtension("txt"), atomically: true, encoding: .utf8)
                 receipt.completedFiles.append(clip.fileName); try save()

@@ -18,7 +18,7 @@ final class ChakraRenderer {
         defer { context.restoreGState() }
         let amount = min(2, max(0, settings.motionAmount))
         if settings.style == 33 {
-            let available = CGRect(x: width * 0.04, y: height * (settings.captions ? 0.35 : 0.22), width: width * 0.92, height: height * (settings.captions ? 0.59 : 0.70))
+            let available = StudioCallToAction.columnArtRect(width: width, height: height, settings: settings)
             let fit = min(available.width / CGFloat(column.width), available.height / CGFloat(column.height))
             let w = CGFloat(column.width) * fit, h = CGFloat(column.height) * fit
             let rect = CGRect(x: available.midX - w / 2, y: available.midY - h / 2, width: w, height: h)

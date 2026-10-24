@@ -1,0 +1,490 @@
+{
+  "observedDate": "2026-10-23",
+  "timezone": "America/Denver",
+  "page": "https://www.facebook.com/TuneandThrive",
+  "method": "Logged-in browser UI; first 80 Reel tiles loaded from profile grid. Grid order may include featured/pinned posts. Displayed counts are rounded. Not all-time exhaustive or age-normalized.",
+  "sampleSize": 80,
+  "medianApproximateViews": 24500.0,
+  "reels": [
+    {
+      "gridPosition": 1,
+      "url": "https://www.facebook.com/reel/940502935782078/",
+      "displayedViews": "1.4M",
+      "approximateViews": 1400000
+    },
+    {
+      "gridPosition": 2,
+      "url": "https://www.facebook.com/reel/992901753566809/",
+      "displayedViews": "1.8M",
+      "approximateViews": 1800000
+    },
+    {
+      "gridPosition": 3,
+      "url": "https://www.facebook.com/reel/1269969248434564/",
+      "displayedViews": "1.5M",
+      "approximateViews": 1500000
+    },
+    {
+      "gridPosition": 4,
+      "url": "https://www.facebook.com/reel/1840786286936262/",
+      "displayedViews": "3.4K",
+      "approximateViews": 3400
+    },
+    {
+      "gridPosition": 5,
+      "url": "https://www.facebook.com/reel/4621217691494980/",
+      "displayedViews": "1.2K",
+      "approximateViews": 1200
+    },
+    {
+      "gridPosition": 6,
+      "url": "https://www.facebook.com/reel/1426379032461161/",
+      "displayedViews": "8.4K",
+      "approximateViews": 8400
+    },
+    {
+      "gridPosition": 7,
+      "url": "https://www.facebook.com/reel/1119978543945976/",
+      "displayedViews": "14K",
+      "approximateViews": 14000
+    },
+    {
+      "gridPosition": 8,
+      "url": "https://www.facebook.com/reel/4526959400965930/",
+      "displayedViews": "42K",
+      "approximateViews": 42000
+    },
+    {
+      "gridPosition": 9,
+      "url": "https://www.facebook.com/reel/1590281176183429/",
+      "displayedViews": "8.7K",
+      "approximateViews": 8700
+    },
+    {
+      "gridPosition": 10,
+      "url": "https://www.facebook.com/reel/1144472594794299/",
+      "displayedViews": "9.3K",
+      "approximateViews": 9300
+    },
+    {
+      "gridPosition": 11,
+      "url": "https://www.facebook.com/reel/4577722032504099/",
+      "displayedViews": "11K",
+      "approximateViews": 11000
+    },
+    {
+      "gridPosition": 12,
+      "url": "https://www.facebook.com/reel/1105733058531075/",
+      "displayedViews": "9.1K",
+      "approximateViews": 9100
+    },
+    {
+      "gridPosition": 13,
+      "url": "https://www.facebook.com/reel/39272126542435171/",
+      "displayedViews": "8.9K",
+      "approximateViews": 8900
+    },
+    {
+      "gridPosition": 14,
+      "url": "https://www.facebook.com/reel/1901024340881060/",
+      "displayedViews": "16K",
+      "approximateViews": 16000
+    },
+    {
+      "gridPosition": 15,
+      "url": "https://www.facebook.com/reel/1592432362923155/",
+      "displayedViews": "570K",
+      "approximateViews": 570000
+    },
+    {
+      "gridPosition": 16,
+      "url": "https://www.facebook.com/reel/1127519016626945/",
+      "displayedViews": "52K",
+      "approximateViews": 52000
+    },
+    {
+      "gridPosition": 17,
+      "url": "https://www.facebook.com/reel/2316120495459158/",
+      "displayedViews": "15K",
+      "approximateViews": 15000
+    },
+    {
+      "gridPosition": 18,
+      "url": "https://www.facebook.com/reel/1739281903818236/",
+      "displayedViews": "73K",
+      "approximateViews": 73000
+    },
+    {
+      "gridPosition": 19,
+      "url": "https://www.facebook.com/reel/1643237700741412/",
+      "displayedViews": "11K",
+      "approximateViews": 11000
+    },
+    {
+      "gridPosition": 20,
+      "url": "https://www.facebook.com/reel/1084682674372406/",
+      "displayedViews": "14K",
+      "approximateViews": 14000
+    },
+    {
+      "gridPosition": 21,
+      "url": "https://www.facebook.com/reel/1636148028300563/",
+      "displayedViews": "253K",
+      "approximateViews": 253000
+    },
+    {
+      "gridPosition": 22,
+      "url": "https://www.facebook.com/reel/1140304451693379/",
+      "displayedViews": "129K",
+      "approximateViews": 129000
+    },
+    {
+      "gridPosition": 23,
+      "url": "https://www.facebook.com/reel/1118626693966655/",
+      "displayedViews": "6.7K",
+      "approximateViews": 6700
+    },
+    {
+      "gridPosition": 24,
+      "url": "https://www.facebook.com/reel/972657485270345/",
+      "displayedViews": "13K",
+      "approximateViews": 13000
+    },
+    {
+      "gridPosition": 25,
+      "url": "https://www.facebook.com/reel/4823697731289092/",
+      "displayedViews": "592K",
+      "approximateViews": 592000
+    },
+    {
+      "gridPosition": 26,
+      "url": "https://www.facebook.com/reel/3624962227654829/",
+      "displayedViews": "24K",
+      "approximateViews": 24000
+    },
+    {
+      "gridPosition": 27,
+      "url": "https://www.facebook.com/reel/39139746215670875/",
+      "displayedViews": "22K",
+      "approximateViews": 22000
+    },
+    {
+      "gridPosition": 28,
+      "url": "https://www.facebook.com/reel/28548667564755687/",
+      "displayedViews": "24K",
+      "approximateViews": 24000
+    },
+    {
+      "gridPosition": 29,
+      "url": "https://www.facebook.com/reel/928901840042723/",
+      "displayedViews": "14K",
+      "approximateViews": 14000
+    },
+    {
+      "gridPosition": 30,
+      "url": "https://www.facebook.com/reel/28733853649611678/",
+      "displayedViews": "14K",
+      "approximateViews": 14000
+    },
+    {
+      "gridPosition": 31,
+      "url": "https://www.facebook.com/reel/1734759644286981/",
+      "displayedViews": "32K",
+      "approximateViews": 32000
+    },
+    {
+      "gridPosition": 32,
+      "url": "https://www.facebook.com/reel/1682642806902462/",
+      "displayedViews": "40K",
+      "approximateViews": 40000
+    },
+    {
+      "gridPosition": 33,
+      "url": "https://www.facebook.com/reel/1133377939232827/",
+      "displayedViews": "841K",
+      "approximateViews": 841000
+    },
+    {
+      "gridPosition": 34,
+      "url": "https://www.facebook.com/reel/1777530126728378/",
+      "displayedViews": "165K",
+      "approximateViews": 165000
+    },
+    {
+      "gridPosition": 35,
+      "url": "https://www.facebook.com/reel/1646825560147054/",
+      "displayedViews": "8.7K",
+      "approximateViews": 8700
+    },
+    {
+      "gridPosition": 36,
+      "url": "https://www.facebook.com/reel/3474485682712748/",
+      "displayedViews": "12K",
+      "approximateViews": 12000
+    },
+    {
+      "gridPosition": 37,
+      "url": "https://www.facebook.com/reel/1831611301348772/",
+      "displayedViews": "33K",
+      "approximateViews": 33000
+    },
+    {
+      "gridPosition": 38,
+      "url": "https://www.facebook.com/reel/1114133818019130/",
+      "displayedViews": "99K",
+      "approximateViews": 99000
+    },
+    {
+      "gridPosition": 39,
+      "url": "https://www.facebook.com/reel/1767011134565438/",
+      "displayedViews": "194K",
+      "approximateViews": 194000
+    },
+    {
+      "gridPosition": 40,
+      "url": "https://www.facebook.com/reel/1084699557641195/",
+      "displayedViews": "44K",
+      "approximateViews": 44000
+    },
+    {
+      "gridPosition": 41,
+      "url": "https://www.facebook.com/reel/1083482127801204/",
+      "displayedViews": "16K",
+      "approximateViews": 16000
+    },
+    {
+      "gridPosition": 42,
+      "url": "https://www.facebook.com/reel/1453926979921705/",
+      "displayedViews": "7.6K",
+      "approximateViews": 7600
+    },
+    {
+      "gridPosition": 43,
+      "url": "https://www.facebook.com/reel/1082520217899128/",
+      "displayedViews": "21K",
+      "approximateViews": 21000
+    },
+    {
+      "gridPosition": 44,
+      "url": "https://www.facebook.com/reel/2303436207115409/",
+      "displayedViews": "105K",
+      "approximateViews": 105000
+    },
+    {
+      "gridPosition": 45,
+      "url": "https://www.facebook.com/reel/28548197424791423/",
+      "displayedViews": "33K",
+      "approximateViews": 33000
+    },
+    {
+      "gridPosition": 46,
+      "url": "https://www.facebook.com/reel/1347288667480908/",
+      "displayedViews": "7.6K",
+      "approximateViews": 7600
+    },
+    {
+      "gridPosition": 47,
+      "url": "https://www.facebook.com/reel/4646993138903336/",
+      "displayedViews": "12K",
+      "approximateViews": 12000
+    },
+    {
+      "gridPosition": 48,
+      "url": "https://www.facebook.com/reel/1410373607405825/",
+      "displayedViews": "28K",
+      "approximateViews": 28000
+    },
+    {
+      "gridPosition": 49,
+      "url": "https://www.facebook.com/reel/1067411439652438/",
+      "displayedViews": "48K",
+      "approximateViews": 48000
+    },
+    {
+      "gridPosition": 50,
+      "url": "https://www.facebook.com/reel/3394337897405437/",
+      "displayedViews": "6K",
+      "approximateViews": 6000
+    },
+    {
+      "gridPosition": 51,
+      "url": "https://www.facebook.com/reel/3622438087931243/",
+      "displayedViews": "61K",
+      "approximateViews": 61000
+    },
+    {
+      "gridPosition": 52,
+      "url": "https://www.facebook.com/reel/2156987504995478/",
+      "displayedViews": "11K",
+      "approximateViews": 11000
+    },
+    {
+      "gridPosition": 53,
+      "url": "https://www.facebook.com/reel/961668340330382/",
+      "displayedViews": "25K",
+      "approximateViews": 25000
+    },
+    {
+      "gridPosition": 54,
+      "url": "https://www.facebook.com/reel/1114144804466115/",
+      "displayedViews": "1.5M",
+      "approximateViews": 1500000
+    },
+    {
+      "gridPosition": 55,
+      "url": "https://www.facebook.com/reel/4549944011950129/",
+      "displayedViews": "18K",
+      "approximateViews": 18000
+    },
+    {
+      "gridPosition": 56,
+      "url": "https://www.facebook.com/reel/1989246015097323/",
+      "displayedViews": "22K",
+      "approximateViews": 22000
+    },
+    {
+      "gridPosition": 57,
+      "url": "https://www.facebook.com/reel/2289260364951721/",
+      "displayedViews": "196K",
+      "approximateViews": 196000
+    },
+    {
+      "gridPosition": 58,
+      "url": "https://www.facebook.com/reel/1741912887071105/",
+      "displayedViews": "336K",
+      "approximateViews": 336000
+    },
+    {
+      "gridPosition": 59,
+      "url": "https://www.facebook.com/reel/2801030456963693/",
+      "displayedViews": "31K",
+      "approximateViews": 31000
+    },
+    {
+      "gridPosition": 60,
+      "url": "https://www.facebook.com/reel/1105130452275136/",
+      "displayedViews": "1.1M",
+      "approximateViews": 1100000
+    },
+    {
+      "gridPosition": 61,
+      "url": "https://www.facebook.com/reel/1421072419982137/",
+      "displayedViews": "692K",
+      "approximateViews": 692000
+    },
+    {
+      "gridPosition": 62,
+      "url": "https://www.facebook.com/reel/1796120574747882/",
+      "displayedViews": "118K",
+      "approximateViews": 118000
+    },
+    {
+      "gridPosition": 63,
+      "url": "https://www.facebook.com/reel/1384016027046025/",
+      "displayedViews": "12K",
+      "approximateViews": 12000
+    },
+    {
+      "gridPosition": 64,
+      "url": "https://www.facebook.com/reel/2128140137809453/",
+      "displayedViews": "34K",
+      "approximateViews": 34000
+    },
+    {
+      "gridPosition": 65,
+      "url": "https://www.facebook.com/reel/1328014909251659/",
+      "displayedViews": "80K",
+      "approximateViews": 80000
+    },
+    {
+      "gridPosition": 66,
+      "url": "https://www.facebook.com/reel/1410093387940028/",
+      "displayedViews": "13K",
+      "approximateViews": 13000
+    },
+    {
+      "gridPosition": 67,
+      "url": "https://www.facebook.com/reel/1437532431644845/",
+      "displayedViews": "356K",
+      "approximateViews": 356000
+    },
+    {
+      "gridPosition": 68,
+      "url": "https://www.facebook.com/reel/1821147655976400/",
+      "displayedViews": "27K",
+      "approximateViews": 27000
+    },
+    {
+      "gridPosition": 69,
+      "url": "https://www.facebook.com/reel/2832320110473114/",
+      "displayedViews": "67K",
+      "approximateViews": 67000
+    },
+    {
+      "gridPosition": 70,
+      "url": "https://www.facebook.com/reel/2965533097172706/",
+      "displayedViews": "14K",
+      "approximateViews": 14000
+    },
+    {
+      "gridPosition": 71,
+      "url": "https://www.facebook.com/reel/2216276758934015/",
+      "displayedViews": "24K",
+      "approximateViews": 24000
+    },
+    {
+      "gridPosition": 72,
+      "url": "https://www.facebook.com/reel/3734103593405347/",
+      "displayedViews": "215K",
+      "approximateViews": 215000
+    },
+    {
+      "gridPosition": 73,
+      "url": "https://www.facebook.com/reel/955990654241998/",
+      "displayedViews": "10K",
+      "approximateViews": 10000
+    },
+    {
+      "gridPosition": 74,
+      "url": "https://www.facebook.com/reel/4089511191341726/",
+      "displayedViews": "6.9K",
+      "approximateViews": 6900
+    },
+    {
+      "gridPosition": 75,
+      "url": "https://www.facebook.com/reel/1432500965541924/",
+      "displayedViews": "17K",
+      "approximateViews": 17000
+    },
+    {
+      "gridPosition": 76,
+      "url": "https://www.facebook.com/reel/4629268574061972/",
+      "displayedViews": "76K",
+      "approximateViews": 76000
+    },
+    {
+      "gridPosition": 77,
+      "url": "https://www.facebook.com/reel/1711746436563140/",
+      "displayedViews": "12K",
+      "approximateViews": 12000
+    },
+    {
+      "gridPosition": 78,
+      "url": "https://www.facebook.com/reel/2106269260096450/",
+      "displayedViews": "1.7M",
+      "approximateViews": 1700000
+    },
+    {
+      "gridPosition": 79,
+      "url": "https://www.facebook.com/reel/948250714411579/",
+      "displayedViews": "647K",
+      "approximateViews": 647000
+    },
+    {
+      "gridPosition": 80,
+      "url": "https://www.facebook.com/reel/1605923710999875/",
+      "displayedViews": "17K",
+      "approximateViews": 17000
+    }
+  ]
+}

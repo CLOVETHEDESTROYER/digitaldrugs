@@ -196,16 +196,16 @@ final class LiveFrameRenderer {
     func frame(width: Int, height: Int, time: Double, envelope: AudioEnvelope, timeline: LiveTimeline, settings: ExportSettings) throws -> CGImage {
         guard let renderer else { throw StudioError.message("The live visualizer could not start Metal on this Mac.") }
         let current = timeline.visual(at: time, base: settings)
-        let image = try renderer.frame(width: width, height: height, time: time, audioTime: time, envelope: envelope, mantra: timeline.mantra, settings: current)
-        guard let blend = timeline.blend(at: time) else { return image }
+        let image = try renderer.frame(width: width, height: height, time: time, audioTime: time, envelope: envelope, mantra: timeline.mantra, settings: current, includeCallToAction: false)
+        guard let blend = timeline.blend(at: time) else { return try renderer.overlayCallToAction(on: image, time: time, settings: current) }
         var previous = timeline.visual(at: blend.previousTime, base: settings)
         // Text changes once at the chapter boundary while only the visuals dissolve.
         previous.heading = current.heading
-        let old = try renderer.frame(width: width, height: height, time: time, audioTime: time, envelope: envelope, mantra: timeline.mantra, settings: previous)
+        let old = try renderer.frame(width: width, height: height, time: time, audioTime: time, envelope: envelope, mantra: timeline.mantra, settings: previous, includeCallToAction: false)
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
-                                      space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return image }
+                                      space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return try renderer.overlayCallToAction(on: image, time: time, settings: current) }
         let rect = CGRect(x: 0, y: 0, width: width, height: height)
         context.draw(old, in: rect); context.setAlpha(blend.alpha); context.draw(image, in: rect)
-        return context.makeImage() ?? image
+        return try renderer.overlayCallToAction(on: context.makeImage() ?? image, time: time, settings: current)
     }
 }

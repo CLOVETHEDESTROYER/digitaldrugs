@@ -11,9 +11,12 @@ enum RandomBatchVerification {
         let library = try StudioResources.library()
         let withChakra = args.contains("--with-chakra")
         let withSoundscape = args.contains("--with-soundscape") || withChakra
+        var settings = ExportSettings()
+        let withCTA = args.contains("--with-cta")
+        if withCTA { settings.callToAction.enabled = true; settings.callToAction.delay = 2; settings.callToAction.campaign = "Resonance batch" }
         let plan = try RandomBatchPlan.make(count: 3, seed: 20261022,
-            mantras: ["career-confidence-morning", "career-confidence-evening"], styles: withChakra ? [26, 29, 33] : [10, 14, 20], palettes: [1, 2, 5],
-            settings: ExportSettings(), backgroundFile: nil, postFooter: "My daily intention. #ZenWave",
+            mantras: ["career-confidence-morning", "career-confidence-evening"], styles: withCTA ? [34, 35, 10] : withChakra ? [26, 29, 33] : [10, 14, 20], palettes: [1, 2, 5],
+            settings: settings, backgroundFile: nil, postFooter: "My daily intention. #ZenWave",
             beats: withSoundscape ? [.delta, .theta, .alpha] : nil,
             nature: withSoundscape ? ["continuous_river", "forest_ambience", "tropical_rain"] : nil,
             chakras: withChakra ? ["root", "heart", "column"] : nil)

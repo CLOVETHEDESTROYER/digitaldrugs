@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "provider": "OpenAI",
+  "model": "gpt-4o-mini-tts-2025-12-15",
+  "voice": "marin",
+  "aiGenerated": true,
+  "disclosure": "AI-generated voice",
+  "instructions": "You are a warm, calm breathwork guide. Speak in clear natural English with a soft, grounded, reassuring delivery. No music, sound effects, added words, or dramatic whispering. For a single word or number, say it gently but concisely in less than 0.85 seconds; do not draw out syllables. The application adds the pauses between counts. For a sentence, use an unhurried natural pace and finish within 4.5 seconds.",
+  "countDelivery": "Concise, friendly single-number cues with app-timed one-second spacing",
+  "generatedAt": "2026-10-24T16:11:01.466572+00:00",
+  "clips": [
+    {
+      "text": "Find a comfortable breath. Follow the circle.",
+      "file": "settle.wav",
+      "sha256": "e9b5242bf1c4d0f18771041d501fc592b9e90d86e8fe83d4565a76b66cc6abfe",
+      "duration": 3.214625
+    },
+    {
+      "text": "Return to your natural breathing.",
+      "file": "finish.wav",
+      "sha256": "28337632c099ba1bc2064853ded3dd9d63b81c007e548336248ec6c7f7dfd6e5",
+      "duration": 2.4808333333333334
+    },
+    {
+      "text": "Inhale",
+      "file": "inhale.wav",
+      "sha256": "1c47c7d1ff76f6ba89de54c59923ec38ab74c154b6073831458d0aed53d1c504",
+      "duration": 0.5965416666666666
+    },
+    {
+      "text": "Hold",
+      "file": "hold.wav",
+      "sha256": "ebbd6f2be15c07a6fa11afc32b6f157e5931c1add38896548084d3466d470385",
+      "duration": 0.5832083333333333
+    },
+    {
+      "text": "Exhale",
+      "file": "exhale.wav",
+      "sha256": "8b6ad56ffcc3824758bbe683d2316eaac6e63509a0f24ceca933c32228dd4820",
+      "duration": 0.7146666666666667
+    },
+    {
+      "text": "Pause",
+      "file": "pause.wav",
+      "sha256": "c506db91ee390f8b07983ad2b2c0e204f9cc89335f234abc3068443a9400b03d",
+      "duration": 0.5754583333333333
+    },
+    {
+      "text": "1",
+      "file": "count-1.wav",
+      "sha256": "55eeb25fa740910aabb966191ff7cac2810e45c5a15d1c1d07990b8748b02f07",
+      "duration": 0.46120833333333333
+    },
+    {
+      "text": "2",
+      "file": "count-2.wav",
+      "sha256": "e04f3d07f6c6d24965f740f5721a2428ac19eeed316f3fc53dc8098e23e87a84",
+      "duration": 0.3319166666666667
+    },
+    {
+      "text": "3",
+      "file": "count-3.wav",
+      "sha256": "d65d19e7ef07f693003724ea5eec75f86b23130241ca10aeef6338591c6ce9aa",
+      "duration": 0.46479166666666666
+    },
+    {
+      "text": "4",
+      "file": "count-4.wav",
+      "sha256": "00c2d5530da3aae070e1ff5d1965cb83c8930e96eaf1acfb5867b4032c241f45",
+      "duration": 0.539625
+    },
+    {
+      "text": "5",
+      "file": "count-5.wav",
+      "sha256": "4d96068328d9c6e64d18a7f12440c702ac5f68ddb896ce8ccd197bae0c31e5df",
+      "duration": 0.5569166666666666
+    },
+    {
+      "text": "6",
+      "file": "count-6.wav",
+      "sha256": "68360987728ac97d36af2808c856810ffa909944eb1bc6269d5f8a40fbd68887",
+      "duration": 0.7147083333333333
+    },
+    {
+      "text": "7",
+      "file": "count-7.wav",
+      "sha256": "836dba938be001a2597ee5a2b445fedb082567e3b9d48928145d22df750d8747",
+      "duration": 0.5747083333333334
+    },
+    {
+      "text": "8",
+      "file": "count-8.wav",
+      "sha256": "f02d1f355e08a3803d528edc4c2b7b06570a1ed99a35527ff923393cc1065d08",
+      "duration": 0.36966666666666664
+    },
+    {
+      "text": "9",
+      "file": "count-9.wav",
+      "sha256": "f735c461c4daa8c54093a02c4783916c2d56cb632bf0d9174aec2945f5dc5a56",
+      "duration": 0.5613333333333334
+    },
+    {
+      "text": "10",
+      "file": "count-10.wav",
+      "sha256": "20c79866664215c39089ced4e8bfdfde9a9ad5a84c27ebe2464b8b24d987aed7",
+      "duration": 0.4784583333333333
+    }
+  ]
+}
