@@ -112,7 +112,7 @@ final class BreathPracticeTests: XCTestCase {
         XCTAssertLessThan(rms(5.1, 5.8), 0.0001)
         let output = folder.appendingPathComponent("breathing.mp4")
         let job = ExportJob(mantra: plan.mantra, settings: settings, start: 0, end: plan.duration, preparedAudio: audio.playbackURL, preparedMotion: audio.motion, breathPlan: plan)
-        try await VideoExporter.export(job, to: output, widthOverride: 180, heightOverride: 320) { _ in }
+        try await VideoExporter.export(job, to: output, widthOverride: 180, heightOverride: 320, recordHistory: false) { _ in }
         let movie = AVURLAsset(url: output)
         let duration = try await movie.load(.duration).seconds
         let video = try await movie.loadTracks(withMediaType: .video)

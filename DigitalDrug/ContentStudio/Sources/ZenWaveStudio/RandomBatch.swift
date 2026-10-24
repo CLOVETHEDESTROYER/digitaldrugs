@@ -156,6 +156,7 @@ enum RandomBatchExporter {
     /// Sequential rendering keeps memory bounded. Completed movies survive cancellation.
     static func export(plan: RandomBatchPlan, library: [Mantra], background: URL?, folder: URL,
                        widthOverride: Int? = nil, heightOverride: Int? = nil,
+                       recordHistory: Bool = true,
                        progress: @escaping @Sendable (Double, Int) -> Void) async throws -> URL {
         guard !plan.clips.isEmpty else { throw StudioError.message("Generate a batch first.") }
         // Validate all recordings before creating any outputs.
@@ -175,7 +176,7 @@ enum RandomBatchExporter {
                 try Task.checkCancellation()
                 let mantra = records[index], output = folder.appendingPathComponent(clip.fileName)
                 let job = ExportJob(mantra: mantra, settings: clip.settings(from: plan.settings), start: 0, end: nil, backgroundURL: background)
-                try await VideoExporter.export(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride) { value in
+                try await VideoExporter.export(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride, recordHistory: recordHistory) { value in
                     progress((Double(index) + value) / Double(plan.clips.count) * 0.97, index)
                 }
                 // Ready-to-copy posting text travels with each finished clip.

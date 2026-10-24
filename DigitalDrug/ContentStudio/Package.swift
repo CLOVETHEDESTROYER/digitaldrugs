@@ -6,7 +6,8 @@ let package = Package(
     platforms: [.macOS(.v14)],
     products: [.executable(name: "ZenWaveStudio", targets: ["ZenWaveStudio"])],
     targets: [
-        .executableTarget(name: "ZenWaveStudio", resources: [.copy("Resources")]),
+        .systemLibrary(name: "CSQLite"),
+        .executableTarget(name: "ZenWaveStudio", dependencies: ["CSQLite"], resources: [.copy("Resources")]),
         .testTarget(name: "ZenWaveStudioTests", dependencies: ["ZenWaveStudio"])
     ]
 )

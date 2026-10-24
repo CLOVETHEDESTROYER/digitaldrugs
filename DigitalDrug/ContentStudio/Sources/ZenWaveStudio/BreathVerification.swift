@@ -43,7 +43,7 @@ enum BreathVerification {
         settings.callToAction.enabled = false
         settings.format = .portrait
         let job = ExportJob(mantra: plan.mantra, settings: settings, start: 0, end: plan.duration, preparedAudio: audio.playbackURL, preparedMotion: audio.motion, breathPlan: plan)
-        try await VideoExporter.export(job, to: output, widthOverride: args.contains("--production") ? nil : 360, heightOverride: args.contains("--production") ? nil : 640) { _ in }
+        try await VideoExporter.export(job, to: output, widthOverride: args.contains("--production") ? nil : 360, heightOverride: args.contains("--production") ? nil : 640, recordHistory: false) { _ in }
         print("Breathing review complete: \(output.path)")
     }
 }

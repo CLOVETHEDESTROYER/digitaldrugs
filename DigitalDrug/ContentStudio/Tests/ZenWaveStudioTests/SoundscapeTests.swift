@@ -95,7 +95,7 @@ final class SoundscapeTests: XCTestCase {
         let mantra = try XCTUnwrap(StudioResources.library().first)
         let job = ExportJob(mantra: mantra, settings: settings, start: 0, end: 4, preparedAudio: audio)
         let output = root.appendingPathComponent("stereo.mp4")
-        try await VideoExporter.export(job, to: output, widthOverride: 168, heightOverride: 300) { _ in }
+        try await VideoExporter.export(job, to: output, widthOverride: 168, heightOverride: 300, recordHistory: false) { _ in }
         let channels = try await read(output)
         XCTAssertGreaterThan(amplitude(channels[0], at: 100), 0.15)
         XCTAssertGreaterThan(amplitude(channels[1], at: 103), 0.15)

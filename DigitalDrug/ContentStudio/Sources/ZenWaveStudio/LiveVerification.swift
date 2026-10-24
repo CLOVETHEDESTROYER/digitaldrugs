@@ -31,7 +31,7 @@ enum LiveVerification {
         }
         let production = args.contains("--production")
         let job = ExportJob(mantra: timeline.mantra, settings: settings, start: 0, end: 90, liveTimeline: timeline, preparedAudio: audio, preparedMotion: envelope)
-        try await VideoExporter.export(job, to: output, widthOverride: production ? 1080 : 360, heightOverride: production ? 1920 : 640) { value in
+        try await VideoExporter.export(job, to: output, widthOverride: production ? 1080 : 360, heightOverride: production ? 1920 : 640, recordHistory: false) { value in
             if Int(value * 100) % 10 == 0 { print("Live review: \(Int(value * 100))%") }
         }
         let asset = AVURLAsset(url: output)

@@ -20,7 +20,7 @@ enum RandomBatchVerification {
             beats: withSoundscape ? [.delta, .theta, .alpha] : nil,
             nature: withSoundscape ? ["continuous_river", "forest_ambience", "tropical_rain"] : nil,
             chakras: withChakra ? ["root", "heart", "column"] : nil)
-        let archive = try await RandomBatchExporter.export(plan: plan, library: library, background: nil, folder: folder) { _, _ in }
+        let archive = try await RandomBatchExporter.export(plan: plan, library: library, background: nil, folder: folder, recordHistory: false) { _, _ in }
         for clip in plan.clips {
             let asset = AVURLAsset(url: folder.appendingPathComponent(clip.fileName))
             guard let video = try await asset.loadTracks(withMediaType: .video).first,

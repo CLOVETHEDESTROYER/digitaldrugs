@@ -28,7 +28,21 @@ struct ExportReceipt: Codable {
 enum VideoExporter {
     /// Runs off the main actor. No screen capture, window visibility, or real-time playback is involved.
     static func export(_ job: ExportJob, to output: URL, widthOverride: Int? = nil,
-                       heightOverride: Int? = nil, progress: @escaping @Sendable (Double) -> Void) async throws {
+                       heightOverride: Int? = nil, recordHistory: Bool = true, historyStore: ContentHistory? = nil,
+                       requestID: String = "", progress: @escaping @Sendable (Double) -> Void) async throws {
+        let history = recordHistory ? try (historyStore ?? ContentHistory.shared) : nil
+        let reservation = try history?.reserve(recipe: ContentRecipe.make(job), output: output, title: job.mantra.title, requestID: requestID)
+        do {
+            try await render(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride, progress: progress)
+            if let history, let reservation { try history.complete(reservation, output: output) }
+        } catch {
+            if let history, let reservation { try history.fail(reservation, output: output, error: error) }
+            throw error
+        }
+    }
+
+    private static func render(_ job: ExportJob, to output: URL, widthOverride: Int?,
+                               heightOverride: Int?, progress: @escaping @Sendable (Double) -> Void) async throws {
         let scratch = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: scratch, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: scratch) }

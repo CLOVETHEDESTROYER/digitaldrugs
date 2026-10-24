@@ -37,6 +37,8 @@ struct StudioView: View {
                 .buttonStyle(.bordered)
             Button("Breathing Practice…", systemImage: "circle.dotted") { studio.pause(); openWindow(id: "breathing-practice") }
                 .buttonStyle(.bordered)
+            Button("History & Agent Jobs…", systemImage: "clock.arrow.circlepath") { openWindow(id: "content-history") }
+                .buttonStyle(.bordered)
             TextField("Search recordings", text: $studio.search).textFieldStyle(.roundedBorder)
             HStack {
                 Text("\(studio.library.count) RECORDINGS").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)

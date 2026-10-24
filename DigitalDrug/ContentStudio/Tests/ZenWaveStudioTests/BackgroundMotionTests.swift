@@ -86,7 +86,7 @@ final class BackgroundMotionTests: XCTestCase {
         var pictures: [Data] = []
         for id in ["career-confidence-morning", "career-confidence-evening"] {
             let mantra = try XCTUnwrap(library.first { $0.id == id }), output = root.appendingPathComponent(id + ".mp4")
-            try await VideoExporter.export(ExportJob(mantra: mantra, settings: settings, start: 0, end: 3), to: output, widthOverride: 144, heightOverride: 256) { _ in }
+            try await VideoExporter.export(ExportJob(mantra: mantra, settings: settings, start: 0, end: 3), to: output, widthOverride: 144, heightOverride: 256, recordHistory: false) { _ in }
             let asset = AVURLAsset(url: output), generator = AVAssetImageGenerator(asset: AVURLAsset(url: output))
             generator.requestedTimeToleranceBefore = .zero; generator.requestedTimeToleranceAfter = .zero
             let image = try await generator.image(at: CMTime(seconds: 1, preferredTimescale: 600)).image

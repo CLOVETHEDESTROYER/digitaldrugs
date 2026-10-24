@@ -191,7 +191,7 @@ final class StudioState {
     func toggleQueued(_ id: String) {
         if queued.contains(id) { queued.remove(id) } else { queued.insert(id) }
     }
-    func startExport(batch: Bool) {
+    func startExport(batch: Bool, recordHistory: Bool = true) {
         guard !exporting, !preparingAudio, player != nil else { return }
         let records = batch ? library.filter { queued.contains($0.id) } : selected.map { [$0] } ?? []
         guard !records.isEmpty else { return }
@@ -215,7 +215,7 @@ final class StudioState {
                     let url = folder.appendingPathComponent("\(String(format: "%02d", index + 1))-\(job.mantra.id).mp4")
                     let progressState = self
                     let worker = Task.detached(priority: .userInitiated) { [progressState] in
-                        try await VideoExporter.export(job, to: url) { value in
+                        try await VideoExporter.export(job, to: url, recordHistory: recordHistory) { value in
                             Task { @MainActor in
                                 progressState.progress = (Double(index) + value) / Double(jobs.count)
                             }

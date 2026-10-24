@@ -20,6 +20,7 @@ fi
 destination="$HOME/Applications/ZenWave Content Studio.app"
 mkdir -p "$HOME/Applications"
 ditto --norsrc --noextattr "$studio_dir/dist/ZenWave Content Studio.app" "$destination"
+xattr -cr "$destination"
 codesign --verify --deep --strict "$destination"
 open "$destination"
 printf '\nInstalled: %s\n' "$destination"

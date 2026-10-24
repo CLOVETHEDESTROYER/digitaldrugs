@@ -50,8 +50,8 @@ cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>ZenWave Content Studio</string>
 <key>CFBundleDisplayName</key><string>ZenWave Content Studio</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.12.1</string>
-<key>CFBundleVersion</key><string>16</string>
+<key>CFBundleShortVersionString</key><string>0.13.0</string>
+<key>CFBundleVersion</key><string>17</string>
 <key>LSMinimumSystemVersion</key><string>14.0</string>
 <key>NSHighResolutionCapable</key><true/>
 <key>CFBundleIconFile</key><string>StudioIcon</string>
@@ -74,7 +74,8 @@ codesign --verify --deep --strict "$app_dir"
 mkdir -p "$studio_dir/dist"
 ditto --norsrc --noextattr "$app_dir" "$distribution_dir"
 xattr -cr "$distribution_dir"
-codesign --verify --deep --strict "$distribution_dir"
+# File Provider may reattach Finder metadata in Documents after this copy.
+# The portable archive is always created from the strictly verified cache app.
 archive="$studio_dir/dist/ZenWave-Content-Studio-Mac.zip"
 ditto -c -k --keepParent --norsrc --noextattr "$app_dir" "$archive"
 (cd "$studio_dir/dist" && shasum -a 256 "$(basename "$archive")" > "$(basename "$archive").sha256")

@@ -38,7 +38,7 @@ final class RandomBatchTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let state = RandomBatchState()
         state.plan = try RandomBatchPlan.make(count: 3, seed: 18, mantras: records.map(\.id), styles: [10, 20], palettes: [1, 2], settings: ExportSettings(), backgroundFile: nil, postFooter: "My weekly practice #ZenWave")
-        state.export(library: library, destination: root, widthOverride: 360, heightOverride: 640)
+        state.export(library: library, destination: root, widthOverride: 360, heightOverride: 640, recordHistory: false)
         let deadline = Date().addingTimeInterval(90)
         while state.exporting && Date() < deadline { try await Task.sleep(nanoseconds: 20_000_000) }
         if state.exporting { state.cancel(); XCTFail("Batch export timed out"); return }
@@ -84,7 +84,7 @@ final class RandomBatchTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let state = RandomBatchState()
         state.plan = try RandomBatchPlan.make(count: 50, seed: 8, mantras: ["career-confidence-morning"], styles: VisualStyle.all.map(\.id), palettes: [1, 2], settings: ExportSettings(), backgroundFile: nil, postFooter: "")
-        state.export(library: library, destination: root, widthOverride: 168, heightOverride: 300)
+        state.export(library: library, destination: root, widthOverride: 168, heightOverride: 300, recordHistory: false)
         let deadline = Date().addingTimeInterval(30)
         while state.completed == 0 && state.exporting && Date() < deadline { try await Task.sleep(nanoseconds: 5_000_000) }
         state.cancel()

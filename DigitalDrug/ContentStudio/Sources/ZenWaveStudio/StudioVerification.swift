@@ -110,7 +110,7 @@ enum StudioVerification {
         let end = CommandLine.arguments.contains("--full") ? nil : Optional(Double(argument("--seconds") ?? "3") ?? 3)
         let job = ExportJob(mantra: mantra, settings: settings, start: 0, end: end, backgroundURL: background)
         try await VideoExporter.export(job, to: output, widthOverride: production ? nil : 360,
-                                       heightOverride: production ? nil : 640) { _ in }
+                                       heightOverride: production ? nil : 640, recordHistory: false) { _ in }
         let asset = AVURLAsset(url: output)
         let duration = try await asset.load(.duration).seconds
         guard let video = try await asset.loadTracks(withMediaType: .video).first,

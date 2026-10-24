@@ -48,7 +48,7 @@ Open **Random Batch…** in the studio sidebar. The default is a seven-clip week
 
 The main studio's motion, caption offset, caption/branding switches, heading, and optional imported music are captured when generating. The batch has its own beat/nature controls, initialized from the main studio when opening a new batch. Batch output shape has its own picker, defaulting to portrait. Edits to settings or pools do not change the reviewed list until you generate or reshuffle again. Estimated captions should be reviewed by listening before posting. Full recordings keep each mantra intact; this mode does not use the main studio's selected-line clip trim.
 
-Every clip includes a numbered filename, settings receipt, editable `.txt` posting copy and an SRT when captions are enabled. `batch.json` records the seed, full pools, chosen combinations, settings and completed files. The ZIP contains the whole batch. Enter the same seed and pools under **Reproducible shuffle** to recreate an unlocked batch; the manifest also records the actual choices. The reviewed plan stays in memory while the app is open; the exported manifest is the durable record.
+Every clip includes a numbered filename, settings receipt, editable `.txt` posting copy and an SRT when captions are enabled. `batch.json` records the seed, full pools, chosen combinations, settings and completed files. The ZIP contains the whole batch. With unchanged history, enter the same seed and pools under **Reproducible shuffle** to recreate an unlocked batch; the manifest also records the actual choices. The reviewed plan stays in memory while the app is open; the exported manifest is the durable record.
 
 Exports run locally and sequentially. Stopping keeps completed clips and marks the manifest as stopped, without publishing a partial ZIP. Existing batches are never overwritten. Posting to social accounts is handled separately.
 
@@ -85,7 +85,7 @@ Sacred fields bypass the liquid coordinate warp. Audio changes global breath, li
 
 ## Set up on another Mac
 
-The portable **0.12.1** ZIP includes both **Intel (x86_64)** and **Apple silicon (arm64)**. It requires **macOS 14 Sonoma or newer** and a Metal-capable GPU. An Intel chip alone is not a problem; a Mac limited to macOS 13 or earlier cannot run this version. Actual Intel hardware still needs a render/playback check.
+The portable **0.13.0** ZIP includes both **Intel (x86_64)** and **Apple silicon (arm64)**. It requires **macOS 14 Sonoma or newer** and a Metal-capable GPU. An Intel chip alone is not a problem; a Mac limited to macOS 13 or earlier cannot run this version. Actual Intel hardware still needs a render/playback check.
 
 For the easiest installation, download `ZenWave-Content-Studio-Mac.zip` from this repository's [GitHub Releases](https://github.com/CLOVETHEDESTROYER/digitaldrugs/releases), unzip it, and drag the app into Applications. No Xcode, ChatGPT account, OpenAI key, Python packages, or additional audio downloads are needed to run it. This personal-use build is ad-hoc signed, not notarized. If macOS blocks opening it, use **System Settings → Privacy & Security → Open Anyway** after attempting to open the downloaded app.
 
@@ -103,7 +103,7 @@ You can also double-click **Install Studio.command** in Finder. Building from so
 
 On the Intel Mac, start with one short export before a batch or a long live session. Rendering is sequential, and long exports can take longer than their playback duration. Keep the Mac connected to power and awake during a render. For live broadcasting, a pre-exported MP4 avoids rendering the visualizer while streaming.
 
-Muse runs separately. Installing this studio does **not** install Muse or enable an automatic Muse connection. The local queue, persistent cross-batch duplicate history and Facebook handoff are described in [the integration plan](Research/meta-muse-local-studio-plan-2026-10-24.md), and remain to be implemented. Muse's Mac hardware/account requirements must be checked on the destination machine; using its browser interface remains a separate option.
+Muse runs separately. Installing this studio does **not** install Muse or enable an automatic Muse connection. Version 0.13 implements SQLite history, duplicate-safe exports and a local JSON request-folder worker. Open **History & Agent Jobs…** to prepare/start the exchange and copy the Muse connection-test prompt. Muse still needs separately authorized local folder access or a verified synced-folder connector; that external connection and actual Facebook publishing/scheduling have not been tested. The [integration plan](Research/meta-muse-local-studio-plan-2026-10-24.md) records the remaining account-side work. Muse's Mac hardware/account requirements must be checked on the destination machine; using its browser interface remains a separate option.
 
 ## Build and test
 
@@ -252,3 +252,24 @@ bash ContentStudio/Tools/build-app.sh
 The output is `Sources/ZenWaveStudio/Resources/BreathVoice/`, with a complete manifest and content hashes. Interrupted runs retain completed clips; voice/settings mismatches are rejected rather than mixing packs. Silent padding is trimmed. If a cue needs a minor timing adjustment, the development tool uses ffmpeg to preserve pitch; the runtime never rushes the voice to fit a slot. Excessively long cues are rejected for regeneration. ffmpeg is not a runtime app dependency. Generated audio can be bundled and checked into Git; credentials cannot.
 
 The complete Marin pack is now bundled in the source and desktop app. Generation used the existing HomeSchool/LearnGate OpenAI configuration without copying its credential into this project. The studio uses those clips automatically after **Prepare / update practice**; no key or voice download is needed on another Mac. Earlier references to Mac voices describe versions 0.11.x and no longer apply to current playback. The build script prevents packaging an app with a missing pack.
+
+
+## History and local agent jobs — 0.13
+
+For the destination Mac, follow [the no-code setup guide](MUSE-SETUP.md).
+
+Every new manual, random-batch, breathing and live video export reserves its core combination in local SQLite history before rendering. Completed media remains blocked even when moved, deleted or rejected. Actual source-file hashes identify audio; renaming a file, changing gain/motion, captions, branding, CTA, clip length or aspect ratio does not make a core new. The randomizer now filters previously used combinations; the exporter is the final guard against concurrent duplicates. A competing export can stop a partially completed batch without deleting its completed clips. Use a new request for only the missing content after review.
+
+Open **History & Agent Jobs…** in the sidebar:
+
+1. **Import old exports…** before a production batch. Select your prior ZenWave export folder. Movies with readable receipts/source assets are reconstructed; old imported-audio receipts conservatively block the matching core with any imported background. The report identifies movies that could not be reconstructed. Reconstruction uses current bundled sources; audio changed since the original export cannot be verified from old receipts alone. Missing/deleted exports and missing receipts cannot be recovered from chat.
+2. Choose a dedicated exchange folder (default `~/Movies/ZenWave Exchange`) and **Prepare exchange**. It contains instructions, the current catalog and an example request. Preparation never submits the example or starts a render.
+3. **Start local processing**. The worker watches `Requests/`, saves atomic replies in `Status/`, and renders requested batches into `Ready/` with combined MP4/audio, posting text, thumbnails, optional subtitles, settings receipts and a ZIP. Choose 1–50 videos; request ten for a week rather than every combination. This version accepts manifestation batches; breathing and live exports participate in history but do not yet have agent job schemas.
+4. **Copy Muse connection prompt**, paste into your Muse task, and grant the Muse Mac app access to this dedicated folder. Muse must demonstrate writing the supplied three-second test request and reading the completed result. A browser-only Muse task cannot assume access to a local Mac path; a connected synced folder is a fallback only after read/write/video retrieval works in that account. No public server or hosting is enabled.
+5. Repeat the same request ID to get the same result. Changed parameters under that ID are rejected. Failed/partial/interrupted requests are retained rather than silently rerendered. Review retained clips, then request only the needed replacements under a new ID. **Recover interrupted renders…** checks abandoned reservations; stop processing and close every other Studio process first.
+
+Keep the app open and the Mac awake while rendering. Processing resumes when the app next opens if it was left enabled. Closing the app stops the worker; this is not a system daemon. Muse's actual account handoff and Facebook Page upload/scheduling remain unverified. The studio never publishes; optional `Reports/` acknowledgements store actual platform IDs/times supplied by the agent without independently verifying them.
+
+History lives in `~/Library/Application Support/ZenWave Content Studio/history.sqlite`, with a `history-backup.sqlite` snapshot. Use **Export history…** for a readable JSON audit, including requests, assets, publication acknowledgements and events/settings. Use **Open database folder** to locate the files. Keep one authoritative rendering Mac. Stop both apps before moving `history.sqlite` to another Mac, or copy the backup as `history.sqlite`; never sync a live SQLite database between two renderers. Copy/reselect imported music separately. Downloading the repository does not transfer your private history or exports.
+
+The complete agent schema and test procedure are bundled as [AgentInstructions.md](Sources/ZenWaveStudio/Resources/AgentInstructions.md) and copied into the exchange folder. No API key is required for the local worker.

@@ -37,7 +37,7 @@ final class RandomBatchState {
         else { error = "The seed must be a whole number from 0 to \(UInt64.max)."; return }
         var settings = studio.settings; settings.format = format; settings.soundscape = soundscape
         do {
-            let next = try RandomBatchPlan.make(count: count, seed: seed, mantras: Array(mantraPool), styles: Array(stylePool), palettes: Array(palettePool), settings: settings, backgroundFile: studio.backgroundURL?.lastPathComponent, postFooter: footer, keeping: plan?.clips ?? [], beats: randomizeBeats ? Array(beatPool).sorted { $0.rawValue < $1.rawValue } : nil, nature: randomizeNature ? Array(naturePool).sorted() : nil, chakras: randomizeChakras ? Array(chakraPool).sorted() : nil)
+            let next = try UnusedBatch.make(count: count, seed: seed, mantras: Array(mantraPool), styles: Array(stylePool), palettes: Array(palettePool), settings: settings, background: studio.backgroundURL, footer: footer, library: studio.library, keeping: plan?.clips ?? [], beats: randomizeBeats ? Array(beatPool).sorted { $0.rawValue < $1.rawValue } : nil, nature: randomizeNature ? Array(naturePool).sorted() : nil, chakras: randomizeChakras ? Array(chakraPool).sorted() : nil, history: ContentHistory.shared)
             plan = next; background = studio.backgroundURL; seedText = String(seed)
             status = "\(next.clips.count) unique combinations ready to review. Locks survive reshuffling."
         } catch { self.error = error.localizedDescription }
@@ -46,7 +46,7 @@ final class RandomBatchState {
         guard !exporting, let index = plan?.clips.firstIndex(where: { $0.id == id }) else { return }
         plan?.clips[index].locked.toggle()
     }
-    func export(library: [Mantra], destination: URL, widthOverride: Int? = nil, heightOverride: Int? = nil) {
+    func export(library: [Mantra], destination: URL, widthOverride: Int? = nil, heightOverride: Int? = nil, recordHistory: Bool = true) {
         guard !exporting, let plan else { return }
         let background = background
         let folder = destination.appendingPathComponent("Random Batch \(UUID().uuidString.prefix(8))", isDirectory: true)
@@ -58,7 +58,7 @@ final class RandomBatchState {
             defer { ProcessInfo.processInfo.endActivity(activity); exporting = false; task = nil }
             let worker = Task.detached(priority: .userInitiated) {
                 try await RandomBatchExporter.export(plan: plan, library: library, background: background, folder: folder,
-                    widthOverride: widthOverride, heightOverride: heightOverride) { value, done in
+                    widthOverride: widthOverride, heightOverride: heightOverride, recordHistory: recordHistory) { value, done in
                     Task { @MainActor in
                         guard self.exporting, self.runID == runID else { return }
                         self.progress = value; self.completed = done

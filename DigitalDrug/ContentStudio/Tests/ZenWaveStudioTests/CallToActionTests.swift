@@ -81,7 +81,7 @@ final class CallToActionTests: XCTestCase {
         settings.callToAction.destinationURL = "https://example.com/calm"
         let plan = try RandomBatchPlan.make(count: 1, seed: 31, mantras: [mantra.id], styles: [34], palettes: [1], settings: settings, backgroundFile: nil, postFooter: "Daily practice")
         let folder = root.appendingPathComponent("batch")
-        _ = try await RandomBatchExporter.export(plan: plan, library: library, background: nil, folder: folder, widthOverride: 168, heightOverride: 300) { _, _ in }
+        _ = try await RandomBatchExporter.export(plan: plan, library: library, background: nil, folder: folder, widthOverride: 168, heightOverride: 300, recordHistory: false) { _, _ in }
         let output = folder.appendingPathComponent(plan.clips[0].fileName)
         let cta = try JSONDecoder().decode(StudioFollowUpReceipt.self, from: Data(contentsOf: output.deletingPathExtension().appendingPathExtension("cta.json")))
         XCTAssertEqual(cta.commentKeyword, "CALM"); XCTAssertEqual(cta.campaign, "Calm test"); XCTAssertEqual(cta.destinationURL, "https://example.com/calm")

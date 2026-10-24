@@ -18,7 +18,7 @@ final class ExportWorkflowTests: XCTestCase {
         state.settings = ExportSettings()
         state.settings.format = .square
         state.queued = ["career-confidence-morning", "career-confidence-evening"]
-        state.startExport(batch: true)
+        state.startExport(batch: true, recordHistory: false)
         let deadline = Date().addingTimeInterval(120)
         while state.exporting && Date() < deadline { try await Task.sleep(nanoseconds: 50_000_000) }
         if state.exporting { state.cancelExport(); XCTFail("Batch export timed out"); return }
@@ -55,7 +55,7 @@ final class ExportWorkflowTests: XCTestCase {
         let output = root.appendingPathComponent("cancelled.mp4")
         let job = ExportJob(mantra: mantra, settings: ExportSettings(), start: 0, end: nil)
         let task = Task.detached {
-            try await VideoExporter.export(job, to: output, widthOverride: 360, heightOverride: 640) { _ in }
+            try await VideoExporter.export(job, to: output, widthOverride: 360, heightOverride: 640, recordHistory: false) { _ in }
         }
         try await Task.sleep(nanoseconds: 200_000_000)
         task.cancel()

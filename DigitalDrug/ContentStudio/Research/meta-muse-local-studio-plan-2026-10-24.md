@@ -1,6 +1,8 @@
 # Meta Muse + local ZenWave Content Studio
 
-Status: implementation plan, 24 October 2026. Muse is not connected. No studio update, external listener, cloud deployment, publication, or recurring job was enabled for this plan.
+Status update, 24 October 2026: studio 0.13 implements local SQLite history, source-content fingerprints, reservations for every video exporter, a History & Agent Jobs UI, legacy-receipt import, and a local folder worker for 1–50 manifestation clips. Repeated requests return existing results; produced content remains blocked. Agent instructions/catalog/test prompt are bundled. No public listener, cloud deployment, automatic Facebook posting or scheduled automation is enabled. The user's Muse URL was confirmed as muse.ai; the available browser is signed out, so account permissions, Intel support for Muse itself and the local-folder/video retrieval round trip remain unverified.
+
+The remainder records the original design, including future work. Current operating instructions and supported schema are in ../Sources/ZenWaveStudio/Resources/AgentInstructions.md. Breathing/live history is implemented; agent schemas for those content types, proposed weekly calendars, platform verification and analytics remain future work.
 
 ## Decision
 
@@ -131,4 +133,4 @@ Later improvements: theme/visual diversity across adjacent posts, a configurable
 4. Add the studio History/Content Library UI and a bounded 10-video integration test, including repeat-request/concurrent-request/crash recovery tests.
 5. Verify one Facebook Page upload/schedule/callback round trip, then test a weekly ten-video handoff. Configure a recurring cadence only when the user chooses its timing.
 
-This is a plan, not a live connection. Installed studio remains 0.12.0. No Page access or Muse access has been granted by this document.
+This document grants no Page or Muse access. Local queue/history implementation does not prove the external Muse connection; complete the account-side test before calling it connected.

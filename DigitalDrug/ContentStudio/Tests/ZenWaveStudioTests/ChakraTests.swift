@@ -133,7 +133,7 @@ final class ChakraTests: XCTestCase {
         var settings = ExportSettings(); settings.style = 33; settings.soundscape.beat = .theta; settings.soundscape.natureID = "forest_ambience"
         settings.soundscape.chakra = StudioChakraLayer().randomized("column")
         let movie = root.appendingPathComponent("chakra.mp4")
-        try await VideoExporter.export(ExportJob(mantra: mantra, settings: settings, start: 0, end: 2), to: movie, widthOverride: 168, heightOverride: 300) { _ in }
+        try await VideoExporter.export(ExportJob(mantra: mantra, settings: settings, start: 0, end: 2), to: movie, widthOverride: 168, heightOverride: 300, recordHistory: false) { _ in }
         let asset = AVURLAsset(url: movie)
         let audio = try await asset.loadTracks(withMediaType: .audio), video = try await asset.loadTracks(withMediaType: .video)
         XCTAssertEqual(audio.count, 1); XCTAssertEqual(video.count, 1)

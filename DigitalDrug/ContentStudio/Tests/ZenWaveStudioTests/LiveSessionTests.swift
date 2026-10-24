@@ -92,7 +92,7 @@ final class LiveSessionTests: XCTestCase {
         }
         let output = folder.appendingPathComponent("ten-minutes.mp4")
         let job = ExportJob(mantra: timeline.mantra, settings: settings, start: 0, end: timeline.duration, liveTimeline: timeline, preparedAudio: audio, preparedMotion: envelope)
-        try await VideoExporter.export(job, to: output, widthOverride: 168, heightOverride: 300) { _ in }
+        try await VideoExporter.export(job, to: output, widthOverride: 168, heightOverride: 300, recordHistory: false) { _ in }
         let asset = AVURLAsset(url: output)
         let duration = try await asset.load(.duration).seconds
         XCTAssertEqual(duration, 600, accuracy: 0.05)
