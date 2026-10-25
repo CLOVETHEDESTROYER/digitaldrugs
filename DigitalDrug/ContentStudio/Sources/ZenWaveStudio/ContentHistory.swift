@@ -34,13 +34,20 @@ final class ContentHistory: @unchecked Sendable {
             throw StudioError.message("Could not open content history. No video was rendered.")
         }
         sqlite3_busy_timeout(db, 5000)
-        try execute("PRAGMA journal_mode=WAL")
-        try execute("CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, request_id TEXT NOT NULL, title TEXT NOT NULL, status TEXT NOT NULL, output TEXT NOT NULL, checksum TEXT NOT NULL DEFAULT '', error TEXT NOT NULL DEFAULT '', created TEXT NOT NULL, recipe TEXT NOT NULL)")
-        try execute("CREATE UNIQUE INDEX IF NOT EXISTS unique_content ON assets(fingerprint) WHERE status != 'failed'")
-        try execute("CREATE TABLE IF NOT EXISTS requests(id TEXT PRIMARY KEY, payload TEXT NOT NULL, status TEXT NOT NULL, result TEXT NOT NULL DEFAULT '', created TEXT NOT NULL)")
-        try execute("CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, subject TEXT NOT NULL, event TEXT NOT NULL, created TEXT NOT NULL)")
-        try execute("CREATE TABLE IF NOT EXISTS publications(id TEXT PRIMARY KEY, asset_id TEXT NOT NULL, payload TEXT NOT NULL)")
-        try execute("PRAGMA user_version=1")
+        do {
+            let version = Int(try rows("PRAGMA user_version").first?["user_version"] ?? "0") ?? 0
+            guard version <= 1 else { throw StudioError.message("This history database needs a newer studio version. It was not downgraded or reset.") }
+            try execute("PRAGMA journal_mode=WAL")
+            try execute("CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, request_id TEXT NOT NULL, title TEXT NOT NULL, status TEXT NOT NULL, output TEXT NOT NULL, checksum TEXT NOT NULL DEFAULT '', error TEXT NOT NULL DEFAULT '', created TEXT NOT NULL, recipe TEXT NOT NULL)")
+            try execute("CREATE UNIQUE INDEX IF NOT EXISTS unique_content ON assets(fingerprint) WHERE status != 'failed'")
+            try execute("CREATE TABLE IF NOT EXISTS requests(id TEXT PRIMARY KEY, payload TEXT NOT NULL, status TEXT NOT NULL, result TEXT NOT NULL DEFAULT '', created TEXT NOT NULL)")
+            try execute("CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, subject TEXT NOT NULL, event TEXT NOT NULL, created TEXT NOT NULL)")
+            try execute("CREATE TABLE IF NOT EXISTS publications(id TEXT PRIMARY KEY, asset_id TEXT NOT NULL, payload TEXT NOT NULL)")
+            // Keep the v1 identity payload intact for older apps and rollback. Full
+            // Drive report metadata is an additive extension, enriched once on replay.
+            try execute("CREATE TABLE IF NOT EXISTS publication_details(id TEXT PRIMARY KEY, payload TEXT NOT NULL)")
+            try execute("PRAGMA user_version=1")
+        } catch { sqlite3_close(db); db = nil; throw error }
     }
     deinit { sqlite3_close(db) }
     private func withLock<T>(_ body: () throws -> T) rethrows -> T { lock.lock(); defer { lock.unlock() }; return try body() }
@@ -178,19 +185,37 @@ final class ContentHistory: @unchecked Sendable {
     }
     func requestResult(id: String) throws -> String? { try rows("SELECT result FROM requests WHERE id=?", [id]).first?["result"] }
     func requests() throws -> [[String: String]] { try rows("SELECT * FROM requests ORDER BY created DESC") }
-    func publications() throws -> [[String: String]] { try rows("SELECT * FROM publications ORDER BY rowid DESC") }
+    func publications() throws -> [[String: String]] {
+        try rows("SELECT p.id,p.asset_id,COALESCE(d.payload,p.payload) AS payload FROM publications p LEFT JOIN publication_details d ON d.id=p.id ORDER BY p.rowid DESC")
+    }
     func events() throws -> [[String: String]] { try rows("SELECT * FROM events ORDER BY id") }
-    func recordPublication(id: String, assetID: String, payload: String) throws {
+    func recordPublication(id: String, assetID: String, payload: String, details: String? = nil) throws {
         try transaction {
             guard try !rows("SELECT id FROM assets WHERE id=? AND status IN ('complete','review')", [assetID]).isEmpty else {
                 throw StudioError.message("Publication must reference a produced asset ID.")
             }
             if let old = try rows("SELECT * FROM publications WHERE id=?", [id]).first {
                 guard old["asset_id"] == assetID, old["payload"] == payload else { throw StudioError.message("Publication ID already has different details.") }
+                if let details { try enrichPublication(id: id, details: details) }
                 return
             }
             try execute("INSERT INTO publications(id,asset_id,payload) VALUES(?,?,?)", [id, assetID, payload])
             try event(assetID, "publication acknowledgement recorded")
+            if let details { try enrichPublication(id: id, details: details) }
+        }
+    }
+    private func enrichPublication(id: String, details: String) throws {
+        if let existing = try rows("SELECT payload FROM publication_details WHERE id=?", [id]).first {
+            guard existing["payload"] == details else { throw StudioError.message("Publication ID already has different metadata. Use a new event ID.") }
+        } else {
+            try execute("INSERT INTO publication_details(id,payload) VALUES(?,?)", [id, details])
+            try event(id, "publication metadata preserved")
+        }
+    }
+    func snapshot(to destination: URL) throws {
+        try withLock {
+            try backup()
+            try FileManager.default.copyItem(at: url.deletingLastPathComponent().appendingPathComponent("history-backup.sqlite"), to: destination)
         }
     }
     func backup() throws {

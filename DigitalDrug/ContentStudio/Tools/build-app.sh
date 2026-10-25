@@ -50,13 +50,22 @@ cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>ZenWave Content Studio</string>
 <key>CFBundleDisplayName</key><string>ZenWave Content Studio</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.13.0</string>
-<key>CFBundleVersion</key><string>17</string>
-<key>LSMinimumSystemVersion</key><string>14.0</string>
 <key>NSHighResolutionCapable</key><true/>
 <key>CFBundleIconFile</key><string>StudioIcon</string>
 </dict></plist>
 PLIST
+# One release manifest controls package identity, version and minimum macOS.
+python3 - "$app_dir/Contents/Info.plist" "$stage_dir/Sources/ZenWaveStudio/Resources/studio-update.json" <<'PYMANIFEST'
+import json, plistlib, sys
+from pathlib import Path
+plist_path, manifest_path = map(Path, sys.argv[1:])
+manifest = json.loads(manifest_path.read_text())
+info = plistlib.loads(plist_path.read_bytes())
+info.update(CFBundleIdentifier=manifest["bundleIdentifier"],
+            CFBundleShortVersionString=manifest["version"], CFBundleVersion=manifest["build"],
+            LSMinimumSystemVersion=f'{manifest["minimumMacOS"]}.0')
+plist_path.write_bytes(plistlib.dumps(info))
+PYMANIFEST
 icon_source="$stage_dir/Sources/ZenWaveStudio/Resources/Brand/ZenWaveLogo.png"
 if [[ -f "$icon_source" ]]; then
     icon_set="$(dirname "$stage_dir")/StudioIcon.iconset"

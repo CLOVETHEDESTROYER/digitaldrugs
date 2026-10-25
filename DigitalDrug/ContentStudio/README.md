@@ -273,3 +273,9 @@ Keep the app open and the Mac awake while rendering. Processing resumes when the
 History lives in `~/Library/Application Support/ZenWave Content Studio/history.sqlite`, with a `history-backup.sqlite` snapshot. Use **Export history…** for a readable JSON audit, including requests, assets, publication acknowledgements and events/settings. Use **Open database folder** to locate the files. Keep one authoritative rendering Mac. Stop both apps before moving `history.sqlite` to another Mac, or copy the backup as `history.sqlite`; never sync a live SQLite database between two renderers. Copy/reselect imported music separately. Downloading the repository does not transfer your private history or exports.
 
 The complete agent schema and test procedure are bundled as [AgentInstructions.md](Sources/ZenWaveStudio/Resources/AgentInstructions.md) and copied into the exchange folder. No API key is required for the local worker.
+
+## App updater — 0.14.0
+
+Open **App Updates…** in the sidebar to check, download and install compatible GitHub releases. Installation waits for current work, backs up history/preferences, preserves the current app path and exchange, and retains the previous app for rollback. Older versions need one manual ZIP replacement to gain the updater. See [UPDATES.md](UPDATES.md) for installation and recovery.
+
+For the existing cloud Muse workflow, keep using the same Google Drive exchange. The Muse desktop app is not needed when its cloud agent already reads/writes that Drive folder. The original 0.13 setup discussion above describes the earlier, unverified connection options. No posting schedules or permissions are changed here.

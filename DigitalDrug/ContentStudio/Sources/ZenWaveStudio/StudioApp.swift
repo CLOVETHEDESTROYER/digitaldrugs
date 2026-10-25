@@ -7,6 +7,7 @@ struct StudioApp: App {
     @State private var breath = BreathPracticeState()
     @State private var batch = RandomBatchState()
     @State private var content = ContentLibraryState()
+    @State private var updates = StudioUpdateState()
     var body: some Scene {
         WindowGroup("ZenWave Content Studio") {
             StudioView(studio: studio).onChange(of: studio.playing) { _, playing in if playing { live.pause(); breath.pause() } }
@@ -16,6 +17,9 @@ struct StudioApp: App {
         Window("History & Agent Jobs", id: "content-history") {
             ContentLibraryView(state: content)
         }.defaultSize(width: 1100, height: 820)
+        Window("App Updates", id: "studio-updates") {
+            StudioUpdateView(updates: updates, onQuit: { studio.pause(); live.pause(); breath.pause() })
+        }.defaultSize(width: 720, height: 760)
         Window("Random Batch", id: "random-batch") {
             RandomBatchView(studio: studio, batch: batch, livePlaying: live.playing, onPlay: { live.pause(); breath.pause() })
         }.defaultSize(width: 1100, height: 860)
@@ -34,6 +38,7 @@ struct StudioApp: App {
             .defaultSize(width: 540, height: 960)
             .windowStyle(.hiddenTitleBar)
             .commands {
+                StudioUpdateCommands()
                 CommandGroup(replacing: .newItem) {}
                 CommandGroup(after: .saveItem) {
                     Button("Show export folder") { studio.revealExports() }.keyboardShortcut("e", modifiers: [.command, .shift])
@@ -45,6 +50,29 @@ struct StudioApp: App {
 @main
 enum StudioLauncher {
     static func main() {
+        if let index = CommandLine.arguments.firstIndex(of: "--verify-update-package"), CommandLine.arguments.indices.contains(index + 1) {
+            do {
+                let stage = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-Update-Review-\(UUID())")
+                try FileManager.default.createDirectory(at: stage, withIntermediateDirectories: true)
+                defer { try? FileManager.default.removeItem(at: stage) }
+                let prepared = try StudioUpdateClient.unpack(URL(fileURLWithPath: CommandLine.arguments[index + 1]), into: stage, expectedVersion: StudioBuild.version)
+                print("Verified update \(prepared.version): signature, universal binary, resources and version 1 automation compatibility.")
+            } catch { fputs("Update verification failed: \(error)\n", stderr); exit(1) }
+            return
+        }
+        if let index = CommandLine.arguments.firstIndex(of: "--install-update"), CommandLine.arguments.indices.contains(index + 1) {
+            let planURL = URL(fileURLWithPath: CommandLine.arguments[index + 1])
+            let semaphore = DispatchSemaphore(value: 0)
+            Task.detached {
+                do { try await StudioUpdateInstaller.run(planURL: planURL); semaphore.signal() }
+                catch { fputs("Update installer failed: \(error)\n", stderr); exit(1) }
+            }
+            semaphore.wait(); return
+        }
+        if let index = CommandLine.arguments.firstIndex(of: "--confirm-update"), CommandLine.arguments.indices.contains(index + 1) {
+            do { try StudioUpdateInstaller.confirmLaunch(planURL: URL(fileURLWithPath: CommandLine.arguments[index + 1])) }
+            catch { fputs("Updated app startup failed: \(error)\n", stderr); exit(1) }
+        }
         if CommandLine.arguments.contains("--agent-poll") || CommandLine.arguments.contains("--breath-review") || CommandLine.arguments.contains("--smoke-export") || CommandLine.arguments.contains("--verify-library") || CommandLine.arguments.contains("--live-review") || CommandLine.arguments.contains("--random-batch-review") {
             let semaphore = DispatchSemaphore(value: 0)
             Task.detached {

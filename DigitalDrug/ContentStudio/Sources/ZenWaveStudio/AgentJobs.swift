@@ -121,8 +121,12 @@ struct AgentQueue: Sendable {
     let history: ContentHistory
     var widthOverride: Int? = nil
     var heightOverride: Int? = nil
+    var operationGate: StudioOperationGate = .shared
     func setup(library: [Mantra]) throws {
         guard !library.isEmpty else { throw StudioError.message("No studio recordings are available.") }
+        if root.path.contains("/Library/CloudStorage/"), !FileManager.default.fileExists(atPath: root.path) {
+            throw StudioError.message("The synced exchange folder is unavailable. Open Drive for desktop and restore sync before starting local processing.")
+        }
         for name in ["Requests", "Status", "Ready", "Reports", "Examples"] {
             try FileManager.default.createDirectory(at: root.appendingPathComponent(name), withIntermediateDirectories: true)
         }
@@ -137,20 +141,26 @@ struct AgentQueue: Sendable {
             beats: ["delta", "theta", "alpha"], nature: StudioNature.all.map { Item(id: $0.id, title: $0.title) },
             chakras: StudioChakra.randomIDs.map { Item(id: $0, title: StudioChakra.randomTitle($0)) }, requestKinds: ["manifestation-batch"],
             notes: "Local job processing only. No Facebook posting or scheduling. Breathing and live exports use history but are not agent request types yet. Read AGENT-INSTRUCTIONS.md.")
-        try Data(ContentHistory.json(catalog).utf8).write(to: root.appendingPathComponent("catalog.json"), options: .atomic)
+        let catalogData = try Data(ContentHistory.json(catalog).utf8)
+        try ExchangeMetadata.write(catalogData, to: root.appendingPathComponent("catalog.json"))
         let example = AgentBatchRequest(requestId: "first-test", brief: "One short background-reactive test video", count: 1,
             manifestationIds: [library[0].id], visualStyles: [34, 35], paletteIds: [1, 4], allowedBeats: [.theta], clipSeconds: 3)
-        try Data(ContentHistory.json(example).utf8).write(to: root.appendingPathComponent("Examples/first-test.json"), options: .atomic)
-        if let instructions = Bundle.main.resourceURL?.appendingPathComponent("StudioResources/AgentInstructions.md"), FileManager.default.fileExists(atPath: instructions.path) {
-            try Data(contentsOf: instructions).write(to: root.appendingPathComponent("AGENT-INSTRUCTIONS.md"), options: .atomic)
-        } else {
-            try Data(contentsOf: StudioResources.root.appendingPathComponent("AgentInstructions.md")).write(to: root.appendingPathComponent("AGENT-INSTRUCTIONS.md"), options: .atomic)
+        let exampleURL = root.appendingPathComponent("Examples/first-test.json")
+        if !FileManager.default.fileExists(atPath: exampleURL.path) {
+            try Data(ContentHistory.json(example).utf8).write(to: exampleURL, options: .withoutOverwriting)
         }
+        if let instructions = Bundle.main.resourceURL?.appendingPathComponent("StudioResources/AgentInstructions.md"), FileManager.default.fileExists(atPath: instructions.path) {
+            try ExchangeMetadata.write(Data(contentsOf: instructions), to: root.appendingPathComponent("AGENT-INSTRUCTIONS.md"))
+        } else {
+            try ExchangeMetadata.write(Data(contentsOf: StudioResources.root.appendingPathComponent("AgentInstructions.md")), to: root.appendingPathComponent("AGENT-INSTRUCTIONS.md"))
+        }
+        try ExchangeMetadata.publishInfo(root: root, catalog: catalogData)
     }
     func poll(library: [Mantra]) async throws {
         let requests = try FileManager.default.contentsOfDirectory(at: root.appendingPathComponent("Requests"), includingPropertiesForKeys: [.isSymbolicLinkKey])
         for file in requests.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) where file.pathExtension == "json" {
             try Task.checkCancellation()
+            if operationGate.updatePending { return }
             guard try file.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink != true else { continue }
             let id = file.deletingPathExtension().lastPathComponent
             guard AgentBatchRequest.validID(id) else { continue }
@@ -164,6 +174,8 @@ struct AgentQueue: Sendable {
             catch { try writeStatus(AgentJobStatus(requestId: id, status: "error", message: error.localizedDescription)) }
         }
         // Reports are explicit external acknowledgements, never proof from a guessed schedule.
+        guard let reportLease = try operationGate.tryWork() else { return }
+        defer { withExtendedLifetime(reportLease) {} }
         for file in try FileManager.default.contentsOfDirectory(at: root.appendingPathComponent("Reports"), includingPropertiesForKeys: [.isSymbolicLinkKey]) where file.pathExtension == "json" {
             guard try file.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink != true,
                   (try file.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0) <= 262_144 else { continue }
@@ -173,12 +185,18 @@ struct AgentQueue: Sendable {
                       !report.postId.isEmpty, ["scheduled", "published", "failed"].contains(report.status) else {
                     throw StudioError.message("Publication acknowledgement needs stable IDs, platform, postId and scheduled/published/failed status.")
                 }
-                try history.recordPublication(id: report.id, assetID: report.assetId, payload: ContentHistory.json(report))
+                let raw = try JSONSerialization.jsonObject(with: Data(contentsOf: file))
+                let details = String(decoding: try JSONSerialization.data(withJSONObject: raw, options: [.sortedKeys]), as: UTF8.self)
+                try history.recordPublication(id: report.id, assetID: report.assetId, payload: ContentHistory.json(report), details: details)
                 try writeUnchanged(Data("Accepted publication acknowledgement. This is an external report, not independent platform verification.\n".utf8), to: file.deletingPathExtension().appendingPathExtension("accepted.txt"))
             } catch { try writeUnchanged(Data(error.localizedDescription.utf8), to: file.deletingPathExtension().appendingPathExtension("error.txt")) }
         }
     }
     func process(_ request: AgentBatchRequest, library: [Mantra]) async throws -> AgentJobStatus {
+        guard let lease = try operationGate.tryWork() else {
+            return AgentJobStatus(requestId: request.requestId, status: "queued", message: "Waiting for the app update; no render has started.")
+        }
+        defer { withExtendedLifetime(lease) {} }
         try request.validate(library: library)
         let payload = try request.canonicalPayload()
         let state = try history.acceptRequest(id: request.requestId, payload: payload)
@@ -214,7 +232,7 @@ struct AgentQueue: Sendable {
                 let output = folder.appendingPathComponent(clip.fileName)
                 let job = ExportJob(mantra: mantra, settings: clip.settings(from: plan.settings), start: 0, end: request.clipSeconds)
                 try await VideoExporter.export(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride,
-                    historyStore: history, requestID: request.requestId) { _ in }
+                    historyStore: history, requestID: request.requestId, operationLease: lease) { _ in }
                 let postingText = [mantra.title, mantra.cues.map(\.text).joined(separator: "\n"), request.postFooter ?? "",
                     job.settings.callToAction.enabled ? job.settings.callToAction.postingText : ""].filter { !$0.isEmpty }.joined(separator: "\n\n")
                 try postingText.write(to: output.deletingPathExtension().appendingPathExtension("txt"), atomically: true, encoding: .utf8)

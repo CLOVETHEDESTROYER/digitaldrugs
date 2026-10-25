@@ -55,13 +55,14 @@ final class ContentLibraryState {
     func stop() { UserDefaults.standard.set(false, forKey: "agentEnabled"); task?.cancel() }
     func copyMusePrompt() {
         let prompt = """
-        Connect to my local ZenWave Content Studio using your authorized Mac file access. The exchange folder is \(exchange.path).
-        First read AGENT-INSTRUCTIONS.md and catalog.json. Prove you can write Requests/first-test.json using the provided Examples/first-test.json, wait for Status/first-test.json to say complete, and retrieve the three-second video. Submit the identical request again to verify that it returns the same asset IDs. Do not publish or schedule this test.
-        If you cannot access this folder, tell me which local permission or supported read/write storage connection is needed. Do not pretend that your cloud computer is this Mac. Do not host the studio or access its SQLite database directly.
-        After the round trip succeeds, use stable request IDs to request the number of unused videos I ask for, normally batches of 10. Keep exact schedules and Facebook Page access separate and wait for my posting instructions. Record actual platform results through the documented Reports folder.
+        Use my existing ZenWave Content Studio exchange through your authorized Google Drive/storage connector, or authorized local access if that is how it is configured. The Mac's selected folder is \(exchange.path); this local path is not a filesystem path on your cloud computer.
+        Read AGENT-INSTRUCTIONS.md, catalog.json and studio-info.json (if present). Keep the existing Requests, Status, Ready and Reports folders, IDs, schedules, platform restrictions and approval rules unchanged. A configured Drive bridge does not require Muse Desktop.
+        If already connected, verify the refreshed catalog against studio-info.json's catalogSHA256 and check an existing completed job without generating, resubmitting or publishing anything. Do not alter existing requests or reports.
+        If this is the first connection test I asked for, check whether first-test already exists before copying Examples/first-test.json into Requests/first-test.json. Wait for Status/first-test.json to say complete, retrieve the three-second clip and verify its checksum. An existing completed first-test is reused rather than replaced. Do not post or schedule the test.
+        If access is unavailable, report the missing storage permission or sync state. Do not host the studio or access its SQLite database. Request new batches only when I ask, using stable request IDs and the current catalog. Keep generation separate from scheduling/publishing and record actual platform results through Reports.
         """
         NSPasteboard.general.clearContents(); NSPasteboard.general.setString(prompt, forType: .string)
-        message = "Connection test prompt copied. Paste it into Muse after granting access to the exchange folder."
+        message = "Exchange prompt copied. Paste it into Muse using the existing authorized folder or storage connection."
     }
     func recover() {
         guard !watching else { return }
@@ -108,7 +109,7 @@ struct ContentLibraryView: View {
                         else { Button("Start local processing", action: state.start).buttonStyle(.borderedProminent) }
                     }
                     Text(state.message).font(.callout).foregroundStyle(.secondary)
-                    Text("This processes local JSON requests. It does not sign in to Muse, expose a public server, or publish to Facebook. Share the exchange instructions with Muse after granting its access to this folder.")
+                    Text("This processes local JSON requests. It does not sign in to Muse, expose a public server, or publish to Facebook. Muse can use an authorized Drive-synced exchange without a desktop agent; keep its existing folder access and schedules unchanged.")
                         .font(.caption).foregroundStyle(.secondary)
                 }.padding(8)
             }

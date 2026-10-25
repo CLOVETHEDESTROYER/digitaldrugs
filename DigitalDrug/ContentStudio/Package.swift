@@ -8,6 +8,6 @@ let package = Package(
     targets: [
         .systemLibrary(name: "CSQLite"),
         .executableTarget(name: "ZenWaveStudio", dependencies: ["CSQLite"], resources: [.copy("Resources")]),
-        .testTarget(name: "ZenWaveStudioTests", dependencies: ["ZenWaveStudio"])
+        .testTarget(name: "ZenWaveStudioTests", dependencies: ["ZenWaveStudio"], resources: [.copy("Fixtures")])
     ]
 )

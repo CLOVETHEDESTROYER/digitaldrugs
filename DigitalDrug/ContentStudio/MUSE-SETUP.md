@@ -4,7 +4,7 @@ Your Core i9 Mac running Sequoia 15.7.7 meets the studio's macOS 14 minimum. Phy
 
 ## Install the studio
 
-The easiest route needs no Git or Xcode: download ZenWave-Content-Studio-Mac.zip from the 0.13 release, unzip it, drag the app to Applications, and open it. The ZIP includes Intel and Apple silicon. It includes the recordings, sound layers and OpenAI breathing voice; no ChatGPT account or API key is needed. This personal-use build is ad-hoc signed, not notarized; use System Settings → Privacy & Security → Open Anyway if macOS blocks the downloaded app after an opening attempt.
+The easiest route needs no Git or Xcode: download ZenWave-Content-Studio-Mac.zip from the [0.14.0 release](https://github.com/CLOVETHEDESTROYER/digitaldrugs/releases/tag/content-studio-v0.14.0), unzip it, drag the app to Applications, and open it. The ZIP includes Intel and Apple silicon. It includes the recordings, sound layers and OpenAI breathing voice; no ChatGPT account or API key is needed. This personal-use build is ad-hoc signed, not notarized; use System Settings → Privacy & Security → Open Anyway if macOS blocks the downloaded app after an opening attempt.
 
 If you prefer an existing source checkout, switch to content-studio and pull it, then double-click DigitalDrug/ContentStudio/Install Studio.command. Building this way requires Xcode with Swift 5.10 or newer. Git pull updates source; it does not automatically install the app. You do not need to download a separate source portion when using the ready-built ZIP.
 
@@ -14,6 +14,10 @@ If you prefer an existing source checkout, switch to content-studio and pull it,
 2. If an earlier studio has already made videos, use Import old exports and choose the folder containing those MP4s and JSON receipts. Review its import report. Old receipts are reconstructed using current bundled sources; source audio that changed since export, missing receipts and deleted files cannot provide a complete historical guarantee.
 3. Designate the Intel Mac as the authoritative renderer. The local SQLite history is private, outside Git. Pulling this repository does not transfer old history or media.
 4. If moving existing history, close the studio on both Macs and copy ~/Library/Application Support/ZenWave Content Studio/history.sqlite to the same folder on the Intel Mac. A closed database is preferable; the consistent history-backup.sqlite snapshot can alternatively be copied as history.sqlite. Do not sync a live database between two rendering Macs. Copy/reselect imported music separately.
+
+## Existing Google Drive connection
+
+If Muse already reads/writes your Google Drive exchange, keep that exact folder selected. You do not need Muse for Mac for this working cloud-to-Drive route. Do not recreate folders or change schedules. Install 0.14.0 over the existing app at the same path after current jobs finish; confirm processing and one unpublished request/replay afterward. See [UPDATES.md](UPDATES.md). The following local-Muse steps apply only when establishing a new connection without an existing Drive bridge.
 
 ## Connect Muse without writing code
 

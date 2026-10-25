@@ -159,6 +159,8 @@ enum RandomBatchExporter {
                        recordHistory: Bool = true,
                        progress: @escaping @Sendable (Double, Int) -> Void) async throws -> URL {
         guard !plan.clips.isEmpty else { throw StudioError.message("Generate a batch first.") }
+        let lease = try StudioOperationGate.shared.beginWork()
+        defer { withExtendedLifetime(lease) {} }
         // Validate all recordings before creating any outputs.
         let records = try plan.clips.map { clip -> Mantra in
             guard let mantra = library.first(where: { $0.id == clip.mantraID }) else { throw StudioError.message("A batch recording is missing: \(clip.mantraID)") }
@@ -176,7 +178,7 @@ enum RandomBatchExporter {
                 try Task.checkCancellation()
                 let mantra = records[index], output = folder.appendingPathComponent(clip.fileName)
                 let job = ExportJob(mantra: mantra, settings: clip.settings(from: plan.settings), start: 0, end: nil, backgroundURL: background)
-                try await VideoExporter.export(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride, recordHistory: recordHistory) { value in
+                try await VideoExporter.export(job, to: output, widthOverride: widthOverride, heightOverride: heightOverride, recordHistory: recordHistory, operationLease: lease) { value in
                     progress((Double(index) + value) / Double(plan.clips.count) * 0.97, index)
                 }
                 // Ready-to-copy posting text travels with each finished clip.

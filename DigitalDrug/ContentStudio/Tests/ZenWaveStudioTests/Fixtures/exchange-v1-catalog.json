@@ -1,0 +1,642 @@
+[
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 3.6349999999999998,
+        "start" : 0,
+        "text" : "I trust and value my intuition."
+      },
+      {
+        "end" : 11.292999999999999,
+        "start" : 5.2999999999999998,
+        "text" : "I manifest abundance by being grateful for everything I have."
+      },
+      {
+        "end" : 17.039000000000001,
+        "start" : 12.140000000000001,
+        "text" : "I am open to receiving abundance and prosperity."
+      },
+      {
+        "end" : 24.097999999999999,
+        "start" : 18.399999999999999,
+        "text" : "All of my needs are met by the universe's abundant supply."
+      },
+      {
+        "end" : 29.242999999999999,
+        "start" : 24.98,
+        "text" : "The things I want naturally find their way to me."
+      },
+      {
+        "end" : 33.359000000000002,
+        "start" : 30.18,
+        "text" : "I am a magnet for abundance."
+      },
+      {
+        "end" : 37.250999999999998,
+        "start" : 34.340000000000003,
+        "text" : "I have everything that I need."
+      }
+    ],
+    "fileName" : "abundanceMantra.mp3",
+    "id" : "abundance",
+    "subtitle" : "Receive, steward, and grow with intention",
+    "timing" : "timed",
+    "title" : "Abundance Mantra"
+  },
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 4.0679999999999996,
+        "start" : 0,
+        "text" : "My business allows me to have a life I love."
+      },
+      {
+        "end" : 7.827,
+        "start" : 4.6600000000000001,
+        "text" : "My business continues to grow every day."
+      },
+      {
+        "end" : 11.738,
+        "start" : 8.5,
+        "text" : "I am paid well to do what I love."
+      },
+      {
+        "end" : 14.962,
+        "start" : 12.48,
+        "text" : "I have limitless potential."
+      },
+      {
+        "end" : 18.693000000000001,
+        "start" : 16.059999999999999,
+        "text" : "I am on the right career path."
+      },
+      {
+        "end" : 22.969999999999999,
+        "start" : 19.579999999999998,
+        "text" : "Job offers flow to me effortlessly."
+      },
+      {
+        "end" : 28.123000000000001,
+        "start" : 23.780000000000001,
+        "text" : "I am a magnet for new career opportunities."
+      },
+      {
+        "end" : 32.914000000000001,
+        "start" : 28.640000000000001,
+        "text" : "I am worthy of doing a job that I love."
+      }
+    ],
+    "fileName" : "jobManifestaton.mp3",
+    "id" : "career",
+    "subtitle" : "Clarity, confidence, and the next aligned step",
+    "timing" : "timed",
+    "title" : "Career Path Mantra"
+  },
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 4.101,
+        "start" : 0,
+        "text" : "Love flows into my life easily and effortlessly."
+      },
+      {
+        "end" : 9.3019999999999996,
+        "start" : 5.3200000000000003,
+        "text" : "I live in a universe where I am loved and supported."
+      },
+      {
+        "end" : 13.380000000000001,
+        "start" : 10.76,
+        "text" : "I am safe in my relationships."
+      },
+      {
+        "end" : 17.553999999999998,
+        "start" : 14.5,
+        "text" : "I give and receive love openly."
+      },
+      {
+        "end" : 21.763999999999999,
+        "start" : 18.859999999999999,
+        "text" : "I am attracting unconditional love."
+      },
+      {
+        "end" : 26.818999999999999,
+        "start" : 23.440000000000001,
+        "text" : "The love I give comes back to me tenfold."
+      },
+      {
+        "end" : 31.350000000000001,
+        "start" : 27.719999999999999,
+        "text" : "I choose love and love chooses me."
+      },
+      {
+        "end" : 35.106000000000002,
+        "start" : 32.619999999999997,
+        "text" : "I am divine love."
+      }
+    ],
+    "fileName" : "loveMantra.mp3",
+    "id" : "love",
+    "subtitle" : "Mutual connection, care, and openness",
+    "timing" : "timed",
+    "title" : "Love Mantra"
+  },
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 5.7460000000000004,
+        "start" : 0,
+        "text" : "Thank you, Universe, for sending me money at the right place and time."
+      },
+      {
+        "end" : 14.936,
+        "start" : 7.2199999999999998,
+        "text" : "I am a money magnet. I am surrounded by wealth. I deserve prosperity."
+      },
+      {
+        "end" : 24.920000000000002,
+        "start" : 16.039999999999999,
+        "text" : "I allow money to flow easily to me. I am wealthy. People love to pay me."
+      },
+      {
+        "end" : 32.723999999999997,
+        "start" : 25.620000000000001,
+        "text" : "I am financially independent. I naturally attract good fortune."
+      },
+      {
+        "end" : 38.686999999999998,
+        "start" : 34.020000000000003,
+        "text" : "I am connected to the universal supply of money."
+      }
+    ],
+    "fileName" : "moneyMantra.mp3",
+    "id" : "money",
+    "subtitle" : "Prosperity mindset with intentional action",
+    "timing" : "timed",
+    "title" : "Money Mantra"
+  },
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 4.5549999999999997,
+        "start" : 0,
+        "text" : "I know that everything is working out the best for me."
+      },
+      {
+        "end" : 8.8539999999999992,
+        "start" : 5.6799999999999997,
+        "text" : "Everything I do yields results."
+      },
+      {
+        "end" : 14.606,
+        "start" : 9.8599999999999994,
+        "text" : "Every action I take brings me success and fulfillment."
+      },
+      {
+        "end" : 19.542999999999999,
+        "start" : 16.079999999999998,
+        "text" : "The universe always has my back."
+      },
+      {
+        "end" : 25.177,
+        "start" : 21.02,
+        "text" : "Every day I am moving towards my best life."
+      },
+      {
+        "end" : 29.247,
+        "start" : 25.82,
+        "text" : "What I am seeking is seeking me."
+      },
+      {
+        "end" : 34.652000000000001,
+        "start" : 30.48,
+        "text" : "I am creating a life of passion and purpose."
+      },
+      {
+        "end" : 38.268999999999998,
+        "start" : 35.719999999999999,
+        "text" : "My dreams are coming true."
+      }
+    ],
+    "fileName" : "successMantra.mp3",
+    "id" : "success",
+    "subtitle" : "Confidence, progress, and follow-through",
+    "timing" : "timed",
+    "title" : "Success Mantra"
+  },
+  {
+    "category" : "Original mantras",
+    "cues" : [
+      {
+        "end" : 10.630000000000001,
+        "start" : 0,
+        "text" : "I am alive and full of energy, I am at peace, I am so much more than my worries,"
+      },
+      {
+        "end" : 17.425999999999998,
+        "start" : 11.800000000000001,
+        "text" : "I am grateful for everything I am and everything I have,"
+      },
+      {
+        "end" : 28.085000000000001,
+        "start" : 18.300000000000001,
+        "text" : "I am a magnet for joy and happiness, I love, support, and believe in myself,"
+      },
+      {
+        "end" : 42.265999999999998,
+        "start" : 29.039999999999999,
+        "text" : "I am comfortable in my own skin, I am in charge of my mind, I am releasing all stress."
+      }
+    ],
+    "fileName" : "healthAndHappinessMantra.mp3",
+    "id" : "wellbeing-happiness",
+    "subtitle" : "A bright, grounded daily reset",
+    "timing" : "timed",
+    "title" : "Wellbeing + Happiness"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 3.7462564469914037,
+        "start" : 0,
+        "text" : "I welcome responsible prosperity."
+      },
+      {
+        "end" : 14.289,
+        "start" : 3.7462564469914037,
+        "text" : "I notice opportunities, use my skills well, and make choices that strengthen my financial life."
+      }
+    ],
+    "fileName" : "mantra-money-wealth-morning.mp3",
+    "id" : "prosperity-practice-morning",
+    "subtitle" : "Responsible prosperity with clear action",
+    "timing" : "estimated",
+    "title" : "Prosperity Practice · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 4.9135910878112696,
+        "start" : 0,
+        "text" : "I release today's scarcity stories."
+      },
+      {
+        "end" : 19.225999999999999,
+        "start" : 4.9135910878112696,
+        "text" : "I am grateful for what I have built, open to wise growth, and ready for tomorrow's practical next step."
+      }
+    ],
+    "fileName" : "mantra-freedom-relief-morning.mp3",
+    "id" : "prosperity-practice-evening",
+    "subtitle" : "Responsible prosperity with clear action",
+    "timing" : "estimated",
+    "title" : "Prosperity Practice · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 4.3963244755244748,
+        "start" : 0,
+        "text" : "I have room to breathe, choose, and begin again."
+      },
+      {
+        "end" : 11.728999999999999,
+        "start" : 4.3963244755244748,
+        "text" : "I give my attention to the next helpful step instead of the whole burden at once."
+      }
+    ],
+    "fileName" : "mantra-wellness-morning.mp3",
+    "id" : "freedom-relief-morning",
+    "subtitle" : "Room to breathe and begin again",
+    "timing" : "estimated",
+    "title" : "Freedom & Relief · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 11.468,
+        "start" : 0,
+        "text" : "I am not defined by pressure, and I can return to what matters with a clearer mind."
+      }
+    ],
+    "fileName" : "mantra-money-wealth-evening.mp3",
+    "id" : "freedom-relief-evening",
+    "subtitle" : "Room to breathe and begin again",
+    "timing" : "estimated",
+    "title" : "Freedom & Relief · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 4.9588729927007291,
+        "start" : 0,
+        "text" : "I listen to my body with patience and respect."
+      },
+      {
+        "end" : 13.166,
+        "start" : 4.9588729927007291,
+        "text" : "I support my well-being with rest, nourishment, movement, and appropriate care."
+      }
+    ],
+    "fileName" : "mantra-self-concept-spirituality-morning.mp3",
+    "id" : "body-wellness-morning",
+    "subtitle" : "Patience, care, and restoration",
+    "timing" : "estimated",
+    "title" : "Body Wellness · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 4.9237359550561788,
+        "start" : 0,
+        "text" : "I thank my body for carrying me through this day."
+      },
+      {
+        "end" : 12.747999999999998,
+        "start" : 4.9237359550561788,
+        "text" : "I allow rest to restore me and choose one kind thing to do for myself tomorrow."
+      }
+    ],
+    "fileName" : "mantra-wellness-evening.mp3",
+    "id" : "body-wellness-evening",
+    "subtitle" : "Patience, care, and restoration",
+    "timing" : "estimated",
+    "title" : "Body Wellness · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 3.4234909090909085,
+        "start" : 0,
+        "text" : "I meet this day from my deepest values."
+      },
+      {
+        "end" : 11.076000000000001,
+        "start" : 3.4234909090909085,
+        "text" : "I am allowed to grow, to learn, and to choose the identity I practice through my actions."
+      }
+    ],
+    "fileName" : "mantra-self-confidence-career-morning.mp3",
+    "id" : "self-concept-reset-morning",
+    "subtitle" : "Choose the identity you practice",
+    "timing" : "estimated",
+    "title" : "Self-Concept Reset · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 5.0388508891928856,
+        "start" : 0,
+        "text" : "I release the need to rehearse old versions of myself."
+      },
+      {
+        "end" : 12.278,
+        "start" : 5.0388508891928856,
+        "text" : "I carry forward the qualities I want to embody with steadiness and compassion."
+      }
+    ],
+    "fileName" : "mantra-self-concept-spirituality-evening.mp3",
+    "id" : "self-concept-reset-evening",
+    "subtitle" : "Choose the identity you practice",
+    "timing" : "estimated",
+    "title" : "Self-Concept Reset · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 4.7370972972972964,
+        "start" : 0,
+        "text" : "I trust my ability to learn, prepare, and contribute."
+      },
+      {
+        "end" : 11.964,
+        "start" : 4.7370972972972964,
+        "text" : "I take clear action on the work in front of me and let progress build confidence."
+      }
+    ],
+    "fileName" : "mantra-self-confidence-spirituality-morning.mp3",
+    "id" : "career-confidence-morning",
+    "subtitle" : "Preparation, contribution, and progress",
+    "timing" : "estimated",
+    "title" : "Career Confidence · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 3.240269513991163,
+        "start" : 0,
+        "text" : "I recognize the effort I gave today."
+      },
+      {
+        "end" : 10.526999999999999,
+        "start" : 3.240269513991163,
+        "text" : "I keep what I learned, refine my plan, and return with confidence to meaningful work."
+      }
+    ],
+    "fileName" : "mantra-self-confidence-career-evening.mp3",
+    "id" : "career-confidence-evening",
+    "subtitle" : "Preparation, contribution, and progress",
+    "timing" : "estimated",
+    "title" : "Career Confidence · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 5.4196065573770484,
+        "start" : 0,
+        "text" : "I strengthen trust through repetition, reflection, and action."
+      },
+      {
+        "end" : 11.807,
+        "start" : 5.4196065573770484,
+        "text" : "I can be grounded in myself while remaining open to guidance and growth."
+      }
+    ],
+    "fileName" : "mantra-money-visualization-morning.mp3",
+    "id" : "inner-confidence-morning",
+    "subtitle" : "Trust, integrity, and grounded self-belief",
+    "timing" : "estimated",
+    "title" : "Inner Confidence · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 4.7732270676691719,
+        "start" : 0,
+        "text" : "I remember that confidence can be practiced."
+      },
+      {
+        "end" : 13.009,
+        "start" : 4.7732270676691719,
+        "text" : "I release self-doubt and renew my commitment to speak and act with integrity."
+      }
+    ],
+    "fileName" : "mantra-self-confidence-spirituality-evening.mp3",
+    "id" : "inner-confidence-evening",
+    "subtitle" : "Trust, integrity, and grounded self-belief",
+    "timing" : "estimated",
+    "title" : "Inner Confidence · Evening"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 4.7938313253012037,
+        "start" : 0,
+        "text" : "I let the feeling of security become familiar."
+      },
+      {
+        "end" : 12.433999999999997,
+        "start" : 4.7938313253012037,
+        "text" : "I review my next move with calm attention and prepare to take it tomorrow."
+      }
+    ],
+    "fileName" : "mantra-money-visualization-evening.mp3",
+    "id" : "financial-visualization-evening",
+    "subtitle" : "Security with thoughtful follow-through",
+    "timing" : "estimated",
+    "title" : "Financial Visualization · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 7.0527320261437918,
+        "start" : 0,
+        "text" : "My purpose becomes clearer when I name what matters and take the next useful action."
+      },
+      {
+        "end" : 11.728999999999999,
+        "start" : 7.0527320261437918,
+        "text" : "I direct my energy toward work that reflects my values."
+      }
+    ],
+    "fileName" : "mantra-career-purpose-morning.mp3",
+    "id" : "purpose-direction-morning",
+    "subtitle" : "A clear aim and the next useful action",
+    "timing" : "estimated",
+    "title" : "Purpose & Direction · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 4.1587080745341609,
+        "start" : 0,
+        "text" : "I review the day without judgment."
+      },
+      {
+        "end" : 13.949,
+        "start" : 4.1587080745341609,
+        "text" : "I keep the lesson, clarify my aim, and choose the next step that moves me forward."
+      }
+    ],
+    "fileName" : "mantra-career-purpose-evening.mp3",
+    "id" : "purpose-direction-evening",
+    "subtitle" : "A clear aim and the next useful action",
+    "timing" : "estimated",
+    "title" : "Purpose & Direction · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 3.1752023437499983,
+        "start" : 0,
+        "text" : "I meet this day with trust."
+      },
+      {
+        "end" : 17.514173437499998,
+        "start" : 3.1752023437499983,
+        "text" : "I notice the support, opportunities, and guidance that are already available to me, and I take one clear step toward what matters."
+      },
+      {
+        "end" : 25.886999999999993,
+        "start" : 17.514173437499998,
+        "text" : "I welcome good outcomes while staying present, grateful, and willing to act."
+      }
+    ],
+    "fileName" : "mantra-general-faith-tiktok-morning.mp3",
+    "id" : "faith-flow-morning",
+    "subtitle" : "Trust the support and guidance available to you",
+    "timing" : "estimated",
+    "title" : "Faith & Flow · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 5.8000735586481103,
+        "start" : 0,
+        "text" : "I release the need to control every outcome."
+      },
+      {
+        "end" : 23.719000000000001,
+        "start" : 5.8000735586481103,
+        "text" : "I let today settle, receive the good that is here, and rest with trust that I can meet tomorrow with clarity, support, and renewed purpose."
+      }
+    ],
+    "fileName" : "mantra-general-faith-tiktok-evening.mp3",
+    "id" : "faith-flow-evening",
+    "subtitle" : "Trust the support and guidance available to you",
+    "timing" : "estimated",
+    "title" : "Faith & Flow · Evening"
+  },
+  {
+    "category" : "Morning",
+    "cues" : [
+      {
+        "end" : 6.6394583999999979,
+        "start" : 0,
+        "text" : "I choose the identity of a person who handles wealth with calm confidence."
+      },
+      {
+        "end" : 20.193000000000001,
+        "start" : 6.6394583999999979,
+        "text" : "I release the habit of bargaining with limitation, notice the value I create, and move through my day with steady, practical trust in my capacity to grow."
+      }
+    ],
+    "fileName" : "mantra-money-self-concept-tiktok-morning.mp3",
+    "id" : "wealth-identity-morning",
+    "subtitle" : "Calm confidence in your capacity to grow",
+    "timing" : "estimated",
+    "title" : "Wealth Identity · Morning"
+  },
+  {
+    "category" : "Evening",
+    "cues" : [
+      {
+        "end" : 5.0997233134073419,
+        "start" : 0,
+        "text" : "I let go of old stories about what is possible for me."
+      },
+      {
+        "end" : 19.643999999999998,
+        "start" : 5.0997233134073419,
+        "text" : "I rest in the awareness that my value, resourcefulness, and wise choices are already available to me, and I welcome a fuller expression of prosperity tomorrow."
+      }
+    ],
+    "fileName" : "mantra-money-self-concept-tiktok-evening.mp3",
+    "id" : "wealth-identity-evening",
+    "subtitle" : "Calm confidence in your capacity to grow",
+    "timing" : "estimated",
+    "title" : "Wealth Identity · Evening"
+  }
+]

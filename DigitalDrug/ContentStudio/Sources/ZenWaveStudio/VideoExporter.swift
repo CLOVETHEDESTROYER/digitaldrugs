@@ -29,7 +29,10 @@ enum VideoExporter {
     /// Runs off the main actor. No screen capture, window visibility, or real-time playback is involved.
     static func export(_ job: ExportJob, to output: URL, widthOverride: Int? = nil,
                        heightOverride: Int? = nil, recordHistory: Bool = true, historyStore: ContentHistory? = nil,
-                       requestID: String = "", progress: @escaping @Sendable (Double) -> Void) async throws {
+                       requestID: String = "", operationLease: StudioOperationLease? = nil,
+                       progress: @escaping @Sendable (Double) -> Void) async throws {
+        let lease = try operationLease ?? StudioOperationGate.shared.beginWork()
+        defer { withExtendedLifetime(lease) {} }
         let history = recordHistory ? try (historyStore ?? ContentHistory.shared) : nil
         let reservation = try history?.reserve(recipe: ContentRecipe.make(job), output: output, title: job.mantra.title, requestID: requestID)
         do {

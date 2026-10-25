@@ -207,6 +207,8 @@ final class StudioState {
             let activity = ProcessInfo.processInfo.beginActivity(options: .userInitiated, reason: "Rendering ZenWave videos")
             defer { ProcessInfo.processInfo.endActivity(activity) }
             do {
+                let lease = try StudioOperationGate.shared.beginWork()
+                defer { withExtendedLifetime(lease) {} }
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
                 self.lastExportFolder = folder
                 for (index, job) in jobs.enumerated() {
@@ -215,7 +217,7 @@ final class StudioState {
                     let url = folder.appendingPathComponent("\(String(format: "%02d", index + 1))-\(job.mantra.id).mp4")
                     let progressState = self
                     let worker = Task.detached(priority: .userInitiated) { [progressState] in
-                        try await VideoExporter.export(job, to: url, recordHistory: recordHistory) { value in
+                        try await VideoExporter.export(job, to: url, recordHistory: recordHistory, operationLease: lease) { value in
                             Task { @MainActor in
                                 progressState.progress = (Double(index) + value) / Double(jobs.count)
                             }
