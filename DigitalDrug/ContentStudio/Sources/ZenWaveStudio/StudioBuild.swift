@@ -15,7 +15,7 @@ enum StudioBuild {
     static var compatibility: StudioCompatibility {
         get throws { try JSONDecoder().decode(StudioCompatibility.self, from: Data(contentsOf: StudioResources.root.appendingPathComponent("studio-update.json"))) }
     }
-    static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.14.0" }
+    static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.15.0" }
 }
 
 /// Coordinate with File Provider and update existing catalog/instruction files in

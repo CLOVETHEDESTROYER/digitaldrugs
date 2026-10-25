@@ -49,3 +49,7 @@ Downloaded staging files are removed after a successful update. **Discard prepar
 Use `Sources/ZenWaveStudio/Resources/studio-update.json` as the package version/build/compatibility source. Bump version and build for each release; keep compatibility versions unchanged only while the contracts remain compatible. The app's unbundled development fallback version should also be updated in StudioBuild.swift.
 
 Run the Swift tests, build the universal app with Tools/build-app.sh, verify the extracted ZIP, and publish it as **content-studio-vX.Y.Z** on CLOVETHEDESTROYER/digitaldrugs with asset **ZenWave-Content-Studio-Mac.zip** and its checksum companion. GitHub must finish uploading and expose its SHA-256 asset digest. Drafts, prereleases, unrelated tags, missing digests and invalid packages are ignored/rejected. The updater validates digest, size, app identity/signature, both CPU slices, macOS minimum and version 1 compatibility before replacement. Repository release access remains the trust boundary; these personal builds do not use Developer ID notarization.
+
+## Visual Lab release (0.15.0)
+
+0.15.0 adds an offline Butterchurn/Metal preview comparison. Use the 0.14 updater to install it once active jobs finish. It adds no production visual IDs or agent request options; existing rendering automation continues using Metal. See README.md for the lab controls. An older installation can manually replace the app using the 0.15.0 ZIP, following the same preservation steps above.

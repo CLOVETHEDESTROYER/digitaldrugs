@@ -39,6 +39,8 @@ struct StudioView: View {
                 .buttonStyle(.bordered)
             Button("History & Agent Jobs…", systemImage: "clock.arrow.circlepath") { openWindow(id: "content-history") }
                 .buttonStyle(.bordered)
+            Button("Visual Lab…", systemImage: "sparkles.rectangle.stack") { studio.pause(); openWindow(id: "visual-lab") }
+                .buttonStyle(.bordered)
             Button("App Updates…", systemImage: "arrow.down.circle") { openWindow(id: "studio-updates") }
                 .buttonStyle(.bordered)
             TextField("Search recordings", text: $studio.search).textFieldStyle(.roundedBorder)

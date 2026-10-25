@@ -22,12 +22,14 @@ enum AudioMix {
     }
 
     static func prepare(voice: URL, background: URL?, volume: Double, output: URL,
-                        soundscape: StudioSoundscape = StudioSoundscape(), motionOutput: URL? = nil) async throws -> URL {
+                        soundscape: StudioSoundscape = StudioSoundscape(), motionOutput: URL? = nil, maximumDuration: Double? = nil) async throws -> URL {
         try soundscape.validate()
         guard background != nil || soundscape.active else { return voice }
         try Task.checkCancellation()
         let voiceAsset = AVURLAsset(url: voice)
-        let duration = try await voiceAsset.load(.duration)
+        let sourceDuration = try await voiceAsset.load(.duration)
+        if let maximumDuration, !maximumDuration.isFinite || maximumDuration <= 0 { throw StudioError.message("Choose a positive audio preview duration.") }
+        let duration = maximumDuration.map { CMTime(seconds: min(sourceDuration.seconds, $0), preferredTimescale: 600) } ?? sourceDuration
         guard duration.seconds.isFinite, duration.seconds > 0,
               let voiceSource = try await voiceAsset.loadTracks(withMediaType: .audio).first else {
             throw StudioError.message("Choose a playable voice recording.")

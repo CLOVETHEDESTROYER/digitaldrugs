@@ -8,12 +8,20 @@ struct StudioApp: App {
     @State private var batch = RandomBatchState()
     @State private var content = ContentLibraryState()
     @State private var updates = StudioUpdateState()
+    @State private var lab = VisualLabState()
     var body: some Scene {
         WindowGroup("ZenWave Content Studio") {
             StudioView(studio: studio).onChange(of: studio.playing) { _, playing in if playing { live.pause(); breath.pause() } }
                 .task { content.resumeIfEnabled() }
+                .onChange(of: studio.playing) { _, playing in if playing { lab.pause() } }
+                .onChange(of: studio.exporting) { _, exporting in if exporting { lab.pause() } }
+                .onChange(of: live.playing) { _, playing in if playing { lab.pause() } }
+                .onChange(of: breath.playing) { _, playing in if playing { lab.pause() } }
         }
             .defaultSize(width: 1200, height: 840)
+        Window("Visual Lab", id: "visual-lab") {
+            VisualLabView(lab: lab, studio: studio, onPlay: { studio.pause(); live.pause(); breath.pause() })
+        }.defaultSize(width: 1250, height: 880)
         Window("History & Agent Jobs", id: "content-history") {
             ContentLibraryView(state: content)
         }.defaultSize(width: 1100, height: 820)
@@ -50,6 +58,13 @@ struct StudioApp: App {
 @main
 enum StudioLauncher {
     static func main() {
+        if CommandLine.arguments.contains("--visual-lab-review") {
+            MainActor.assumeIsolated { VisualLabReview.run() }; return
+        }
+        if CommandLine.arguments.contains("--visual-lab") {
+            NSApplication.shared.setActivationPolicy(.regular)
+            VisualLabPreviewApp.main(); return
+        }
         if let index = CommandLine.arguments.firstIndex(of: "--verify-update-package"), CommandLine.arguments.indices.contains(index + 1) {
             do {
                 let stage = FileManager.default.temporaryDirectory.appendingPathComponent("ZenWave-Update-Review-\(UUID())")
@@ -104,5 +119,15 @@ enum StudioLauncher {
             NSApplication.shared.setActivationPolicy(.regular)
             StudioApp.main()
         }
+    }
+}
+
+/// Opens only the comparison window, without starting the agent worker.
+struct VisualLabPreviewApp: App {
+    @State private var studio = StudioState()
+    @State private var lab = VisualLabState()
+    var body: some Scene {
+        WindowGroup("ZenWave Visual Lab") { VisualLabView(lab: lab, studio: studio, onPlay: { studio.pause() }) }
+            .defaultSize(width: 1250, height: 880)
     }
 }

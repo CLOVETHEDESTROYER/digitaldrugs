@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-eval'; style-src 'self'; connect-src 'none'; img-src 'self' data:; media-src blob: 'self'">
+<title>ZenWave · Butterchurn Visual Lab</title><link rel="stylesheet" href="lab.css"></head>
+<body><main>
+<header><div><span class="eyebrow">ZENWAVE · VISUAL LAB</span><h1>Liquid light. Endless motion.</h1><p>Explore six MilkDrop presets alongside ZenWave's native visuals.</p></div><span class="badge">BUTTERCHURN</span></header>
+<section class="controls">
+<label>Visual<select id="preset"></select></label>
+<label>Blend<select id="blend"><option value="0">Instant</option><option value="3">3 seconds</option><option value="6" selected>6 seconds</option><option value="12">12 seconds</option></select></label>
+<label>Movement<select id="speed"><option value="0.5">Slow</option><option value="1" selected>Original</option><option value="1.5">Flowing</option></select></label>
+<label>Quality<select id="quality"><option value="480">Light</option><option value="720" selected>Balanced</option><option value="1080">High</option></select></label>
+<label class="check"><input type="checkbox" id="cycle">Evolve every 45 seconds</label>
+</section>
+<div id="browserAudio" class="audio"><button id="demo">Play ambient demo</button><label class="file">Choose background audio<input type="file" id="audioFile" accept="audio/*"></label><button id="pause" disabled>Pause</button><span>Background audio only · no microphone</span></div>
+<div class="stage"><canvas id="visual" aria-label="Butterchurn animated visualizer"></canvas><div id="empty">Preparing visualizer…</div></div>
+<footer><div><strong id="name"></strong><p id="credit"></p></div><div><span id="status" role="status">Loading offline engine…</span><p>Preview lab · MP4 / randomizer integration comes after visual selection.</p></div></footer>
+</main><script src="butterchurn-2.6.7.min.js"></script><script src="presets.js"></script><script src="lab.js"></script></body></html>
