@@ -14,6 +14,7 @@ if [[ ! -f "$studio_dir/Sources/ZenWaveStudio/Resources/BreathVoice/manifest.jso
     printf '%s\n' 'Generate the OpenAI breathing voice pack first: python3 ContentStudio/Tools/generate-breath-voice.py' >&2
     exit 1
 fi
+python3 "$studio_dir/Tools/generate-space-presets.py" --check
 stage_dir="$(python3 "$studio_dir/Tools/stage-build.py")"
 architectures=("$architecture")
 if [[ "$architecture" == universal ]]; then architectures=(arm64 x86_64); fi

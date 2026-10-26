@@ -127,7 +127,7 @@ final class StudioUpdateTests: XCTestCase {
         let published = try JSONSerialization.jsonObject(with: Data(contentsOf: catalog)) as! [String: Any]
         XCTAssertEqual(published["schemaVersion"] as? Int, 1)
         XCTAssertEqual(published["requestKinds"] as? [String], ["manifestation-batch"])
-        XCTAssertEqual(Set((published["visuals"] as! [[String: String]]).map { $0["id"]! }), Set((0...35).map(String.init)))
+        XCTAssertEqual(Set((published["visuals"] as! [[String: String]]).map { $0["id"]! }), Set((0...39).map(String.init)))
         let baseline = try JSONDecoder().decode([Mantra].self, from: Data(contentsOf: Bundle.module.url(forResource: "exchange-v1-catalog", withExtension: "json", subdirectory: "Fixtures")!))
         for original in baseline { XCTAssertEqual(library.first { $0.id == original.id }?.fileName, original.fileName) }
         let info = try JSONSerialization.jsonObject(with: Data(contentsOf: queue.root.appendingPathComponent("studio-info.json"))) as! [String: Any]

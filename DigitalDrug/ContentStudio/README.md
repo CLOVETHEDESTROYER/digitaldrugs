@@ -289,3 +289,20 @@ The left panel shows an existing Metal visual; choose any current style. The rig
 This release is a **preview comparison**, not Butterchurn export support. These presets are not assigned production visual IDs and cannot yet be selected for MP4 exports, Random Batch, live playlists, breathing output or Muse jobs. Current Metal exports/catalog IDs and schema version 1 stay unchanged. The lab runs offline, does not use microphone access, and needs WebGL 2 in the Mac's WebKit. Physical Intel performance still needs testing. No iOS app changes are included.
 
 For a lab-only launch without starting the agent worker, run the app executable with `--visual-lab`. For isolated integration verification, use `--visual-lab-review --output /new/review/folder`; add `--with-movie --background /path/to/background-only.m4a` to save a 36-second sequence of PNG frames for review. These verification commands do not reserve content or touch production history/Drive. A browser-only copy of Resources/Butterchurn/index.html includes a generated ambient fixture and optional local audio picker; all engine/preset files are bundled beside it.
+
+## Space / wormhole collection — 0.16.0
+
+Visual Lab now starts in **Space / wormholes**, with four original ZenWave themes in both engines:
+
+- **Event Horizon:** a dark central aperture, luminous lens/disc and spiraling filaments.
+- **Aurora Slipstream:** flowing multicolored curtains winding through a tunnel.
+- **Crystal Stargate:** a hexagonal corridor with sharp gates and twisting light ribs.
+- **Nebula Drift:** open cloud fields and sparse forward-moving stars.
+
+Use **Try ambient demo → Play comparison**. With **Match space theme** enabled, choosing a Butterchurn space preset also selects the matching Metal style. Turn it off to pick any Metal style independently. Switching Collection to **Classic MilkDrop** retains all six previous community presets; **All visuals** shows all ten. Automatic evolution stays within the chosen collection. Both engines share the background-only audio feed and playback clock; their analysis, color treatment, animation speed and feedback rendering differ, so these are aesthetic comparisons rather than pixel-matched output. Metal uses the main studio's selected palette/motion settings.
+
+All four **Metal** styles are also available in the main studio, Random Batch, live/background choices and agent catalogs as appended IDs **36–39**. Existing IDs 0–35 and version 1 requests remain unchanged; current agent requests do not gain extra variations unless their allowed style pool includes the new IDs. Butterchurn remains a lab preview and is not an MP4/randomizer/agent export option yet.
+
+The new Butterchurn presets are original ZenWave shaders, separate from the six community presets. Their scene math is generated from Resources/SpaceJourneys.metal by `python3 Tools/generate-space-presets.py`. The build checks for stale generated GLSL before packaging. They use restrained feedback so the same structures leave softer trails while Metal stays crisp. No external assets or runtime downloads are needed. No iOS target changes are included.
+
+An isolated side-by-side review can be reproduced with `--visual-lab-review --comparison --with-movie --background /path/to/background-only.m4a --output /new/review/folder`. It saves four eight-second scenes as labeled comparison PNG sequences without touching production history or Drive. `--space-only` tests just the new Butterchurn presets; the default review tests all ten.

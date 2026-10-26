@@ -6,7 +6,7 @@
   if (native) document.body.classList.add('native');
   const presets = window.ZenWavePresets;
   let canvas = $('visual');
-  let visualizer, index = 1, currentTime = 0, lastCycle = 0, generation = -1;
+  let visualizer, index = 6, currentTime = 0, lastCycle = 0, generation = -1;
   let audioContext, source, analyser, splitter, analyserL, analyserR;
   let running = false, pausedOffset = 0, startedAt = 0, buffer, raf;
   const silence = () => new Uint8Array(1024).fill(128);
@@ -27,6 +27,7 @@
     $('preset').value=String(index);$('name').textContent=presets[index].title;
     $('credit').textContent=presets[index].authorPreset;
     lastCycle=currentTime;
+    window.webkit?.messageHandlers?.visualLab?.postMessage({type:'selection',metalStyle:String(presets[index].metalStyle??-1)});
   }
   function reset() {
     // Recreate feedback state when restarting/seeking or replacing audio.
@@ -41,7 +42,7 @@
   function draw(dt, nextLevels) {
     if(!visualizer)return;
     currentTime+=dt;
-    if($('cycle').checked && currentTime-lastCycle>=45)loadPreset(index+1);
+    if($('cycle').checked && currentTime-lastCycle>=45){const visible=visibleIndices();loadPreset(visible[(visible.indexOf(index)+1)%visible.length]);}
     visualizer.render({elapsedTime:Math.max(.001,Math.min(.1,dt))*Number($('speed').value),audioLevels:nextLevels});
     $('empty').hidden=true;
   }
@@ -54,9 +55,12 @@
       }catch(error){notify('error',error.message);throw error;}
     },
     reset(){reset();generation=-1;draw(1/30,{timeByteArray:silence(),timeByteArrayL:silence(),timeByteArrayR:silence()});},
-    info(){return {ready:Boolean(visualizer),preset:presets[index].authorPreset,time:currentTime,width:canvas.width,height:canvas.height};}
+    info(){return {ready:Boolean(visualizer),preset:presets[index].authorPreset,time:currentTime,width:canvas.width,height:canvas.height,count:presets.length};}
   };
-  presets.forEach((p,i)=>$('preset').add(new Option(p.title,String(i))));
+  function visibleIndices(){return presets.map((p,i)=>i).filter(i=>$('collection').value==='all'||(presets[i].collection||'classic')===$('collection').value);}
+  function fillChoices(){ $('preset').replaceChildren();visibleIndices().forEach(i=>$('preset').add(new Option(presets[i].title,String(i)))); }
+  fillChoices();
+  $('collection').onchange=()=>{fillChoices();loadPreset(visibleIndices()[0]);notify('ready','Collection ready · press Play to compare');};
   $('preset').onchange=()=>{try{loadPreset(Number($('preset').value));if(!native&&!running)draw(1/30,levels);}catch(e){notify('error',e.message);}};
   $('quality').onchange=resize;
   new ResizeObserver(resize).observe(canvas.parentElement);

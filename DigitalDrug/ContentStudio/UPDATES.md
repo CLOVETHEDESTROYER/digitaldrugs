@@ -53,3 +53,7 @@ Run the Swift tests, build the universal app with Tools/build-app.sh, verify the
 ## Visual Lab release (0.15.0)
 
 0.15.0 adds an offline Butterchurn/Metal preview comparison. Use the 0.14 updater to install it once active jobs finish. It adds no production visual IDs or agent request options; existing rendering automation continues using Metal. See README.md for the lab controls. An older installation can manually replace the app using the 0.15.0 ZIP, following the same preservation steps above.
+
+## Space collection (0.16.0)
+
+Adds four original Metal styles as IDs 36–39 and four paired Butterchurn preview presets. IDs 0–35, manifestation IDs, request/result formats and history version 1 remain unchanged. Existing fixed agent pools keep their current choices; only requests that opt into the new IDs use them. Visual Lab defaults to the new Space / wormholes collection and can still show the six classic presets.

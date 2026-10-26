@@ -3,8 +3,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-eval'; style-src 'self'; connect-src 'none'; img-src 'self' data:; media-src blob: 'self'">
 <title>ZenWave · Butterchurn Visual Lab</title><link rel="stylesheet" href="lab.css"></head>
 <body><main>
-<header><div><span class="eyebrow">ZENWAVE · VISUAL LAB</span><h1>Liquid light. Endless motion.</h1><p>Explore six MilkDrop presets alongside ZenWave's native visuals.</p></div><span class="badge">BUTTERCHURN</span></header>
+<header><div><span class="eyebrow">ZENWAVE · VISUAL LAB</span><h1>Liquid light. Endless motion.</h1><p>Explore original space journeys and classic MilkDrop presets alongside ZenWave's native visuals.</p></div><span class="badge">BUTTERCHURN</span></header>
 <section class="controls">
+<label>Collection<select id="collection"><option value="space" selected>Space / wormholes</option><option value="classic">Classic MilkDrop</option><option value="all">All visuals</option></select></label>
 <label>Visual<select id="preset"></select></label>
 <label>Blend<select id="blend"><option value="0">Instant</option><option value="3">3 seconds</option><option value="6" selected>6 seconds</option><option value="12">12 seconds</option></select></label>
 <label>Movement<select id="speed"><option value="0.5">Slow</option><option value="1" selected>Original</option><option value="1.5">Flowing</option></select></label>
@@ -14,4 +15,4 @@
 <div id="browserAudio" class="audio"><button id="demo">Play ambient demo</button><label class="file">Choose background audio<input type="file" id="audioFile" accept="audio/*"></label><button id="pause" disabled>Pause</button><span>Background audio only · no microphone</span></div>
 <div class="stage"><canvas id="visual" aria-label="Butterchurn animated visualizer"></canvas><div id="empty">Preparing visualizer…</div></div>
 <footer><div><strong id="name"></strong><p id="credit"></p></div><div><span id="status" role="status">Loading offline engine…</span><p>Preview lab · MP4 / randomizer integration comes after visual selection.</p></div></footer>
-</main><script src="butterchurn-2.6.7.min.js"></script><script src="presets.js"></script><script src="lab.js"></script></body></html>
+</main><script src="butterchurn-2.6.7.min.js"></script><script src="presets.js"></script><script src="space-presets.js"></script><script src="lab.js"></script></body></html>

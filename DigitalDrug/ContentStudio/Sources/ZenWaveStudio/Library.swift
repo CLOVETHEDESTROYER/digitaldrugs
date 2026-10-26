@@ -70,7 +70,9 @@ struct VisualStyle: Identifiable, Hashable {
         .init(id: 31, title: "Third Eye Chakra"),
         .init(id: 32, title: "Crown Chakra"),
         .init(id: 33, title: "Chakra Column"),
-        .init(id: 34, title: "Resonance Orb"), .init(id: 35, title: "Flowing Torus")
+        .init(id: 34, title: "Resonance Orb"), .init(id: 35, title: "Flowing Torus"),
+        .init(id: 36, title: "Event Horizon"), .init(id: 37, title: "Aurora Slipstream"),
+        .init(id: 38, title: "Crystal Stargate"), .init(id: 39, title: "Nebula Drift")
     ]
 }
 

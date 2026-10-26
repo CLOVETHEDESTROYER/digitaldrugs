@@ -62,8 +62,10 @@ final class VisualLabState {
     var error: String?
     var title = "Visual Lab"
     var metalImage: CGImage?
-    var metalStyle = 10
+    var metalStyle = 36
     var compare = true
+    var matchSpaceThemes = true
+    private var linkedStyle: Int?
     var muteVoice = false
     private var webView: WKWebView?
     private var renderer: FrameRenderer?
@@ -82,7 +84,14 @@ final class VisualLabState {
     static let page = StudioResources.root.appendingPathComponent("Butterchurn/index.html")
 
     func attach(_ webView: WKWebView) { self.webView = webView; sending = false }
+    func matchThemeChanged() {
+        if matchSpaceThemes, let linkedStyle { metalStyle = linkedStyle; drawMetal() }
+    }
     func webMessage(_ event: [String: String]) {
+        if event["type"] == "selection" {
+            linkedStyle = Int(event["metalStyle"] ?? "").flatMap { (36...39).contains($0) ? $0 : nil }
+            matchThemeChanged()
+        }
         if event["type"] == "ready" { webReady = true }
         if event["type"] == "error" { pause(); webReady = false; error = event["message"] }
     }
@@ -95,7 +104,7 @@ final class VisualLabState {
         guard !preparing, let selected = studio.selected else { return }
         pause(); task?.cancel(); generation += 1; let current = generation
         clearAudio(); elapsed = 0; metalImage = nil; preparing = true; error = nil
-        mantra = selected; settings = studio.settings; metalStyle = ambientDemo ? 10 : studio.settings.style; title = selected.title
+        mantra = selected; settings = studio.settings; metalStyle = matchSpaceThemes ? (linkedStyle ?? (ambientDemo ? 36 : studio.settings.style)) : studio.settings.style; title = selected.title
         if ambientDemo {
             settings.soundscape = StudioSoundscape(); settings.soundscape.beat = .theta
             settings.soundscape.natureID = "forest_ambience"; muteVoice = true
@@ -240,6 +249,7 @@ struct VisualLabView: View {
                 Button(lab.playing ? "Pause" : "Play comparison") { lab.toggle(onPlay: onPlay) }.disabled(!lab.ready || !lab.webReady).buttonStyle(.borderedProminent)
                 Button("Restart") { lab.restart() }.disabled(!lab.ready)
                 Toggle("Compare with Metal", isOn: $lab.compare).toggleStyle(.checkbox)
+                Toggle("Match space theme", isOn: $lab.matchSpaceThemes).toggleStyle(.checkbox).onChange(of: lab.matchSpaceThemes) { _, _ in lab.matchThemeChanged() }
                 Toggle("Background only", isOn: $lab.muteVoice).toggleStyle(.checkbox).onChange(of: lab.muteVoice) { _, _ in lab.pause() }
                 Spacer()
                 Text("\(Int(lab.elapsed)) / \(Int(lab.duration)) sec").monospacedDigit().foregroundStyle(.secondary)

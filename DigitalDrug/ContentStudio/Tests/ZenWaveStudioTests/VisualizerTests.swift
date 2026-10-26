@@ -89,6 +89,30 @@ final class VisualizerTests: XCTestCase {
         }
     }
 
+    func testSpaceJourneysAreDistinctAcrossFormatsAndLongTimelines() throws {
+        let root = try folder(); defer { try? FileManager.default.removeItem(at: root) }
+        let envelope = AudioEnvelope(silence: 1000), renderer = try FrameRenderer()
+        let mantra = try XCTUnwrap(StudioResources.library().first)
+        for size in [(108, 192), (160, 160), (192, 108)] {
+            var snapshots = [[UInt8]]()
+            for style in 36...39 {
+                var settings = ExportSettings(); settings.style = style
+                settings.branding = false; settings.captions = false; settings.palette = 5
+                func frame(_ time: Double) throws -> [UInt8] {
+                    bytes(try renderer.frame(width: size.0, height: size.1, time: time, audioTime: time,
+                        envelope: envelope, mantra: mantra, settings: settings))
+                }
+                let start = try frame(47)
+                for previous in snapshots { XCTAssertGreaterThan(difference(start, previous), 0.8, "Space themes should have distinct structure") }
+                snapshots.append(start)
+                settings.motionAmount = 0
+                XCTAssertGreaterThan(difference(start, try frame(47)), 0.05, "Motion amount should change the camera/flow")
+                settings.motionAmount = 1
+                XCTAssertGreaterThan(difference(try frame(900), try frame(900.25)), 0.05, "Long live timelines must keep moving")
+            }
+        }
+    }
+
     func testLiquidConstellationsScrollThroughBothMorphPlateausAndReverse() throws {
         let root = try folder(); defer { try? FileManager.default.removeItem(at: root) }
         let silence = try AudioEnvelope(url: tone(in: root, name: "constellation", frequency: 80, amplitude: 0))

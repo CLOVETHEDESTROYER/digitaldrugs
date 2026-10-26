@@ -39,7 +39,8 @@ final class FrameRenderer {
         let baseSource = try String(contentsOf: StudioResources.root.appendingPathComponent("Visualizer.metal"), encoding: .utf8)
         let sacredSource = try String(contentsOf: StudioResources.root.appendingPathComponent("SacredGeometry.metal"), encoding: .utf8)
         let resonanceSource = try String(contentsOf: StudioResources.root.appendingPathComponent("Resonance.metal"), encoding: .utf8)
-        let source = baseSource.replacingOccurrences(of: "// STUDIO_SACRED_GEOMETRY", with: sacredSource).replacingOccurrences(of: "// STUDIO_RESONANCE", with: resonanceSource)
+        let spaceSource = try String(contentsOf: StudioResources.root.appendingPathComponent("SpaceJourneys.metal"), encoding: .utf8)
+        let source = baseSource.replacingOccurrences(of: "// STUDIO_SACRED_GEOMETRY", with: sacredSource).replacingOccurrences(of: "// STUDIO_RESONANCE", with: resonanceSource).replacingOccurrences(of: "// STUDIO_SPACE_JOURNEYS", with: spaceSource)
         let library = try device.makeLibrary(source: source, options: nil)
         guard let vertex = library.makeFunction(name: "zenWaveFullscreenVertex"),
               let fragment = library.makeFunction(name: "zenWaveVisualizerFragment") else {

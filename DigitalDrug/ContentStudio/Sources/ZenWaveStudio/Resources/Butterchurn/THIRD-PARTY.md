@@ -5,3 +5,5 @@ Bundled offline: Butterchurn 2.6.7 (latest stable at integration) and six select
 Sources: https://github.com/jberg/butterchurn and https://github.com/jberg/butterchurn-presets
 
 These are community MilkDrop visuals, not original ZenWave artwork. The lab does not download code, presets, images or audio at runtime. The native studio supplies only background PCM; mantra narration never enters the visualizer.
+
+The additional four space/wormhole presets in space-presets.js are original ZenWave work generated from SpaceJourneys.metal. Their UI attribution identifies them separately from the six community presets. They use the same MIT-licensed Butterchurn engine; no extra third-party shader assets were added.
