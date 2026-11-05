@@ -72,7 +72,11 @@ struct VisualStyle: Identifiable, Hashable {
         .init(id: 33, title: "Chakra Column"),
         .init(id: 34, title: "Resonance Orb"), .init(id: 35, title: "Flowing Torus"),
         .init(id: 36, title: "Event Horizon"), .init(id: 37, title: "Aurora Slipstream"),
-        .init(id: 38, title: "Crystal Stargate"), .init(id: 39, title: "Nebula Drift")
+        .init(id: 38, title: "Crystal Stargate"), .init(id: 39, title: "Nebula Drift"),
+        .init(id: 40, title: "Accretion Lens"), .init(id: 41, title: "Prism Sanctuary"),
+        .init(id: 42, title: "Chromatic Tides"), .init(id: 43, title: "Solar Filaments"),
+        .init(id: 44, title: "Orbital Engine"), .init(id: 45, title: "Infinity Petals"),
+        .init(id: 46, title: "Silk Current"), .init(id: 47, title: "Spiral Galaxy")
     ]
 }
 

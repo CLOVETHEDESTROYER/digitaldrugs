@@ -591,11 +591,16 @@ float3 radiantIris(float2 point, constant VisualizerUniforms& u) {
 // STUDIO_SACRED_GEOMETRY
 // STUDIO_RESONANCE
 // STUDIO_SPACE_JOURNEYS
+// STUDIO_SHOWCASE
 
 fragment half4 zenWaveVisualizerFragment(
     VertexOut input [[stage_in]],
     constant VisualizerUniforms& uniforms [[buffer(0)]]
 ) {
+    if (uniforms.style > 39.5) {
+        float2 p=(input.uv-0.5)*float2(uniforms.aspect,1.0)/max(min(uniforms.aspect,1.0),0.25);
+        return half4(half3(studioColor(showcase(p,uniforms,int(uniforms.style)-40),uniforms)),half(1.0));
+    }
     if (uniforms.style > 35.5) {
         float2 p = (input.uv - 0.5) * float2(uniforms.aspect, 1.0) / max(min(uniforms.aspect, 1.0), 0.25);
         float3 field = spaceJourney(p, uniforms.time, uniforms.level, uniforms.bass, uniforms.treble, uniforms.motionAmount, int(uniforms.style) - 36);

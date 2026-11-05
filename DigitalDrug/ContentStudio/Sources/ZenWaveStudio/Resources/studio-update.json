@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "version": "0.16.0",
-  "build": "20",
+  "version": "0.17.0",
+  "build": "21",
   "bundleIdentifier": "com.zenwave.contentstudio",
   "exchangeSchemaVersion": 1,
   "historySchemaVersion": 1,

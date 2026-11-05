@@ -15,6 +15,7 @@ if [[ ! -f "$studio_dir/Sources/ZenWaveStudio/Resources/BreathVoice/manifest.jso
     exit 1
 fi
 python3 "$studio_dir/Tools/generate-space-presets.py" --check
+python3 "$studio_dir/Tools/generate-showcase-presets.py" --check
 stage_dir="$(python3 "$studio_dir/Tools/stage-build.py")"
 architectures=("$architecture")
 if [[ "$architecture" == universal ]]; then architectures=(arm64 x86_64); fi

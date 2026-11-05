@@ -57,3 +57,7 @@ Run the Swift tests, build the universal app with Tools/build-app.sh, verify the
 ## Space collection (0.16.0)
 
 Adds four original Metal styles as IDs 36–39 and four paired Butterchurn preview presets. IDs 0–35, manifestation IDs, request/result formats and history version 1 remain unchanged. Existing fixed agent pools keep their current choices; only requests that opt into the new IDs use them. Visual Lab defaults to the new Space / wormholes collection and can still show the six classic presets.
+
+## Showcase (0.17.0)
+
+Adds eight native Metal IDs 40–47 and eight independent Butterchurn preview presets. Existing IDs 0–39 and version 1 request/history formats stay unchanged. Visual Lab starts with the Showcase collection; use independent selections for these different artworks. The earlier Space collection retains its matched-theme option.

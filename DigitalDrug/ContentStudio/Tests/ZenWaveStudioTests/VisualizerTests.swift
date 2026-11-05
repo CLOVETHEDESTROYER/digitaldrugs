@@ -113,6 +113,29 @@ final class VisualizerTests: XCTestCase {
         }
     }
 
+    func testShowcaseHasEightDistinctScenesAcrossFormatsAndLongTimelines() throws {
+        let renderer = try FrameRenderer(), mantra = try XCTUnwrap(StudioResources.library().first)
+        let silence = AudioEnvelope(silence: 1200)
+        XCTAssertEqual(VisualStyle.all.filter { $0.id >= 40 }.count, 8)
+        for size in [(108,192),(144,144),(192,108)] {
+            var hashes = Set<String>()
+            for style in 40...47 {
+                var settings = ExportSettings(); settings.style = style
+                settings.branding = false; settings.captions = false
+                func frame(_ t: Double) throws -> [UInt8] {
+                    bytes(try renderer.frame(width: size.0, height: size.1, time: t, audioTime: t,
+                        envelope: silence, mantra: mantra, settings: settings))
+                }
+                let picture = try frame(12)
+                hashes.insert(ContentHistory.hash(Data(picture)))
+                let visible = stride(from: 0, to: picture.count, by: 4).filter { max(picture[$0],picture[$0+1],picture[$0+2]) > 16 }.count
+                XCTAssertGreaterThan(visible, size.0*size.1/30, "Showcase scene should occupy visible space")
+                XCTAssertGreaterThan(difference(try frame(900),try frame(900.4)),0.05,"Long scenes must keep moving")
+            }
+            XCTAssertEqual(hashes.count,8,"Every new scene should have distinct structure")
+        }
+    }
+
     func testLiquidConstellationsScrollThroughBothMorphPlateausAndReverse() throws {
         let root = try folder(); defer { try? FileManager.default.removeItem(at: root) }
         let silence = try AudioEnvelope(url: tone(in: root, name: "constellation", frequency: 80, amplitude: 0))

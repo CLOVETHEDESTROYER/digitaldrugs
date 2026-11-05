@@ -36,9 +36,13 @@ import UniformTypeIdentifiers
             background = try VisualLabPCM(backgroundURL: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
         }
         let comparison = CommandLine.arguments.contains("--comparison")
-        let spaceOnly = comparison || CommandLine.arguments.contains("--space-only")
-        let total = try await web.evaluateJavaScript("window.ZenWavePresets.length") as! Int
-        let indices = spaceOnly ? Array(6..<total) : Array(0..<total)
+        let showcase = CommandLine.arguments.contains("--showcase")
+        let spaceOnly = !showcase && (comparison || CommandLine.arguments.contains("--space-only"))
+        struct Preset: Decodable { let index: Int; let title: String; let collection: String; let metalStyle: Int? }
+        let metadata = try await web.evaluateJavaScript("JSON.stringify(window.ZenWavePresets.map((p,i)=>({index:i,title:p.title,collection:p.collection||'classic',metalStyle:p.metalStyle??p.reviewMetalStyle??null})))") as! String
+        let presets = try JSONDecoder().decode([Preset].self, from: Data(metadata.utf8))
+        let selected = presets.filter { showcase ? $0.collection == "showcase" : spaceOnly ? $0.collection == "space" : true }
+        guard !selected.isEmpty else { throw StudioError.message("The selected review collection is empty.") }
         _ = try await web.evaluateJavaScript("document.getElementById('collection').value='all'; document.getElementById('collection').onchange();")
         let renderer = comparison ? try FrameRenderer() : nil
         let mantra = comparison ? try StudioResources.library().first : nil
@@ -50,8 +54,9 @@ import UniformTypeIdentifiers
         let frames = root.appendingPathComponent("Frames")
         if movie { try FileManager.default.createDirectory(at: frames, withIntermediateDirectories: true) }
         var hashes = Set<String>()
-        for (sequence, index) in indices.enumerated() {
-            _ = try await web.evaluateJavaScript("document.getElementById('quality').value='480'; document.getElementById('quality').onchange();document.getElementById('blend').value='3'; document.getElementById('preset').value='\(index)'; document.getElementById('preset').onchange();")
+        for (sequence, preset) in selected.enumerated() {
+            let index = preset.index
+            _ = try await web.evaluateJavaScript("document.getElementById('quality').value='720'; document.getElementById('quality').onchange();document.getElementById('blend').value='3'; document.getElementById('preset').value='\(index)'; document.getElementById('preset').onchange();")
             if let error = messages.error { throw StudioError.message(error) }
             let count = movie ? framesPerScene : 1
             for frame in 0..<count {
@@ -74,39 +79,42 @@ import UniformTypeIdentifiers
                       let bytes = encoded.split(separator: ",").last, let data = Data(base64Encoded: String(bytes)) else { throw StudioError.message("Could not capture the WebGL frame.") }
                 var outputData = data
                 if comparison, let renderer, let mantra, let picture = NSBitmapImageRep(data: data)?.cgImage {
-                    var settings = ExportSettings(); settings.style = 36 + index - 6
+                    guard let metalStyle = preset.metalStyle else { throw StudioError.message("No native review counterpart is specified.") }
+                    var settings = ExportSettings(); settings.style = metalStyle
                     settings.captions = false; settings.branding = false; settings.motionSpeed = 1 / 1.65
                     let time = Double(sequence * framesPerScene + frame) / 30
                     let metal = try renderer.frame(width: 360, height: 640, time: time, audioTime: time,
                         envelope: envelope, mantra: mantra, settings: settings)
-                    let name = try await web.evaluateJavaScript("window.ZenWavePresets[\(index)].title") as! String
-                    outputData = try comparisonFrame(metal, picture, title: name)
+                    let nativeName = VisualStyle.all.first { $0.id == metalStyle }?.title ?? "Metal"
+                    outputData = try comparisonFrame(metal, picture, leftTitle: nativeName, rightTitle: preset.title)
                 }
                 if movie { try outputData.write(to: frames.appendingPathComponent(String(format: "%05d.png", sequence * framesPerScene + frame))) }
                 if frame == count - 1 {
                     try data.write(to: root.appendingPathComponent("preset-\(index + 1).png"))
                     guard hasVisibleDetail(data) else { throw StudioError.message("Preset \(index + 1) rendered an empty canvas (\(data.count) bytes).") }
                     hashes.insert(ContentHistory.hash(data))
-                    if comparison { try outputData.write(to: root.appendingPathComponent("comparison-\(index - 5).png")) }
+                    if comparison { try outputData.write(to: root.appendingPathComponent("comparison-\(sequence + 1).png")) }
                 }
             }
-            print("Rendered preset \(sequence + 1)/\(indices.count)"); fflush(stdout)
+            print("Rendered preset \(sequence + 1)/\(selected.count)"); fflush(stdout)
         }
-        guard hashes.count == indices.count else { throw StudioError.message("Presets must produce distinct visuals.") }
+        guard hashes.count == selected.count else { throw StudioError.message("Presets must produce distinct visuals.") }
         let snapshot = try await web.takeSnapshot(configuration: nil)
         if let tiff = snapshot.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff), let png = bitmap.representation(using: .png, properties: [:]) {
             try png.write(to: root.appendingPathComponent("lab-window.png"))
         }
         print("Review: \(root.path)")
     }
-    private static func comparisonFrame(_ metal: CGImage, _ butterchurn: CGImage, title: String) throws -> Data {
+    private static func comparisonFrame(_ metal: CGImage, _ butterchurn: CGImage, leftTitle: String, rightTitle: String) throws -> Data {
         guard let context = CGContext(data: nil, width: 720, height: 700, bitsPerComponent: 8, bytesPerRow: 720 * 4,
             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw StudioError.message("Cannot prepare comparison image.") }
         context.setFillColor(CGColor(red: 0.025, green: 0.035, blue: 0.065, alpha: 1)); context.fill(CGRect(x: 0, y: 0, width: 720, height: 700))
         context.draw(metal, in: CGRect(x: 0, y: 0, width: 360, height: 640))
         context.draw(butterchurn, in: CGRect(x: 360, y: 0, width: 360, height: 640))
         NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: false)
-        (title as NSString).draw(at: NSPoint(x: 16, y: 674), withAttributes: [.font: NSFont.systemFont(ofSize: 17, weight: .semibold), .foregroundColor: NSColor.white])
+        for (title,x) in [(leftTitle,16.0),(rightTitle,376.0)] {
+            (title as NSString).draw(at: NSPoint(x: x, y: 674), withAttributes: [.font: NSFont.systemFont(ofSize: 16, weight: .semibold), .foregroundColor: NSColor.white])
+        }
         for (text, x) in [("METAL · ZenWave", 16.0), ("BUTTERCHURN · ZenWave feedback", 376.0)] {
             (text as NSString).draw(at: NSPoint(x: x, y: 650), withAttributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.cyan])
         }

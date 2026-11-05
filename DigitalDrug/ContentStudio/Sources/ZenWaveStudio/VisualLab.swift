@@ -62,7 +62,7 @@ final class VisualLabState {
     var error: String?
     var title = "Visual Lab"
     var metalImage: CGImage?
-    var metalStyle = 36
+    var metalStyle = 40
     var compare = true
     var matchSpaceThemes = true
     private var linkedStyle: Int?
@@ -104,7 +104,7 @@ final class VisualLabState {
         guard !preparing, let selected = studio.selected else { return }
         pause(); task?.cancel(); generation += 1; let current = generation
         clearAudio(); elapsed = 0; metalImage = nil; preparing = true; error = nil
-        mantra = selected; settings = studio.settings; metalStyle = matchSpaceThemes ? (linkedStyle ?? (ambientDemo ? 36 : studio.settings.style)) : studio.settings.style; title = selected.title
+        mantra = selected; settings = studio.settings; metalStyle = matchSpaceThemes ? (linkedStyle ?? (ambientDemo ? 40 : studio.settings.style)) : studio.settings.style; title = selected.title
         if ambientDemo {
             settings.soundscape = StudioSoundscape(); settings.soundscape.beat = .theta
             settings.soundscape.natureID = "forest_ambience"; muteVoice = true
@@ -257,7 +257,11 @@ struct VisualLabView: View {
             HSplitView {
                 if lab.compare {
                     VStack {
-                        Picker("Metal visual", selection: $lab.metalStyle) { ForEach(VisualStyle.all) { Text($0.title).tag($0.id) } }
+                        Picker("Metal visual", selection: $lab.metalStyle) {
+                            Section("Showcase · 8 new") { ForEach(VisualStyle.all.filter { $0.id >= 40 }) { Text($0.title).tag($0.id) } }
+                            Section("Space / wormholes") { ForEach(VisualStyle.all.filter { (36...39).contains($0.id) }) { Text($0.title).tag($0.id) } }
+                            Section("Original collection") { ForEach(VisualStyle.all.filter { $0.id < 36 }) { Text($0.title).tag($0.id) } }
+                        }
                         GeometryReader { geo in
                             if let image = lab.metalImage { Image(decorative: image, scale: 1).resizable().aspectRatio(contentMode: .fit).frame(width: geo.size.width, height: geo.size.height) }
                         }.background(.black).clipShape(RoundedRectangle(cornerRadius: 14))

@@ -6,7 +6,7 @@
   if (native) document.body.classList.add('native');
   const presets = window.ZenWavePresets;
   let canvas = $('visual');
-  let visualizer, index = 6, currentTime = 0, lastCycle = 0, generation = -1;
+  let visualizer, index = 10, currentTime = 0, lastCycle = 0, generation = -1;
   let audioContext, source, analyser, splitter, analyserL, analyserR;
   let running = false, pausedOffset = 0, startedAt = 0, buffer, raf;
   const silence = () => new Uint8Array(1024).fill(128);
